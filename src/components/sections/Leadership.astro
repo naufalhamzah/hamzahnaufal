@@ -1,0 +1,323 @@
+---
+/**
+ * LEADERSHIP & ORGANIZATIONAL EXPERIENCE
+ *
+ * Deliberately NOT 15 large CV cards. Instead: a compact duration timeline that
+ * makes the volume and continuity of the leadership record readable at a glance,
+ * with the supporting detail available underneath.
+ *
+ * The bars are scaled against the earliest start date in the dataset, so they
+ * are a real representation of the documented dates rather than decoration.
+ */
+import Section from '@/components/ui/Section.astro';
+import SectionHeader from '@/components/ui/SectionHeader.astro';
+import { organizationsSorted, organizationGroups } from '@/content/organizations';
+
+// Build a month-accurate timeline axis from the data itself.
+function toMonths(sortKey: string): number {
+  const [y, m] = sortKey.split('-').map(Number);
+  return y * 12 + (m - 1);
+}
+
+const START = Math.min(...organizationsSorted.map((o) => toMonths(o.sortKey)));
+const END = Math.max(...organizationsSorted.map((o) => toMonths(o.sortKey)), toMonths('2024-11'));
+const SPAN = Math.max(1, END - START);
+
+// Axis labels: every year boundary crossed by the data.
+const yearTicks: { label: string; pct: number }[] = [];
+for (let y = Math.floor(START / 12); y <= Math.floor(END / 12); y++) {
+  const pct = ((y * 12 - START) / SPAN) * 100;
+  if (pct >= 0 && pct <= 100) yearTicks.push({ label: String(y), pct });
+}
+
+const bars = organizationsSorted.map((o) => {
+  const start = toMonths(o.sortKey);
+  // No end dates are documented, so a bar's length is its documented duration
+  // where given; otherwise it is drawn as a short marker rather than guessed.
+  const len = o.durationMonths ?? 1;
+  const leftPct = ((start - START) / SPAN) * 100;
+  const rawWidth = (len / SPAN) * 100;
+  return {
+    job: o,
+    leftPct,
+    // Clamp so a bar can never extend past the end of the track.
+    widthPct: Math.max(Math.min(rawWidth, 100 - leftPct), 0.8),
+  };
+});
+---
+
+<Section id="leadership" aria-labelledby="leadership-title">
+  <SectionHeader
+    id="leadership-title"
+    eyebrow="Leadership"
+    title="Organizational & committee experience"
+    lead="Roles held across student organisations and campus events — spanning organisational development, inventory and infrastructure, event coordination, and public relations."
+    aside={`${organizationsSorted.length} roles · ${organizationGroups.length} bodies`}
+  />
+
+  <!-- ---------- Duration timeline ---------- -->
+  <div class="tl" role="group" aria-label="Organizational roles over time">
+    <div class="tl__axis" aria-hidden="true">
+      {
+        yearTicks.map((t) => (
+          <span class="tl__tick meta" style={`left:${t.pct}%`}>
+            {t.label}
+          </span>
+        ))
+      }
+    </div>
+
+    <ol class="tl__rows">
+      {
+        bars.map(({ job, leftPct, widthPct }) => (
+          <li class="tl__row">
+            <div class="tl__label">
+              <span class="tl__role">{job.role}</span>
+              <span class="meta tl__org">{job.organization}</span>
+            </div>
+
+            <div class="tl__track">
+              <span
+                class="tl__bar"
+                style={`left:${leftPct}%;width:${widthPct}%`}
+                aria-hidden="true"
+              />
+            </div>
+
+            <span class="tl__dates meta">{job.dateRange}</span>
+          </li>
+        ))
+      }
+    </ol>
+
+    <p class="tl__note meta">
+      Bar length reflects the documented role duration. Dates follow Profile.pdf
+      where the two documents conflict.
+    </p>
+  </div>
+
+  <!-- ---------- Detail, grouped by parent body ---------- -->
+  <div class="org-groups">
+    {
+      organizationGroups.map((group) => {
+        const items = organizationsSorted.filter((o) => o.group === group);
+        return (
+          <section class="org-group" aria-labelledby={`grp-${group.replace(/[^a-z]/gi, '-')}`}>
+            <div class="org-group__head">
+              <h3 id={`grp-${group.replace(/[^a-z]/gi, '-')}`} class="org-group__title">
+                {group}
+              </h3>
+              <span class="meta">{items.length} {items.length === 1 ? 'role' : 'roles'}</span>
+            </div>
+
+            <ul class="org-group__list">
+              {items.map((job) => (
+                <li class="org-item">
+                  <div class="org-item__head">
+                    <h4 class="org-item__role">{job.role}</h4>
+                    <span class="meta">{job.dateRange}</span>
+                  </div>
+                  <p class="org-item__summary">{job.summary}</p>
+                  {job.highlights && job.highlights.length > 0 && (
+                    <ul class="org-item__hl">
+                      {job.highlights.map((h) => (
+                        <li>{h}</li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
+      })
+    }
+  </div>
+</Section>
+
+<style>
+  /* ================= Timeline ================= */
+  .tl {
+    padding: 1.25rem 1.25rem 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background-color: var(--surface-raised);
+    overflow-x: auto;
+  }
+
+  .tl__axis {
+    position: relative;
+    height: 1.4rem;
+    margin-left: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  @media (min-width: 900px) {
+    /* Offset the axis so year ticks line up with the track column. */
+    .tl__axis {
+      margin-left: calc(26% + 0.9rem);
+      margin-right: calc(9.5rem + 0.9rem);
+    }
+  }
+
+  .tl__tick {
+    position: absolute;
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+
+  .tl__rows {
+    display: grid;
+    gap: 0.9rem;
+    margin: 1.1rem 0 0;
+    padding: 0;
+    list-style: none;
+    min-width: 620px;
+  }
+
+  .tl__row {
+    display: grid;
+    grid-template-columns: minmax(170px, 26%) minmax(0, 1fr) auto;
+    gap: 0.9rem;
+    align-items: center;
+  }
+
+  .tl__label {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .tl__role {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tl__org {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tl__track {
+    position: relative;
+    height: 1.6rem;
+    border-radius: var(--radius-sm);
+    background-color: color-mix(in srgb, var(--surface-sunken) 70%, transparent);
+    overflow: hidden;
+  }
+
+  .tl__bar {
+    position: absolute;
+    top: 0.5rem;
+    height: 0.6rem;
+    border-radius: var(--radius-full);
+    background-color: var(--accent);
+    opacity: 0.75;
+  }
+
+  /* Dates sit in their own column so a long bar can never obscure them. */
+  .tl__dates {
+    font-size: 0.62rem;
+    white-space: nowrap;
+    text-align: right;
+    min-width: 9.5rem;
+  }
+
+  .tl__note {
+    margin-top: 1.1rem;
+    max-width: 70ch;
+  }
+
+  /* ================= Grouped detail ================= */
+  .org-groups {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: clamp(1.75rem, 4vw, 3rem);
+  }
+
+  .org-group__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .org-group__title {
+    font-size: var(--text-lg);
+    letter-spacing: -0.015em;
+  }
+
+  .org-group__list {
+    display: grid;
+    gap: 1rem;
+    margin: 1.1rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 760px) {
+    .org-group__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .org-item {
+    padding: 0.95rem 1.05rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background-color: var(--surface-raised);
+  }
+
+  .org-item__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.25rem 0.75rem;
+  }
+
+  .org-item__role {
+    font-size: var(--text-base);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .org-item__summary {
+    margin-top: 0.5rem;
+    font-size: var(--text-sm);
+    line-height: 1.65;
+    color: var(--muted-foreground);
+  }
+
+  .org-item__hl {
+    display: grid;
+    gap: 0.3rem;
+    margin: 0.65rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .org-item__hl li {
+    position: relative;
+    padding-inline-start: 0.95rem;
+    font-size: var(--text-xs);
+    line-height: 1.6;
+    color: var(--subtle-foreground);
+  }
+
+  .org-item__hl li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.62em;
+    width: 4px;
+    height: 1px;
+    background-color: var(--accent);
+  }
+</style>

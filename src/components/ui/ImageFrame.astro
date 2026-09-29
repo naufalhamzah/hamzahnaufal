@@ -1,0 +1,102 @@
+---
+/**
+ * Image frame — the single place that renders a project/publication/certificate
+ * visual.
+ *
+ * Why it exists: every real asset is missing right now, so the site uses
+ * placeholder SVGs. `visual.isPlaceholder` drives a visible "Placeholder" badge,
+ * which guarantees a stand-in can never be mistaken for a real screenshot.
+ *
+ * Replacing a placeholder later = change `visual.src` in the content file.
+ * No component change is needed, and the badge disappears automatically because
+ * `isPlaceholder` flips to false.
+ */
+import type { ProjectVisual } from '@/types/content';
+
+interface Props {
+  visual: ProjectVisual;
+  /** Use the intrinsic aspect ratio rather than filling a fixed box. */
+  class?: string;
+  /** Show the placeholder badge (default true). */
+  showBadge?: boolean;
+}
+
+const { visual, class: className, showBadge = true } = Astro.props;
+
+const aspectClass = `frame--${(visual.aspect ?? '16/9').replace('/', '-')}`;
+---
+
+<figure class:list={['frame', aspectClass, className]}>
+  <img
+    src={visual.src}
+    alt={visual.alt}
+    loading="lazy"
+    decoding="async"
+    width="1280"
+    height="720"
+  />
+  {
+    showBadge && visual.isPlaceholder && (
+      <figcaption class="frame__badge" aria-hidden="false">
+        <span class="frame__dot" aria-hidden="true" />
+        Placeholder image
+      </figcaption>
+    )
+  }
+</figure>
+
+<style>
+  .frame {
+    position: relative;
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background-color: var(--surface-sunken);
+  }
+
+  .frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .frame--16-9 {
+    aspect-ratio: 16 / 9;
+  }
+  .frame--4-3 {
+    aspect-ratio: 4 / 3;
+  }
+  .frame--1-1 {
+    aspect-ratio: 1 / 1;
+  }
+  .frame--3-4 {
+    aspect-ratio: 3 / 4;
+  }
+
+  .frame__badge {
+    position: absolute;
+    top: 0.6rem;
+    left: 0.6rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.22rem 0.55rem;
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-sm);
+    background-color: color-mix(in srgb, var(--surface) 88%, transparent);
+    backdrop-filter: blur(4px);
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--subtle-foreground);
+  }
+
+  .frame__dot {
+    width: 0.35rem;
+    height: 0.35rem;
+    border-radius: var(--radius-full);
+    background-color: var(--subtle-foreground);
+  }
+</style>

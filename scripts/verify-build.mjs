@@ -1,0 +1,221 @@
+#!/usr/bin/env node
+/**
+ * VERIFY BUILD
+ * ============================================================================
+ * Automated checks against the BUILT output in dist/, not the source. Build
+ * success alone does not prove the pages are correct — this asserts the things
+ * the brief explicitly required:
+ *
+ *   - no phone number anywhere in rendered HTML
+ *   - no placeholder domain in visible content
+ *   - no broken internal links
+ *   - no broken image references
+ *   - every page has title/meta/canonical/OG
+ *   - one <h1> per page, semantic landmarks present
+ *   - sitemap + robots.txt exist and are consistent
+ *   - every <img> has alt text
+ *
+ * Exit code 1 if any check fails, so it is usable in CI.
+ */
+
+import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
+import { join, relative } from 'node:path';
+
+const DIST = join(process.cwd(), 'dist');
+const failures = [];
+const notes = [];
+
+if (!existsSync(DIST)) {
+  console.error('dist/ not found — run `npm run build` first.');
+  process.exit(1);
+}
+
+/* ------------------------------------------------------------------ walk */
+function walk(dir, out = []) {
+  for (const name of readdirSync(dir)) {
+    const p = join(dir, name);
+    if (statSync(p).isDirectory()) walk(p, out);
+    else out.push(p);
+  }
+  return out;
+}
+
+const allFiles = walk(DIST);
+const htmlFiles = allFiles.filter((f) => f.endsWith('.html'));
+
+/* --------------------------------------------------------- phone / domain */
+// The number may appear with or without separators.
+const PHONE_PATTERNS = [
+  /896[\s-]?5305[\s-]?1681/,
+  /\+6289\d{8,}/,
+  /89653051681/,
+];
+const PLACEHOLDER_DOMAIN = /hamzahnaufal\.example\.com/;
+
+let phoneHits = 0;
+let domainHits = [];
+
+for (const file of htmlFiles) {
+  const html = readFileSync(file, 'utf8');
+  for (const re of PHONE_PATTERNS) {
+    if (re.test(html)) {
+      phoneHits++;
+      failures.push(`PHONE NUMBER found in ${relative(DIST, file)}`);
+      break;
+    }
+  }
+  // The placeholder domain is allowed in <link rel=canonical> and og:url meta,
+  // but must never appear as visible body text.
+  const bodyMatch = html.match(/<body[\s\S]*<\/body>/i);
+  if (bodyMatch && PLACEHOLDER_DOMAIN.test(bodyMatch[0])) {
+    domainHits.push(relative(DIST, file));
+  }
+}
+if (domainHits.length) {
+  failures.push(`Placeholder domain in VISIBLE content: ${domainHits.join(', ')}`);
+}
+
+/* ------------------------------------------------------------ per-page SEO */
+for (const file of htmlFiles) {
+  const rel = relative(DIST, file);
+  const html = readFileSync(file, 'utf8');
+
+  const checks = [
+    ['<title>', /<title>[^<]{10,}<\/title>/],
+    ['meta description', /<meta name="description" content="[^"]{20,}"/],
+    ['canonical', /<link rel="canonical" href="https?:\/\//],
+    ['og:title', /<meta property="og:title"/],
+    ['og:image', /<meta property="og:image"/],
+    ['twitter:card', /<meta name="twitter:card"/],
+    ['html lang', /<html lang="[a-z]{2}/],
+    ['viewport', /name="viewport"/],
+  ];
+  for (const [label, re] of checks) {
+    if (!re.test(html)) failures.push(`${rel}: missing ${label}`);
+  }
+
+  // Exactly one h1
+  const h1s = html.match(/<h1[\s>]/g) ?? [];
+  if (h1s.length !== 1) failures.push(`${rel}: expected 1 <h1>, found ${h1s.length}`);
+
+  // Landmarks
+  for (const [label, re] of [
+    ['<main>', /<main[\s>]/],
+    ['<header>', /<header[\s>]/],
+    ['<footer>', /<footer[\s>]/],
+  ]) {
+    if (!re.test(html)) failures.push(`${rel}: missing ${label} landmark`);
+  }
+
+  // Skip link
+  if (!/Skip to content/.test(html)) failures.push(`${rel}: missing skip link`);
+
+  // Every <img> needs an alt attribute (may be empty for decorative images,
+  // but the attribute must be present).
+  const imgs = html.match(/<img\b[^>]*>/g) ?? [];
+  for (const tag of imgs) {
+    if (!/\balt=/.test(tag)) {
+      failures.push(`${rel}: <img> without alt -> ${tag.slice(0, 90)}`);
+    }
+  }
+}
+
+/* ----------------------------------------------------- internal link check */
+const existingPaths = new Set(
+  allFiles.map((f) => {
+    const rel = '/' + relative(DIST, f).replace(/\\/g, '/');
+    return rel;
+  }),
+);
+
+let brokenLinks = 0;
+for (const file of htmlFiles) {
+  const html = readFileSync(file, 'utf8');
+  const hrefs = [...html.matchAll(/href="([^"]+)"/g)].map((m) => m[1]);
+
+  for (const href of hrefs) {
+    // Skip external, mail, tel, and pure anchors.
+    if (/^(https?:|mailto:|tel:|#|data:)/.test(href)) continue;
+
+    // Normalise: strip hash and query, resolve relative to the page.
+    const clean = href.split('#')[0].split('?')[0];
+    if (!clean) continue;
+
+    const candidates = clean.endsWith('/')
+      ? [`${clean}index.html`, clean.slice(0, -1)]
+      : [clean, `${clean}/index.html`];
+
+    const ok = candidates.some((c) => existingPaths.has(c));
+    if (!ok) {
+      brokenLinks++;
+      failures.push(
+        `${relative(DIST, file)}: broken internal link -> ${href}`,
+      );
+    }
+  }
+}
+
+/* --------------------------------------------------------- image existence */
+let brokenImages = 0;
+for (const file of htmlFiles) {
+  const html = readFileSync(file, 'utf8');
+  const srcs = [...html.matchAll(/<img\b[^>]*\bsrc="([^"]+)"/g)].map((m) => m[1]);
+  for (const src of srcs) {
+    if (/^(https?:|data:)/.test(src)) continue;
+    const p = join(DIST, src.replace(/^\//, ''));
+    if (!existsSync(p)) {
+      brokenImages++;
+      failures.push(`${relative(DIST, file)}: missing image file -> ${src}`);
+    }
+  }
+}
+
+/* --------------------------------------------------- sitemap / robots / js */
+if (!existsSync(join(DIST, 'sitemap-index.xml')))
+  failures.push('sitemap-index.xml missing');
+if (!existsSync(join(DIST, 'robots.txt'))) failures.push('robots.txt missing');
+if (!existsSync(join(DIST, 'favicon.svg'))) failures.push('favicon.svg missing');
+
+const jsBundles = allFiles.filter((f) => f.endsWith('.js'));
+const jsBytes = jsBundles.reduce((n, f) => n + statSync(f).size, 0);
+notes.push(
+  `Client JS: ${jsBundles.length} bundle(s), ${(jsBytes / 1024).toFixed(1)} kB total`,
+);
+
+/* ------------------------------------------------------------- sitemap URL */
+const sitemap = readFileSync(join(DIST, 'sitemap-0.xml'), 'utf8');
+const urls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+notes.push(`Sitemap lists ${urls.length} URLs`);
+
+// 404.html is intentionally excluded from the sitemap, so the counts differ by
+// exactly one when a 404 page exists.
+const expectedUrls = htmlFiles.filter((f) => !f.endsWith('404.html')).length;
+if (urls.length !== expectedUrls) {
+  notes.push(
+    `NOTE: sitemap URL count (${urls.length}) != indexable page count (${expectedUrls})`,
+  );
+}
+
+/* ------------------------------------------------------------- JSON-LD ---- */
+const home = readFileSync(join(DIST, 'index.html'), 'utf8');
+if (!/"@type":"Person"/.test(home)) failures.push('home: Person JSON-LD missing');
+if (!/linkedin\.com\/in\/hamzahnaufal/.test(home))
+  failures.push('home: LinkedIn sameAs missing from JSON-LD');
+
+/* ---------------------------------------------------------------- report */
+notes.push(`HTML pages checked: ${htmlFiles.length}`);
+notes.push(`Internal links checked: broken = ${brokenLinks}`);
+notes.push(`Image references checked: missing = ${brokenImages}`);
+notes.push(`Phone-number occurrences: ${phoneHits}`);
+
+console.log('\n--- NOTES ---');
+for (const n of notes) console.log('  ' + n);
+
+if (failures.length) {
+  console.log(`\n--- FAILURES (${failures.length}) ---`);
+  for (const f of failures) console.log('  ✗ ' + f);
+  console.log('\nVERIFICATION FAILED\n');
+  process.exit(1);
+}
+
+console.log('\n✓ ALL VERIFICATION CHECKS PASSED\n');

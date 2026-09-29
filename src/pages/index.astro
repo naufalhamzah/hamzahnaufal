@@ -1,172 +1,44 @@
 ---
+/**
+ * HOME PAGE
+ *
+ * Composition only: this file assembles the section components and owns no
+ * content. Every fact the page renders comes from `src/content/*`.
+ */
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import Hero from '@/components/sections/Hero.astro';
+import About from '@/components/sections/About.astro';
+import FeaturedWork from '@/components/sections/FeaturedWork.astro';
+import Experience from '@/components/sections/Experience.astro';
+import Leadership from '@/components/sections/Leadership.astro';
+import Projects from '@/components/sections/Projects.astro';
+import Publications from '@/components/sections/Publications.astro';
+import Skills from '@/components/sections/Skills.astro';
+import Certifications from '@/components/sections/Certifications.astro';
+import Achievements from '@/components/sections/Achievements.astro';
+import Education from '@/components/sections/Education.astro';
+import Contact from '@/components/sections/Contact.astro';
 import { profile } from '@/content/profile';
-
-// STAGE 1 placeholder page.
-// It intentionally does NOT contain the real sections yet — those arrive in
-// Stages 4-7. What it proves is that the foundation works end to end:
-// design tokens, theming, typography, layout, and the sticky nav shell.
-const sections = [
-  { id: 'about', title: 'About' },
-  { id: 'featured-work', title: 'Featured Work' },
-  { id: 'experience', title: 'Experience' },
-  { id: 'leadership', title: 'Leadership & Organizational Experience' },
-  { id: 'projects', title: 'Projects' },
-  { id: 'publications', title: 'Publications' },
-  { id: 'skills', title: 'Skills & Tools' },
-  { id: 'certifications', title: 'Certifications' },
-  { id: 'achievements', title: 'Achievements' },
-  { id: 'education', title: 'Education' },
-  { id: 'contact', title: 'Contact' },
-];
 ---
 
 <BaseLayout
   title={`${profile.name} — ${profile.headline}`}
-  description="Portfolio of Hamzah Naufal Zuhdi: Information Systems graduate working across data analysis, technology, business processes and digital solutions."
+  description="Portfolio of Hamzah Naufal Zuhdi — Information Systems graduate working across data analytics, information systems, business process improvement and digital solutions."
   isHome
 >
   <!-- Anchor target for the header brand link -->
   <span id="top" aria-hidden="true"></span>
 
-  <!-- ================= HERO (skeleton — built out in Stage 4) ============= -->
-  <section class="hero grid-texture" aria-labelledby="hero-title">
-    <div class="container-page hero__inner">
-      <p class="eyebrow">Portfolio</p>
-
-      <h1 id="hero-title" class="hero__title">{profile.name}</h1>
-
-      <p class="hero__headline">{profile.headline}</p>
-
-      <ul class="hero__positioning">
-        {
-          profile.positioning.map((line) => (
-            <li class="meta">{line}</li>
-          ))
-        }
-      </ul>
-
-      <p class="hero__status">
-        <span class="hero__status-dot" aria-hidden="true"></span>
-        <span class="meta">{profile.currentStatus}</span>
-      </p>
-
-      <p class="hero__note">
-        Stage 1 foundation is live. The full hero, About, Featured Work and the
-        remaining sections are built in Stages 4–7.
-      </p>
-    </div>
-  </section>
-
-  <!-- ============ SECTION SKELETONS (targets for the nav) ================ -->
-  {
-    sections.map((section) => (
-      <section id={section.id} class="section-shell" aria-labelledby={`${section.id}-title`}>
-        <div class="container-page">
-          <p class="eyebrow">Section</p>
-          <h2 id={`${section.id}-title`} class="section-shell__title">
-            {section.title}
-          </h2>
-          <p class="section-shell__note meta">
-            TODO — content pending (Stage 4–7)
-          </p>
-        </div>
-      </section>
-    ))
-  }
+  <Hero />
+  <About />
+  <FeaturedWork />
+  <Experience />
+  <Leadership />
+  <Projects />
+  <Publications />
+  <Skills />
+  <Certifications />
+  <Achievements />
+  <Education />
+  <Contact />
 </BaseLayout>
-
-<style>
-  /* ===================== HERO ===================== */
-  .hero {
-    padding-block: clamp(3.5rem, 9vw, 7rem) clamp(3rem, 7vw, 5.5rem);
-    border-bottom: 1px solid var(--border);
-  }
-
-  .hero__inner {
-    display: grid;
-    gap: 1.15rem;
-    /* Asymmetric by default on small screens too: content sits left of centre. */
-    max-width: 60ch;
-  }
-
-  .hero__title {
-    font-size: var(--text-5xl);
-    font-weight: 600;
-    line-height: 1.03;
-    letter-spacing: -0.035em;
-  }
-
-  .hero__headline {
-    font-size: var(--text-xl);
-    color: var(--muted-foreground);
-    max-width: 42ch;
-  }
-
-  .hero__positioning {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem 1.25rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .hero__positioning li {
-    position: relative;
-    padding-inline-start: 1.1rem;
-  }
-
-  .hero__positioning li::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0.55em;
-    width: 0.4rem;
-    height: 1px;
-    background-color: var(--accent);
-  }
-
-  .hero__status {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 0.35rem;
-    padding: 0.35rem 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-full);
-    width: fit-content;
-    background-color: var(--surface-raised);
-  }
-
-  .hero__status-dot {
-    width: 0.45rem;
-    height: 0.45rem;
-    border-radius: var(--radius-full);
-    background-color: var(--accent);
-  }
-
-  .hero__note {
-    margin-top: 1rem;
-    padding-top: 1.25rem;
-    border-top: 1px dashed var(--border-strong);
-    max-width: 58ch;
-    font-size: var(--text-sm);
-    color: var(--subtle-foreground);
-  }
-
-  /* ================== SECTION SHELLS ================== */
-  .section-shell {
-    padding-block: clamp(2.5rem, 5vw, 4rem);
-    border-bottom: 1px solid var(--border);
-  }
-
-  .section-shell__title {
-    margin-top: 0.5rem;
-    font-size: var(--text-3xl);
-  }
-
-  .section-shell__note {
-    margin-top: 0.75rem;
-  }
-</style>

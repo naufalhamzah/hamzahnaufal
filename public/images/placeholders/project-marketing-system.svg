@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-label="Placeholder image: Marketing Data Management System">
+  <defs>
+    <pattern id="hatch-project" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="14" stroke="#94a3b8" stroke-width="1.25" opacity="0.32"/>
+    </pattern>
+    <pattern id="dots-project" width="26" height="26" patternUnits="userSpaceOnUse">
+      <circle cx="1.5" cy="1.5" r="1.5" fill="#94a3b8" opacity="0.22"/>
+    </pattern>
+  </defs>
+
+  <rect width="1280" height="720" fill="#f1f5f9"/>
+  <rect width="1280" height="720" fill="url(#dots-project)"/>
+  <rect width="1280" height="720" fill="url(#hatch-project)"/>
+
+  <!-- dashed frame -->
+  <rect x="18" y="18" width="1244" height="684" fill="none"
+        stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="14 10" opacity="0.75"/>
+
+  <!-- corner ticks -->
+  <g stroke="#64748b" stroke-width="4" opacity="0.5">
+    <line x1="18" y1="18" x2="70" y2="18"/><line x1="18" y1="18" x2="18" y2="70"/>
+    <line x1="1262" y1="18" x2="1210" y2="18"/><line x1="1262" y1="18" x2="1262" y2="70"/>
+    <line x1="18" y1="702" x2="70" y2="702"/><line x1="18" y1="702" x2="18" y2="650"/>
+    <line x1="1262" y1="702" x2="1210" y2="702"/><line x1="1262" y1="702" x2="1262" y2="650"/>
+  </g>
+
+  <!-- badge -->
+  <g>
+    <rect x="544" y="136.8" width="192" height="38" rx="19"
+          fill="none" stroke="#94a3b8" stroke-width="2" opacity="0.9"/>
+    <text x="640" y="162.8" text-anchor="middle"
+          font-family="'JetBrains Mono', Consolas, monospace" font-size="19"
+          letter-spacing="2.5" fill="#64748b">PLACEHOLDER</text>
+  </g>
+
+  <!-- label -->
+  <text x="640" y="374.4" text-anchor="middle" font-family="'JetBrains Mono', Consolas, monospace" font-size="37" font-weight="600" fill="#64748b">Marketing Data Management System</text>
+
+  <!-- note -->
+  <text x="640" y="648" text-anchor="middle"
+        font-family="'JetBrains Mono', Consolas, monospace" font-size="23"
+        fill="#94a3b8">Replace with a real image — 1280x720px (16/9)</text>
+</svg>

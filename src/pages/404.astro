@@ -1,0 +1,59 @@
+---
+/**
+ * 404 page. Astro emits this as /404.html automatically for static hosts.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Button from '@/components/ui/Button.astro';
+---
+
+<BaseLayout
+  title="Page not found — Hamzah Naufal Zuhdi"
+  description="The page you were looking for doesn't exist."
+>
+  <section class="nf grid-texture">
+    <div class="container-narrow nf__inner">
+      <p class="eyebrow">Error 404</p>
+      <h1 class="nf__title">That page doesn’t exist</h1>
+      <p class="nf__lead">
+        The link may be out of date, or the address may have a typo. The
+        portfolio itself is all on one page.
+      </p>
+      <div class="nf__ctas">
+        <Button href="/" variant="primary" arrow>Back to the portfolio</Button>
+        <Button href="/#projects">Browse projects</Button>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .nf {
+    padding-block: clamp(3rem, 10vw, 7rem);
+  }
+
+  .nf__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .nf__title {
+    font-size: var(--text-4xl);
+    letter-spacing: -0.032em;
+  }
+
+  .nf__lead {
+    max-width: 52ch;
+    color: var(--muted-foreground);
+    font-size: var(--text-lg);
+    line-height: 1.7;
+  }
+
+  .nf__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 0.75rem;
+  }
+</style>

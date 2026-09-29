@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
+import react from '@astrojs/react';
 
 import tailwindcss from '@tailwindcss/vite';
 
@@ -16,11 +17,9 @@ export default defineConfig({
 
   integrations: [
     sitemap(),
-    // NOTE: @astrojs/react is intentionally NOT enabled yet.
-    // Stage 1 has no React islands, and enabling the integration emits a
-    // ~190 kB client runtime that no page actually loads. It gets added back
-    // in Stage 8 alongside the first genuinely interactive island
-    // (project filtering / certification lightbox).
+    // React is used for exactly ONE island: the project category filter, which
+    // needs real client-side state. Everything else is static Astro markup.
+    react(),
   ],
 
   vite: {

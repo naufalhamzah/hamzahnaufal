@@ -9,22 +9,18 @@
  * Nothing in this file is invented. Where a fact is genuinely unknown it is
  * marked with a TODO and rendered as a visible placeholder rather than filled
  * with a guess.
- *
- * STAGE 1 SCOPE: this module only holds what the global shell (header, footer,
- * meta tags) needs. The full content layer — experience, projects,
- * publications, certifications, achievements, education, skills — is built in
- * Stage 2.
  * ============================================================================
  */
 
+import { profileSchema } from './schemas';
 import type { ContactLink } from '@/types/content';
 
 /**
  * Whether the phone number is shown anywhere on the site.
  *
- * The number comes from [D] (+62 896-5305-1681). [P] masks it. Flip this to
- * `true` to surface it — no component changes required. Default is off because
- * the brief asked for it to be easy to enable and not visually dominant.
+ * The number comes from [D]; [P] masks it. Flip this to `true` to surface it —
+ * no component changes required. Default is `false` because the brief asked for
+ * it to be easy to enable and never visually dominant.
  */
 export const CONTACT_PHONE_ENABLED = false;
 
@@ -33,23 +29,26 @@ export interface Profile {
   shortName: string;
   /** Monogram used in the header mark. */
   initials: string;
-  /** One-line professional identity, from [P]'s headline. [P] */
+  /** One-line professional identity, from [P]'s headline. */
   headline: string;
-  /** Supporting positioning lines. [P] */
+  /** Supporting positioning lines. */
   positioning: string[];
-  /** Current city/region. [P] gives "Indonesia"; the current role is Tangerang. */
+  /** Current city/region. [P] says "Indonesia"; the current role is Tangerang. */
   location: string;
-  /** Availability / current-status line shown in the hero. [P] */
+  /** Current-status line shown in the hero. */
   currentStatus: string;
-  /** Where the person is right now, shown as a status pill. [P] */
   currentRole: string;
+  /** About narrative — one paragraph per array entry. */
+  summary: string[];
+  /** Short labels for what the work centres on. */
+  focusAreas: string[];
   contactLinks: ContactLink[];
   email: string;
-  /** Optional tagline. [D] closing slide. */
+  /** Tagline from [D]'s closing slide. */
   tagline: string;
 }
 
-export const profile: Profile = {
+const rawProfile: Profile = {
   name: 'Hamzah Naufal Zuhdi',
   shortName: 'Hamzah Naufal',
   initials: 'HNZ',
@@ -65,6 +64,27 @@ export const profile: Profile = {
   // [P] current employment
   currentStatus: 'Currently at AirNav Indonesia',
   currentRole: 'Information Technology Administration Staff',
+
+  /**
+   * About narrative. Derived from [P]'s summary and [D]'s "About Me" and cover
+   * text, tightened into three paragraphs. No claim here goes beyond what those
+   * two documents state.
+   */
+  summary: [
+    'I am an Information Systems graduate from Universitas Negeri Semarang, currently working as Information Technology Administration Staff at AirNav Indonesia, where I am learning how air navigation services operate from an information technology perspective — the systems, the business processes and day-to-day IT operations.',
+    'My work centres on turning raw data into something usable: analysing it, building dashboards and integrated data systems, and mapping the business processes around them so the result actually fits how a team works. I have built a marketing data system from scratch, developed a procurement monitoring dashboard, and published research applying machine learning methods to real evaluation problems.',
+    'Alongside the technical side, coordinating events and leading teams has shaped how I communicate, plan and make decisions across different functions. I am drawn to problems where data, process and technology meet, and I am continuing to build depth in data analytics, business intelligence and process improvement.',
+  ],
+
+  /** Labels for the work areas shown in the hero and About section. */
+  focusAreas: [
+    'Data & Analytics',
+    'Technology & Systems',
+    'Business Process',
+    'Digital Solutions',
+    'UI/UX & Product Thinking',
+    'Research & Publications',
+  ],
 
   email: 'naufalhamzahhh05@gmail.com',
 
@@ -87,7 +107,8 @@ export const profile: Profile = {
       href: 'mailto:naufalhamzahhh05@gmail.com',
     },
     {
-      // Hidden unless CONTACT_PHONE_ENABLED is switched on. Source: [D]
+      // Hidden unless CONTACT_PHONE_ENABLED is switched on. Source: [D].
+      // The brief requires this number never appear in rendered HTML by default.
       label: 'Phone',
       href: 'tel:+6289653051681',
       enabled: CONTACT_PHONE_ENABLED,
@@ -95,7 +116,14 @@ export const profile: Profile = {
   ],
 };
 
-/** Contact links with disabled entries removed — what components should use. */
+/** Validated at load time — a missing required field fails the build here. */
+export const profile: Profile = profileSchema.parse(rawProfile);
+
+/**
+ * Contact links with disabled entries removed.
+ * Components must use THIS, not `profile.contactLinks`, so a disabled entry can
+ * never leak into rendered HTML.
+ */
 export const activeContactLinks: ContactLink[] = profile.contactLinks.filter(
   (link) => link.enabled !== false,
 );

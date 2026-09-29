@@ -1,0 +1,445 @@
+---
+/**
+ * PROJECT CASE-STUDY PAGE
+ * One route per project, generated from the content layer. Structure follows the
+ * agreed case-study shape: Context -> Approach -> Role -> Tools -> Outcome.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ImageFrame from '@/components/ui/ImageFrame.astro';
+import Tag from '@/components/ui/Tag.astro';
+import Button from '@/components/ui/Button.astro';
+import TodoBadge from '@/components/ui/TodoBadge.astro';
+import ProjectCard from '@/components/ui/ProjectCard.astro';
+import { projectEntries } from '@/content/projects';
+import { PROJECT_CATEGORY_LABELS } from '@/types/content';
+
+export function getStaticPaths() {
+  return projectEntries.map((project) => ({
+    params: { id: project.id },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+
+// Up to two other projects that share a category — a small, honest "more work"
+// strip rather than an unrelated recommendation widget.
+const related = projectEntries
+  .filter((p) => p.id !== project.id)
+  .filter((p) => p.categories.some((c) => project.categories.includes(c)))
+  .slice(0, 2);
+---
+
+<BaseLayout
+  title={`${project.title} — Hamzah Naufal Zuhdi`}
+  description={project.tagline}
+>
+  <article class="cs">
+    <!-- ================= Header ================= -->
+    <header class="cs__hero grid-texture">
+      <div class="container-page">
+        <nav class="cs__crumbs" aria-label="Breadcrumb">
+          <ol>
+            <li><a href="/">Home</a></li>
+            <li><a href="/#projects">Projects</a></li>
+            <li aria-current="page">{project.title}</li>
+          </ol>
+        </nav>
+
+        <div class="cs__head">
+          <div class="cs__head-main">
+            <ul class="cs__cats" aria-label="Categories">
+              {
+                project.categories.map((c) => (
+                  <li>
+                    <Tag label={PROJECT_CATEGORY_LABELS[c]} accent />
+                  </li>
+                ))
+              }
+              {project.featured && (
+                <li>
+                  <Tag label="Featured" />
+                </li>
+              )}
+            </ul>
+
+            <h1 class="cs__title">{project.title}</h1>
+            {project.subtitle && <p class="cs__subtitle">{project.subtitle}</p>}
+            <p class="cs__tagline">{project.tagline}</p>
+          </div>
+
+          <dl class="cs__specs">
+            <div>
+              <dt class="meta">Role</dt>
+              <dd>{project.role}</dd>
+            </div>
+            {
+              project.dateRange && (
+                <div>
+                  <dt class="meta">Period</dt>
+                  <dd>{project.dateRange}</dd>
+                </div>
+              )
+            }
+            {
+              project.organisation && (
+                <div>
+                  <dt class="meta">Organisation</dt>
+                  <dd>{project.organisation}</dd>
+                </div>
+              )
+            }
+            <div>
+              <dt class="meta">Tools</dt>
+              <dd>{project.tools.join(' · ')}</dd>
+            </div>
+            {
+              project.link && (
+                <div>
+                  <dt class="meta">Live link</dt>
+                  <dd>
+                    <a
+                      href={project.link.href}
+                      class="link-underline"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      {project.link.label} ↗
+                    </a>
+                  </dd>
+                </div>
+              )
+            }
+          </dl>
+        </div>
+      </div>
+    </header>
+
+    <!-- ================= Body ================= -->
+    <div class="container-page cs__body">
+      <div class="cs__visual">
+        <ImageFrame visual={project.visual} />
+        <p class="meta cs__visual-note">
+          Visual is a labelled placeholder — no real screenshot is available yet.
+        </p>
+      </div>
+
+      <div class="cs__content">
+        {
+          project.context && (
+            <section class="cs__section" aria-labelledby="ctx">
+              <h2 id="ctx" class="cs__h2">Context</h2>
+              <p>{project.context}</p>
+            </section>
+          )
+        }
+
+        {
+          project.approach && project.approach.length > 0 && (
+            <section class="cs__section" aria-labelledby="app">
+              <h2 id="app" class="cs__h2">Approach</h2>
+              <ul class="cs__list">
+                {project.approach.map((a) => (
+                  <li>{a}</li>
+                ))}
+              </ul>
+            </section>
+          )
+        }
+
+        <section class="cs__section" aria-labelledby="out">
+          <h2 id="out" class="cs__h2">Documented outcomes</h2>
+          {
+            project.outcomes.length > 0 ? (
+              <ul class="cs__list cs__list--outcome">
+                {project.outcomes.map((o) => (
+                  <li>{o}</li>
+                ))}
+              </ul>
+            ) : (
+              <p class="cs__empty meta">
+                No quantified outcome is documented for this project. Nothing
+                has been added to fill the gap.
+              </p>
+            )
+          }
+        </section>
+
+        <section class="cs__section" aria-labelledby="stack">
+          <h2 id="stack" class="cs__h2">Role & tools</h2>
+          <dl class="cs__role">
+            <div>
+              <dt class="meta">My role</dt>
+              <dd>{project.role}</dd>
+            </div>
+            <div>
+              <dt class="meta">Tools / technologies</dt>
+              <dd>
+                <ul class="cs__tools">
+                  {project.tools.map((t) => (
+                    <li>
+                      <Tag label={t} small />
+                    </li>
+                  ))}
+                </ul>
+              </dd>
+            </div>
+          </dl>
+        </section>
+
+        {project.todo && <TodoBadge note={project.todo} />}
+      </div>
+    </div>
+
+    <!-- ================= Related ================= -->
+    {
+      related.length > 0 && (
+        <aside class="container-page cs__related" aria-labelledby="rel">
+          <h2 id="rel" class="cs__h2">Related work</h2>
+          <div class="cs__related-grid">
+            {related.map((r) => (
+              <ProjectCard project={r} />
+            ))}
+          </div>
+        </aside>
+      )
+    }
+
+    <!-- ================= Back link ================= -->
+    <div class="container-page cs__back">
+      <Button href="/#projects" variant="ghost">← All projects</Button>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .cs__hero {
+    padding-block: clamp(2rem, 5vw, 3.5rem);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .cs__crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--subtle-foreground);
+  }
+
+  .cs__crumbs li + li::before {
+    content: '/ ';
+    opacity: 0.5;
+  }
+
+  .cs__crumbs a:hover {
+    color: var(--accent);
+  }
+
+  .cs__head {
+    display: grid;
+    gap: clamp(1.5rem, 4vw, 3rem);
+    grid-template-columns: 1fr;
+    margin-top: 1.5rem;
+  }
+
+  @media (min-width: 940px) {
+    .cs__head {
+      grid-template-columns: minmax(0, 1.55fr) minmax(260px, 0.8fr);
+      align-items: start;
+    }
+  }
+
+  .cs__cats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin: 0 0 0.9rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .cs__title {
+    font-size: var(--text-4xl);
+    letter-spacing: -0.032em;
+    line-height: 1.06;
+  }
+
+  .cs__subtitle {
+    margin-top: 0.5rem;
+    font-size: var(--text-lg);
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .cs__tagline {
+    margin-top: 0.85rem;
+    max-width: 62ch;
+    color: var(--muted-foreground);
+    font-size: var(--text-base);
+    line-height: 1.75;
+  }
+
+  .cs__specs {
+    display: grid;
+    gap: 0.8rem;
+    margin: 0;
+    padding: 1.1rem 1.2rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background-color: var(--surface-raised);
+  }
+
+  .cs__specs dt {
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    font-size: 0.62rem;
+  }
+
+  .cs__specs dd {
+    margin: 0.18rem 0 0;
+    font-size: var(--text-sm);
+  }
+
+  .cs__specs > div + div {
+    padding-top: 0.8rem;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ---------------- Body ---------------- */
+  .cs__body {
+    display: grid;
+    gap: clamp(1.75rem, 4vw, 3rem);
+    grid-template-columns: 1fr;
+    padding-block: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  @media (min-width: 940px) {
+    .cs__body {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+      align-items: start;
+    }
+
+    .cs__visual {
+      position: sticky;
+      top: 5.5rem;
+    }
+  }
+
+  .cs__visual-note {
+    margin-top: 0.6rem;
+    line-height: 1.5;
+  }
+
+  .cs__content {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1.5rem, 3vw, 2.25rem);
+  }
+
+  .cs__h2 {
+    font-size: var(--text-xl);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.65rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .cs__section p {
+    max-width: 72ch;
+    font-size: var(--text-base);
+    line-height: 1.75;
+    color: var(--muted-foreground);
+  }
+
+  .cs__list {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    max-width: 72ch;
+  }
+
+  .cs__list li {
+    position: relative;
+    padding-inline-start: 1.15rem;
+    font-size: var(--text-base);
+    line-height: 1.7;
+    color: var(--muted-foreground);
+  }
+
+  .cs__list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.65em;
+    width: 6px;
+    height: 1px;
+    background-color: var(--border-strong);
+  }
+
+  .cs__list--outcome li::before {
+    background-color: var(--accent);
+  }
+
+  .cs__empty {
+    padding: 1rem;
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-md);
+    max-width: 72ch;
+    line-height: 1.6;
+  }
+
+  .cs__role {
+    display: grid;
+    gap: 1rem;
+    margin: 0;
+  }
+
+  .cs__role dt {
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    font-size: 0.62rem;
+  }
+
+  .cs__role dd {
+    margin: 0.25rem 0 0;
+    font-size: var(--text-base);
+  }
+
+  .cs__tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* ---------------- Related ---------------- */
+  .cs__related {
+    padding-block: clamp(1.5rem, 3vw, 2.5rem);
+    border-top: 1px solid var(--border);
+  }
+
+  .cs__related-grid {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: 1fr;
+    margin-top: 1.25rem;
+  }
+
+  @media (min-width: 700px) {
+    .cs__related-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .cs__back {
+    padding-bottom: clamp(2rem, 4vw, 3rem);
+  }
+</style>

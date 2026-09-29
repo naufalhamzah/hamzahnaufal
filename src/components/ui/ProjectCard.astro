@@ -1,0 +1,212 @@
+---
+/**
+ * Project card — the reusable presentation of a project.
+ *
+ * Used in three places: the Featured Work section, the Projects grid, and the
+ * related-projects strip on a case-study page. `variant` adjusts density rather
+ * than duplicating markup.
+ */
+import ImageFrame from './ImageFrame.astro';
+import Tag from './Tag.astro';
+import { PROJECT_CATEGORY_LABELS } from '@/types/content';
+import type { ProjectEntry } from '@/types/content';
+
+interface Props {
+  project: ProjectEntry;
+  /** 'featured' = large two-column card; 'compact' = grid tile. */
+  variant?: 'featured' | 'compact';
+  /** Show the category chips. */
+  showCategories?: boolean;
+}
+
+const { project, variant = 'compact', showCategories = true } = Astro.props;
+
+const detailHref = `/projects/${project.id}/`;
+const isFeatured = variant === 'featured';
+---
+
+<article class:list={['pcard', { 'pcard--featured': isFeatured }]} data-project-card>
+  <!-- Visual -->
+  <a
+    href={detailHref}
+    class="pcard__media"
+    aria-label={`View the ${project.title} case study`}
+    tabindex="-1"
+  >
+    <ImageFrame visual={project.visual} />
+  </a>
+
+  <!-- Body -->
+  <div class="pcard__body">
+    <div class="pcard__meta">
+      <span class="meta">{project.role}</span>
+      {project.dateRange && <span class="meta pcard__date">{project.dateRange}</span>}
+    </div>
+
+    <h3 class="pcard__title">
+      <a href={detailHref}>{project.title}</a>
+    </h3>
+
+    {project.subtitle && <p class="meta pcard__subtitle">{project.subtitle}</p>}
+
+    <p class="pcard__tagline">{project.tagline}</p>
+
+    {
+      showCategories && (
+        <ul class="pcard__cats" aria-label="Categories">
+          {project.categories.map((c) => (
+            <li>
+              <Tag label={PROJECT_CATEGORY_LABELS[c]} small accent={isFeatured} />
+            </li>
+          ))}
+        </ul>
+      )
+    }
+
+    <div class="pcard__foot">
+      <a href={detailHref} class="pcard__cta">
+        Case study <span aria-hidden="true">→</span>
+      </a>
+      {
+        project.link && (
+          <a
+            href={project.link.href}
+            class="pcard__ext meta"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            {project.link.label} <span aria-hidden="true">↗</span>
+          </a>
+        )
+      }
+    </div>
+  </div>
+</article>
+
+<style>
+  .pcard {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    height: 100%;
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background-color: var(--surface-raised);
+    transition:
+      border-color var(--duration-base) var(--ease-out-soft),
+      transform var(--duration-base) var(--ease-out-soft);
+  }
+
+  .pcard:hover {
+    border-color: var(--border-strong);
+    transform: translateY(-2px);
+  }
+
+  .pcard__media {
+    display: block;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .pcard__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+  }
+
+  .pcard__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.85rem;
+    align-items: baseline;
+  }
+
+  .pcard__date::before {
+    content: '· ';
+    opacity: 0.5;
+  }
+
+  .pcard__title {
+    font-size: var(--text-xl);
+    letter-spacing: -0.02em;
+  }
+
+  .pcard__title a {
+    transition: color var(--duration-fast) var(--ease-out-soft);
+  }
+
+  .pcard__title a:hover {
+    color: var(--accent);
+  }
+
+  .pcard__subtitle {
+    margin-top: -0.15rem;
+  }
+
+  .pcard__tagline {
+    color: var(--muted-foreground);
+    font-size: var(--text-sm);
+    line-height: 1.6;
+  }
+
+  .pcard__cats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin: 0.35rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .pcard__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: auto;
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .pcard__cta {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--accent);
+  }
+
+  .pcard__cta span {
+    display: inline-block;
+    transition: transform var(--duration-base) var(--ease-out-soft);
+  }
+
+  .pcard__cta:hover span {
+    transform: translateX(3px);
+  }
+
+  .pcard__ext:hover {
+    color: var(--accent);
+  }
+
+  /* --- featured (two-column) variant --- */
+  @media (min-width: 900px) {
+    .pcard--featured {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 1.75rem;
+      padding: 1.5rem;
+      align-items: center;
+    }
+
+    .pcard--featured .pcard__title {
+      font-size: var(--text-2xl);
+    }
+
+    /* Alternate the media side for a less repetitive rhythm. */
+    .pcard--featured:nth-child(even) .pcard__media {
+      order: 2;
+    }
+  }
+</style>

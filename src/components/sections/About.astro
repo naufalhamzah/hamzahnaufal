@@ -1,0 +1,178 @@
+---
+/**
+ * ABOUT
+ * Narrative paragraphs plus a compact "what I work with" panel. The panel
+ * deliberately lists areas rather than skills — the detailed, sourced skill
+ * inventory lives in its own section.
+ */
+import Section from '@/components/ui/Section.astro';
+import SectionHeader from '@/components/ui/SectionHeader.astro';
+import { profile } from '@/content/profile';
+import { skillGroups } from '@/content/skills';
+import { publicationEntries } from '@/content/publications';
+import { experienceEntries } from '@/content/experience';
+
+// Small factual counts pulled from the content layer, never hardcoded.
+const stats = [
+  { label: 'Professional roles', value: String(experienceEntries.length) },
+  { label: 'Published papers', value: String(publicationEntries.length) },
+  { label: 'Skill areas', value: String(skillGroups.length) },
+];
+---
+
+<Section id="about" aria-labelledby="about-title">
+  <SectionHeader
+    id="about-title"
+    eyebrow="About"
+    title="Data, systems and the processes around them"
+    lead="An Information Systems graduate working where analysis, technology and business process meet."
+  />
+
+  <div class="about">
+    <div class="about__narrative">
+      {profile.summary.map((p) => <p class="about__p">{p}</p>)}
+
+      <blockquote class="about__quote">
+        <p>“{profile.tagline}”</p>
+      </blockquote>
+    </div>
+
+    <aside class="about__aside" aria-labelledby="about-focus">
+      <h3 id="about-focus" class="about__aside-title meta">Areas of focus</h3>
+
+      <ul class="about__focus">
+        {
+          profile.focusAreas.map((area) => (
+            <li>
+              <span class="about__focus-mark" aria-hidden="true" />
+              {area}
+            </li>
+          ))
+        }
+      </ul>
+
+      <dl class="about__stats">
+        {
+          stats.map((s) => (
+            <div>
+              <dt class="meta">{s.label}</dt>
+              <dd>{s.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </aside>
+  </div>
+</Section>
+
+<style>
+  .about {
+    display: grid;
+    gap: clamp(1.75rem, 4vw, 3.5rem);
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 960px) {
+    .about {
+      grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.9fr);
+    }
+  }
+
+  .about__narrative {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+    max-width: 68ch;
+  }
+
+  .about__p {
+    color: var(--muted-foreground);
+    font-size: var(--text-base);
+    line-height: 1.75;
+  }
+
+  .about__p:first-child {
+    color: var(--foreground);
+    font-size: var(--text-lg);
+  }
+
+  .about__quote {
+    margin: 0.75rem 0 0;
+    padding: 0.9rem 0 0.9rem 1.1rem;
+    border-left: 2px solid var(--accent);
+  }
+
+  .about__quote p {
+    font-size: var(--text-lg);
+    font-style: italic;
+    color: var(--foreground);
+    letter-spacing: -0.012em;
+  }
+
+  .about__aside {
+    padding: 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background-color: var(--surface-raised);
+    height: fit-content;
+  }
+
+  .about__aside-title {
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.9rem;
+  }
+
+  .about__focus {
+    display: grid;
+    gap: 0.55rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .about__focus li {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: var(--text-sm);
+  }
+
+  .about__focus-mark {
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: var(--radius-full);
+    background-color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .about__stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
+    margin: 1.25rem 0 0;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .about__stats > div {
+    display: flex;
+    flex-direction: column-reverse; /* number on top, label beneath */
+    gap: 0.1rem;
+  }
+
+  .about__stats dt {
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.58rem;
+    line-height: 1.3;
+  }
+
+  .about__stats dd {
+    margin: 0;
+    font-size: var(--text-xl);
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+  }
+</style>

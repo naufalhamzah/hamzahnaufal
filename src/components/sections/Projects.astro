@@ -1,0 +1,129 @@
+---
+/**
+ * PROJECTS — the full filterable index.
+ *
+ * Architecture note: the cards are server-rendered here by Astro, and the React
+ * island only toggles their visibility. That means the full project list is in
+ * the HTML for search engines and for anyone without JavaScript; the island is
+ * progressive enhancement, not a requirement.
+ */
+import Section from '@/components/ui/Section.astro';
+import SectionHeader from '@/components/ui/SectionHeader.astro';
+import ProjectCard from '@/components/ui/ProjectCard.astro';
+import TodoBadge from '@/components/ui/TodoBadge.astro';
+import ProjectFilter from '@/components/islands/ProjectFilter';
+import { projectsSorted } from '@/content/projects';
+import { PROJECT_CATEGORY_LABELS, PROJECT_CATEGORY_ORDER } from '@/types/content';
+
+const categories = PROJECT_CATEGORY_ORDER.map((id) => ({
+  id,
+  label: PROJECT_CATEGORY_LABELS[id],
+}));
+
+// Only pass what the island needs — keeps the hydrated payload small.
+const filterable = projectsSorted.map((p) => ({
+  id: p.id,
+  title: p.title,
+  categories: p.categories as string[],
+  searchText: [p.title, p.subtitle ?? '', p.role, p.organisation ?? '', ...p.tools]
+    .join(' ')
+    .toLowerCase(),
+}));
+
+const todoProjects = projectsSorted.filter((p) => p.todo);
+---
+
+<Section id="projects" aria-labelledby="projects-title">
+  <SectionHeader
+    id="projects-title"
+    eyebrow="Projects"
+    title="All projects"
+    lead="Systems and data work, research and machine learning studies, and UI/UX design projects."
+    aside={`${projectsSorted.length} projects`}
+  />
+
+  <!-- The React island: filter controls only. -->
+  <ProjectFilter
+    client:load
+    projects={filterable}
+    categories={categories}
+    gridId="projects-grid"
+  />
+
+  <!-- Server-rendered cards. The island hides/shows these by data-project-id. -->
+  <ul id="projects-grid" class="pgrid">
+    {
+      projectsSorted.map((project) => (
+        <li class="pgrid__item" data-project-id={project.id}>
+          <ProjectCard project={project} />
+          {project.todo && <TodoBadge note={project.todo} small />}
+        </li>
+      ))
+    }
+  </ul>
+
+  <!-- Shown by the island when a filter matches nothing. -->
+  <p id="projects-grid-empty" class="pgrid__empty" hidden>
+    No projects match that filter.
+  </p>
+
+  {
+    todoProjects.length > 0 && (
+      <p class="pgrid__footnote meta">
+        {todoProjects.length} project
+        {todoProjects.length === 1 ? '' : 's'} carry open questions from the
+        source documents — each is flagged individually above.
+      </p>
+    )
+  }
+</Section>
+
+<style>
+  .pgrid {
+    display: grid;
+    gap: 1.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 700px) {
+    .pgrid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .pgrid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .pgrid__item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 0;
+  }
+
+  /* When the island hides a card it sets [hidden]; make sure that wins over
+     the flex display above. */
+  .pgrid__item[hidden] {
+    display: none;
+  }
+
+  .pgrid__empty {
+    padding: 3rem 1rem;
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    color: var(--muted-foreground);
+    font-size: var(--text-sm);
+  }
+
+  .pgrid__footnote {
+    margin-top: 1.5rem;
+    max-width: 70ch;
+  }
+</style>

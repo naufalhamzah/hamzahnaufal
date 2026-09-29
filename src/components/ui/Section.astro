@@ -1,0 +1,41 @@
+---
+/**
+ * Section wrapper — applies consistent vertical rhythm and the section id that
+ * the navigation and scroll-spy depend on.
+ */
+interface Props {
+  id?: string;
+  /** Adds the subtle dot-grid texture behind the content. */
+  textured?: boolean;
+  /** Removes the bottom hairline (used by the final section before the footer). */
+  flush?: boolean;
+  class?: string;
+}
+
+const { id, textured = false, flush = false, class: className } = Astro.props;
+---
+
+<section
+  id={id}
+  class:list={['section', { 'section--textured': textured, 'section--flush': flush }, className]}
+>
+  <div class="container-page">
+    <slot />
+  </div>
+</section>
+
+<style>
+  .section {
+    padding-block: var(--section-gap);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section--flush {
+    border-bottom: none;
+  }
+
+  .section--textured {
+    background-image: radial-gradient(var(--grid-line) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+</style>
