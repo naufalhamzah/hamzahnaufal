@@ -1,0 +1,361 @@
+---
+/**
+ * Sticky site header with active-section indication.
+ *
+ * Stage 1 scope: navigation exists, is responsive, and correctly highlights
+ * the section currently in view. Section targets are created in later stages;
+ * until then the links point at ids that don't exist yet, which is harmless
+ * (an anchor to a missing id simply does nothing).
+ *
+ * The scroll-spy runs via IntersectionObserver, which is cheaper and more
+ * accurate than listening to scroll events.
+ */
+import { navItems } from '@/lib/navigation';
+import ThemeToggle from './ThemeToggle.astro';
+import { profile } from '@/content/profile';
+---
+
+<header class="site-header" id="site-header">
+  <div class="container-page site-header__inner">
+    <!-- Identity / home link -->
+    <a href="#top" class="site-header__brand" aria-label="Back to top">
+      <span class="site-header__mark" aria-hidden="true">
+        {profile.initials}
+      </span>
+      <span class="site-header__name">{profile.shortName}</span>
+    </a>
+
+    <!-- Desktop / tablet section nav -->
+    <nav class="site-header__nav" aria-label="Section navigation">
+      <ul class="site-header__list">
+        {
+          navItems.map((item) => (
+            <li>
+              <a
+                href={`#${item.id}`}
+                class="site-header__link"
+                data-nav-link={item.id}
+              >
+                {item.short ?? item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="site-header__actions">
+      <ThemeToggle />
+
+      <!-- Mobile menu trigger -->
+      <button
+        type="button"
+        id="nav-toggle"
+        class="site-header__burger"
+        aria-expanded="false"
+        aria-controls="mobile-nav"
+        aria-label="Open section menu"
+      >
+        <span class="site-header__burger-bar" aria-hidden="true"></span>
+        <span class="site-header__burger-bar" aria-hidden="true"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile menu panel -->
+  <div id="mobile-nav" class="mobile-nav" hidden>
+    <nav aria-label="Section navigation (mobile)">
+      <ul class="mobile-nav__list">
+        {
+          navItems.map((item) => (
+            <li>
+              <a
+                href={`#${item.id}`}
+                class="mobile-nav__link"
+                data-nav-link={item.id}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    border-bottom: 1px solid transparent;
+    background-color: color-mix(in srgb, var(--surface) 82%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition:
+      border-color var(--duration-base) var(--ease-out-soft),
+      background-color var(--duration-base) var(--ease-out-soft);
+  }
+
+  /* A border appears only once the page has scrolled — keeps the top clean. */
+  :global(html.is-scrolled) .site-header,
+  .site-header[data-scrolled='true'] {
+    border-bottom-color: var(--border);
+  }
+
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: 4rem;
+  }
+
+  /* --- Brand ------------------------------------------------------------ */
+  .site-header__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin-inline-end: auto;
+  }
+
+  .site-header__mark {
+    display: grid;
+    place-items: center;
+    width: 1.9rem;
+    height: 1.9rem;
+    border-radius: var(--radius-sm);
+    background-color: var(--accent-soft);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+
+  .site-header__name {
+    font-size: var(--text-sm);
+  }
+
+  /* --- Desktop nav ------------------------------------------------------ */
+  .site-header__nav {
+    display: none;
+  }
+
+  @media (min-width: 1080px) {
+    .site-header__nav {
+      display: block;
+    }
+  }
+
+  .site-header__list {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .site-header__link {
+    display: inline-block;
+    padding: 0.4rem 0.6rem;
+    border-radius: var(--radius-sm);
+    font-size: var(--text-xs);
+    color: var(--muted-foreground);
+    white-space: nowrap;
+    transition:
+      color var(--duration-fast) var(--ease-out-soft),
+      background-color var(--duration-fast) var(--ease-out-soft);
+  }
+
+  .site-header__link:hover {
+    color: var(--foreground);
+    background-color: var(--surface-raised);
+  }
+
+  /* Active section — set by the scroll-spy script. */
+  .site-header__link[aria-current='true'] {
+    color: var(--accent);
+    background-color: var(--accent-soft);
+  }
+
+  /* --- Actions ---------------------------------------------------------- */
+  .site-header__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .site-header__burger {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background-color: transparent;
+    cursor: pointer;
+  }
+
+  .site-header__burger-bar {
+    display: block;
+    height: 1.5px;
+    width: 100%;
+    background-color: var(--muted-foreground);
+    transition: transform var(--duration-base) var(--ease-out-soft);
+  }
+
+  .site-header__burger[aria-expanded='true'] .site-header__burger-bar:first-child {
+    transform: translateY(3.25px) rotate(45deg);
+  }
+
+  .site-header__burger[aria-expanded='true'] .site-header__burger-bar:last-child {
+    transform: translateY(-3.25px) rotate(-45deg);
+  }
+
+  @media (min-width: 1080px) {
+    .site-header__burger {
+      display: none;
+    }
+  }
+
+  /* --- Mobile panel ----------------------------------------------------- */
+  .mobile-nav {
+    border-top: 1px solid var(--border);
+    background-color: var(--surface);
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .mobile-nav__list {
+    display: grid;
+    margin: 0;
+    padding: 0.5rem var(--gutter) 1.25rem;
+    list-style: none;
+  }
+
+  .mobile-nav__link {
+    display: block;
+    padding: 0.7rem 0.5rem;
+    border-bottom: 1px solid var(--border);
+    font-size: var(--text-sm);
+    color: var(--muted-foreground);
+  }
+
+  .mobile-nav__link:hover,
+  .mobile-nav__link[aria-current='true'] {
+    color: var(--accent);
+  }
+</style>
+
+<script>
+  /**
+   * Header behaviour:
+   *  1. add a border once scrolled
+   *  2. mobile menu open/close (with Escape and outside-click closing)
+   *  3. scroll-spy to mark the active section
+   */
+  const header = document.getElementById('site-header');
+  const burger = document.getElementById('nav-toggle');
+  const panel = document.getElementById('mobile-nav');
+
+  /* --- 1. scrolled state ------------------------------------------------ */
+  const onScroll = () => {
+    if (!header) return;
+    header.dataset.scrolled = String(window.scrollY > 8);
+  };
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  /* --- 2. mobile menu --------------------------------------------------- */
+  function setMenu(open: boolean) {
+    if (!burger || !panel) return;
+    burger.setAttribute('aria-expanded', String(open));
+    burger.setAttribute('aria-label', open ? 'Close section menu' : 'Open section menu');
+    panel.hidden = !open;
+  }
+
+  burger?.addEventListener('click', () => {
+    setMenu(burger.getAttribute('aria-expanded') !== 'true');
+  });
+
+  // Close when a link is chosen.
+  panel?.querySelectorAll('a').forEach((a) =>
+    a.addEventListener('click', () => setMenu(false)),
+  );
+
+  // Close on Escape, returning focus to the trigger.
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && burger?.getAttribute('aria-expanded') === 'true') {
+      setMenu(false);
+      burger.focus();
+    }
+  });
+
+  // Tapping outside the panel closes it.
+  document.addEventListener('click', (e) => {
+    if (!panel || panel.hidden) return;
+    const target = e.target as Node;
+    if (!panel.contains(target) && !burger?.contains(target)) setMenu(false);
+  });
+
+  /* --- 3. scroll-spy ---------------------------------------------------- */
+  const links = Array.from(
+    document.querySelectorAll<HTMLAnchorElement>('[data-nav-link]'),
+  );
+
+  // Collect the sections that actually exist on this page.
+  const sections = links
+    .map((link) => {
+      const id = link.dataset.navLink;
+      const el = id ? document.getElementById(id) : null;
+      return el ? { id, el } : null;
+    })
+    .filter((v): v is { id: string; el: HTMLElement } => v !== null);
+
+  function markActive(id: string | null) {
+    links.forEach((link) => {
+      const isActive = link.dataset.navLink === id;
+      if (isActive) link.setAttribute('aria-current', 'true');
+      else link.removeAttribute('aria-current');
+    });
+  }
+
+  if (sections.length) {
+    // Track how much of each section is visible; the most visible one wins.
+    const ratios = new Map<string, number>();
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const id = entry.target.id;
+          ratios.set(id, entry.isIntersecting ? entry.intersectionRatio : 0);
+        }
+
+        let bestId: string | null = null;
+        let bestRatio = 0;
+        for (const { id } of sections) {
+          const ratio = ratios.get(id) ?? 0;
+          if (ratio > bestRatio) {
+            bestRatio = ratio;
+            bestId = id;
+          }
+        }
+        markActive(bestRatio > 0 ? bestId : null);
+      },
+      {
+        // Ignore the sticky header band when measuring visibility.
+        rootMargin: '-72px 0px -55% 0px',
+        threshold: [0, 0.15, 0.3, 0.5, 0.75, 1],
+      },
+    );
+
+    sections.forEach(({ el }) => observer.observe(el));
+  }
+</script>

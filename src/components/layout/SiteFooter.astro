@@ -1,0 +1,129 @@
+---
+/**
+ * Site footer. Reads the same nav list as the header, plus contact details
+ * from the profile content file so nothing is duplicated.
+ */
+import { navItems } from '@/lib/navigation';
+import { profile, activeContactLinks } from '@/content/profile';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container-page">
+    <div class="site-footer__grid">
+      <!-- Identity -->
+      <div class="site-footer__col">
+        <p class="site-footer__name">{profile.name}</p>
+        <p class="site-footer__role meta">{profile.headline}</p>
+      </div>
+
+      <!-- Section index -->
+      <nav class="site-footer__col" aria-label="Footer navigation">
+        <p class="site-footer__heading eyebrow">Sections</p>
+        <ul class="site-footer__list">
+          {
+            navItems.map((item) => (
+              <li>
+                <a href={`#${item.id}`} class="site-footer__link">
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <!-- Contact -->
+      <div class="site-footer__col">
+        <p class="site-footer__heading eyebrow">Elsewhere</p>
+        <ul class="site-footer__list">
+          {
+            activeContactLinks.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  class="site-footer__link"
+                  rel="noopener noreferrer"
+                  target={link.external ? '_blank' : undefined}
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+
+    <div class="site-footer__base">
+      <p class="meta">© {year} {profile.name}</p>
+      <p class="meta">
+        Built with Astro, TypeScript &amp; Tailwind CSS
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: var(--section-gap);
+    border-top: 1px solid var(--border);
+    padding-block: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  .site-footer__grid {
+    display: grid;
+    gap: 2.5rem;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 640px) {
+    .site-footer__grid {
+      grid-template-columns: 1.4fr 1fr 1fr;
+      gap: 2rem;
+    }
+  }
+
+  .site-footer__name {
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+
+  .site-footer__role {
+    margin-top: 0.4rem;
+    max-width: 34ch;
+  }
+
+  .site-footer__heading {
+    margin-bottom: 0.9rem;
+  }
+
+  .site-footer__list {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .site-footer__link {
+    font-size: var(--text-sm);
+    color: var(--muted-foreground);
+    transition: color var(--duration-fast) var(--ease-out-soft);
+  }
+
+  .site-footer__link:hover {
+    color: var(--accent);
+  }
+
+  .site-footer__base {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    justify-content: space-between;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+</style>

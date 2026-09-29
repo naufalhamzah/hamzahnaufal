@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img"
+  aria-label="Hamzah Naufal Zuhdi — Information Technology Administration Staff at AirNav Indonesia">
+  <defs>
+    <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="1" fill="#ffffff" opacity="0.06"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="630" fill="#060b16"/>
+  <rect width="1200" height="630" fill="url(#dots)"/>
+
+  <g font-family="Inter, 'Segoe UI', Arial, sans-serif" fill="#e8edf5">
+    <text x="80" y="200" font-size="24" letter-spacing="6" fill="#2dd4bf"
+      font-family="'JetBrains Mono', Consolas, monospace">PORTFOLIO</text>
+
+    <text x="80" y="290" font-size="72" font-weight="600" letter-spacing="-2">Hamzah Naufal Zuhdi</text>
+
+    <text x="80" y="352" font-size="30" fill="#9aa8bd">Information Technology Administration Staff at AirNav Indonesia</text>
+    <text x="80" y="398" font-size="30" fill="#9aa8bd">Information Systems Graduate · Data &amp; Technology Enthusiast</text>
+  </g>
+
+  <rect x="80" y="470" width="120" height="3" fill="#2dd4bf"/>
+  <text x="80" y="528" font-size="20" fill="#6b7a91"
+    font-family="'JetBrains Mono', Consolas, monospace">Data · Systems · Business Process · Digital Solutions</text>
+</svg>

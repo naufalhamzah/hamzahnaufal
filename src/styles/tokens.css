@@ -1,0 +1,151 @@
+/* ==========================================================================
+   DESIGN TOKENS
+   --------------------------------------------------------------------------
+   These are the raw values for the whole visual system. Nothing in the site
+   should hardcode a colour or font — it should reference a token defined here.
+
+   How theming works:
+   - Every semantic variable (e.g. --surface, --foreground) is defined twice:
+     once for light mode, once inside `.dark`.
+   - Tailwind utilities read those variables through the `@theme inline` block
+     at the bottom, so `bg-surface` always resolves to the *current* theme.
+   ========================================================================== */
+
+:root {
+  /* --- Base palette: neutral, slightly cool (slate/zinc register) --------- */
+  --slate-50: #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1e293b;
+  --slate-900: #0f172a;
+  --slate-950: #060b16;
+
+  /* --- Accent: one restrained teal/cyan. Used sparingly. ------------------ */
+  --teal-300: #5eead4;
+  --teal-400: #2dd4bf;
+  --teal-500: #14b8a6;
+  --teal-600: #0d9488;
+  --teal-700: #0f766e;
+
+  /* --- Typography -------------------------------------------------------- */
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system,
+    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono',
+    Menlo, Consolas, 'Liberation Mono', monospace;
+
+  /* --- Fluid type scale (clamp = min, preferred, max) --------------------- */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: clamp(1.25rem, 1.15rem + 0.4vw, 1.4rem);
+  --text-2xl: clamp(1.5rem, 1.3rem + 0.85vw, 1.875rem);
+  --text-3xl: clamp(1.875rem, 1.5rem + 1.6vw, 2.5rem);
+  --text-4xl: clamp(2.25rem, 1.6rem + 2.8vw, 3.5rem);
+  --text-5xl: clamp(2.75rem, 1.7rem + 4.4vw, 4.75rem);
+
+  /* --- Layout ------------------------------------------------------------ */
+  --content-width: 1200px;
+  --content-narrow: 760px;
+  --gutter: clamp(1.25rem, 4vw, 3rem);
+  --section-gap: clamp(4rem, 9vw, 8rem);
+
+  /* --- Radii ------------------------------------------------------------- */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 1rem;
+  --radius-full: 9999px;
+
+  /* --- Motion ------------------------------------------------------------ */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 140ms;
+  --duration-base: 240ms;
+  --duration-slow: 480ms;
+}
+
+/* ==========================================================================
+   LIGHT THEME (default when the OS prefers light, and when .dark is absent)
+   ========================================================================== */
+:root {
+  --surface: var(--slate-50);
+  --surface-raised: #ffffff;
+  --surface-sunken: var(--slate-100);
+
+  --border: var(--slate-200);
+  --border-strong: var(--slate-300);
+
+  --foreground: var(--slate-900);
+  --muted-foreground: var(--slate-600);
+  --subtle-foreground: var(--slate-500);
+
+  --accent: var(--teal-700);
+  --accent-hover: var(--teal-600);
+  --accent-soft: rgba(13, 148, 136, 0.1);
+  --on-accent: #ffffff;
+
+  /* Subtle graph-paper texture tint */
+  --grid-line: rgba(15, 23, 42, 0.055);
+
+  color-scheme: light;
+}
+
+/* ==========================================================================
+   DARK THEME — the primary art direction.
+   Applied explicitly via the toggle, or automatically when the OS asks for it.
+   ========================================================================== */
+.dark {
+  --surface: var(--slate-950);
+  --surface-raised: #0d1526;
+  --surface-sunken: #04080f;
+
+  --border: rgba(148, 163, 184, 0.16);
+  --border-strong: rgba(148, 163, 184, 0.3);
+
+  --foreground: #e8edf5;
+  --muted-foreground: #9aa8bd;
+  --subtle-foreground: #6b7a91;
+
+  --accent: var(--teal-400);
+  --accent-hover: var(--teal-300);
+  --accent-soft: rgba(45, 212, 191, 0.12);
+  --on-accent: var(--slate-950);
+
+  --grid-line: rgba(226, 232, 240, 0.045);
+
+  color-scheme: dark;
+}
+
+/* ==========================================================================
+   EXPOSE TOKENS TO TAILWIND
+   `@theme inline` means utilities emit `var(--surface)` rather than a frozen
+   copy, so a class like `bg-surface` re-resolves when the theme switches.
+   ========================================================================== */
+@theme inline {
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-subtle-foreground: var(--subtle-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-on-accent: var(--on-accent);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+}

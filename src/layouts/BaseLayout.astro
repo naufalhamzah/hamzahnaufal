@@ -1,0 +1,115 @@
+---
+import '@/styles/global.css';
+// Self-hosted fonts (no external requests, no layout shift, works offline).
+import '@fontsource-variable/inter';
+import '@fontsource-variable/jetbrains-mono';
+import ThemeScript from '@/components/layout/ThemeScript.astro';
+import SiteHeader from '@/components/layout/SiteHeader.astro';
+import SiteFooter from '@/components/layout/SiteFooter.astro';
+import { site } from '@/lib/site';
+
+interface Props {
+  /** Full <title>. */
+  title: string;
+  /** Meta description — keep under ~160 characters. */
+  description: string;
+  /** Optional per-page social preview image (relative to /public). */
+  ogImage?: string;
+  /** Set on the home page so JSON-LD Person markup is emitted. */
+  isHome?: boolean;
+}
+
+const {
+  title,
+  description,
+  ogImage = site.defaultOgImage,
+  isHome = false,
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
+const socialImage = new URL(ogImage, Astro.site ?? site.url).href;
+
+/**
+ * JSON-LD Person markup. Built ONLY from facts that exist in the source
+ * documents. `sameAs` lists public profiles that were explicitly provided.
+ * TODO(you): add a professional headshot URL to `image` once one exists.
+ */
+const personJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Hamzah Naufal Zuhdi',
+  jobTitle: 'Information Technology Administration Staff at AirNav Indonesia',
+  description:
+    'Information Systems graduate working in data, technology, business processes and digital solutions.',
+  alumniOf: [
+    {
+      '@type': 'CollegeOrUniversity',
+      name: 'Universitas Negeri Semarang',
+    },
+  ],
+  knowsAbout: [
+    'Data Analysis',
+    'Data Visualization',
+    'Business Process Improvement',
+    'Information Systems',
+    'UI/UX Design',
+  ],
+  sameAs: [
+    'https://www.linkedin.com/in/hamzahnaufal',
+    'https://www.instagram.com/hamz_nz',
+  ],
+};
+---
+
+<!doctype html>
+<html lang={site.locale} data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <!-- Open Graph / social sharing -->
+    <meta property="og:type" content={isHome ? 'profile' : 'website'} />
+    <meta property="og:site_name" content="Hamzah Naufal Zuhdi" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={socialImage} />
+    <meta property="og:locale" content={site.locale} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImage} />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+
+    <!-- Applies the saved/system theme before first paint to avoid a flash. -->
+    <ThemeScript />
+
+    {isHome && (
+      <script
+        type="application/ld+json"
+        set:html={JSON.stringify(personJsonLd)}
+      />
+    )}
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <SiteHeader />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <SiteFooter />
+    <script>
+      // Marks that JS is available so scroll-reveal styles only hide content
+      // when they can also un-hide it.
+      document.documentElement.classList.add('js-enabled');
+    </script>
+  </body>
+</html>

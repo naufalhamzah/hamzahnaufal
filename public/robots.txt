@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Sitemap is generated automatically at build time by @astrojs/sitemap.
+Sitemap: https://hamzahnaufal.example.com/sitemap-index.xml
