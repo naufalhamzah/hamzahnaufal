@@ -183,6 +183,31 @@
   );
   --on-image: #f7f3ec;
 
+  /* ---- photographs ------------------------------------------------------
+     A photograph does not automatically belong to the palette it is dropped
+     into. The hero portrait was shot on a BLACK backdrop against a near-black
+     page, so on dark it dissolved into the background with no separation at
+     all, and the same file on paper read as a hard black slab.
+
+     These three tokens make one set of source images sit correctly in BOTH
+     themes without editing the files:
+
+       --photo-filter  tonal tuning only (never a colour cast) — a slight pull
+                       on saturation and contrast so the photograph stops
+                       competing with the palette
+       --photo-mat     the matte a photo sits on, i.e. the visible edge around
+                       it. On dark a lifted charcoal, so a black-backdrop
+                       portrait finally has an edge; on paper a deeper tone, so
+                       a dark photograph reads as deliberate.
+       --photo-edge    the hairline that outlines the frame
+     ---------------------------------------------------------------------- */
+  --photo-filter: saturate(0.9) contrast(1.03);
+  --photo-mat: var(--surface-2);
+  --photo-edge: rgba(229, 220, 205, 0.13);
+  /* A lift applied only to very dark photographs on dark, so a black backdrop
+     separates from a black page. */
+  --photo-shadow: 0 24px 60px -28px rgba(0, 0, 0, 0.9);
+
   /* ------------------------------------------------------------------------
      PAGE BACKGROUND
      A deliberate step down from the previous version: ONE very wide warm wash
@@ -244,6 +269,21 @@
     rgba(9, 8, 7, 0.86) 100%
   );
   --on-image: #f7f3ec;
+
+  /* ---- photographs (see the dark block for the reasoning) ----------------
+     On paper the problem inverts. The hero portrait has a BLACK backdrop, so
+     dropped straight onto warm ivory it reads as a hole in the page rather
+     than as a photograph. Two things fix that without editing the file:
+
+       --photo-mat    a deeper tone, so the dark frame has a visible border and
+                      reads as a deliberate plate rather than a void
+       --photo-filter a slight lift, so the dark areas are not pure black
+                      sitting against ivory
+     ---------------------------------------------------------------------- */
+  --photo-filter: saturate(0.96) contrast(1.02) brightness(1.02);
+  --photo-mat: var(--surface-3);
+  --photo-edge: rgba(33, 28, 23, 0.22);
+  --photo-shadow: 0 24px 56px -30px rgba(62, 46, 30, 0.34);
 
   /* Paper gets no vignette — one faint warm wash so it is not flat white. */
   --bg-layers:

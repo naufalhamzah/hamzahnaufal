@@ -177,6 +177,7 @@ const raw: ProjectEntry[] = [
     visual: {
       src: '/images/projects/smart-farming-article.webp',
       alt: 'Cover page of the Ampoen journal article on Smart Farming in Desa Gonoharjo, listing the author team and the article DOI',
+      fit: 'contain',
       width: 1200,
       height: 1635,
     },
@@ -184,6 +185,7 @@ const raw: ProjectEntry[] = [
       {
         src: '/images/projects/smart-farming-article.webp',
         alt: 'Cover page of the published Smart Farming article in Ampoen journal',
+        fit: 'contain',
         width: 1200,
         height: 1635,
         caption: 'Published article — Ampoen Vol. 2 No. 2',
@@ -229,6 +231,7 @@ const raw: ProjectEntry[] = [
     visual: {
       src: '/images/projects/knn-paper.webp',
       alt: 'Cover of the Indonesian Journal of Informatic Research and Software Engineering (IJIRSE), Vol. 4 No. 1, March 2024 — the issue carrying the K-Nearest Neighbors creditworthiness paper',
+      fit: 'contain',
       width: 976,
       height: 1379,
     },
@@ -261,6 +264,7 @@ const raw: ProjectEntry[] = [
     visual: {
       src: '/images/projects/naive-bayes-paper.webp',
       alt: 'Cover of the Indonesian Journal of Informatic Research and Software Engineering (IJIRSE), Vol. 5 No. 1, March 2025 — the issue carrying the iPusnas Naive Bayes sentiment paper',
+      fit: 'contain',
       width: 976,
       height: 1379,
     },

@@ -45,7 +45,11 @@ const rest = layout === 'many' ? images.slice(3) : [];
         {images.slice(0, layout === 'many' ? 3 : n).map((img, i) => (
           <button
             type="button"
-            class:list={['collage__cell', i === 0 && 'collage__cell--lead']}
+            class:list={[
+              'collage__cell',
+              i === 0 && 'collage__cell--lead',
+              img.fit === 'contain' && 'collage__cell--contain',
+            ]}
             data-lightbox-src={img.src}
             data-lightbox-alt={img.alt}
             data-lightbox-caption={img.caption ?? img.alt}
@@ -69,7 +73,11 @@ const rest = layout === 'many' ? images.slice(3) : [];
           {rest.map((img) => (
             <button
               type="button"
-              class="collage__cell collage__cell--small"
+              class:list={[
+                'collage__cell',
+                'collage__cell--small',
+                img.fit === 'contain' && 'collage__cell--contain',
+              ]}
               data-lightbox-src={img.src}
               data-lightbox-alt={img.alt}
               data-lightbox-caption={img.caption ?? img.alt}
@@ -135,6 +143,24 @@ const rest = layout === 'many' ? images.slice(3) : [];
 
   .collage__cell:hover img {
     transform: scale(1.03);
+  }
+
+  /*
+    Documents (journal covers, article pages) are LETTERBOXED, not cropped.
+
+    A cover forced to fill a 4:3 or 16:10 frame loses its masthead and the top of
+    its title block — it stops being evidence of the publication it illustrates.
+    `contain` keeps the whole page on a matte, which reads as a deliberate plate
+    rather than a mis-sized image.
+  */
+  .collage__cell--contain img {
+    object-fit: contain;
+    object-position: center;
+    padding: 0.6rem;
+  }
+
+  .collage__cell--contain:hover img {
+    transform: none;
   }
 
   .collage__cell:focus-visible {

@@ -48,8 +48,20 @@ const relatedNumbered = related.map((r) => ({
   index: projectEntries.findIndex((e) => e.id === r.id) + 1,
 }));
 
-/** All images this project owns: the hero plus the gallery. */
-const gallery = project.gallery ?? [];
+/**
+ * Gallery images for this project.
+ *
+ * The hero visual is REMOVED here. Every project's gallery previously opened by
+ * repeating the same file that is already displayed as the hero above it, so the
+ * first tile in "Screens & gallery" was always an exact duplicate of the image
+ * the visitor had just scrolled past — which is what made the screens look
+ * repetitive and unconsidered rather than curated.
+ *
+ * The hero is the hero; the gallery is what else exists.
+ */
+const gallery = (project.gallery ?? []).filter(
+  (img) => img.src !== project.visual.src,
+);
 
 const meta = [
   { label: 'Role', value: project.role },

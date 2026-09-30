@@ -125,6 +125,20 @@ export interface MediaAsset {
   /** Optional caption shown in galleries / lightboxes. */
   caption?: string;
   /**
+   * How the image should fill a fixed frame.
+   *
+   * `cover` (default) fills the frame and crops the overflow — right for
+   * screenshots and photographs, where the frame edge cutting a little off is
+   * harmless and the result looks deliberate.
+   *
+   * `contain` fits the whole image inside the frame and leaves the remainder as
+   * matte — REQUIRED for documents (journal covers, article pages, papers).
+   * Cropping one of those to fill a card removes the masthead or a column of
+   * data, so the picture stops being evidence of anything. The matte is what
+   * makes letterboxing look intended rather than broken.
+   */
+  fit?: 'cover' | 'contain';
+  /**
    * True when this is a generated stand-in rather than a real asset.
    * The UI labels these honestly; real assets never carry this flag.
    */

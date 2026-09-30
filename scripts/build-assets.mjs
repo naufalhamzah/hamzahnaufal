@@ -89,9 +89,24 @@ const RECIPES = [
   }],
 
   /* --------------------------------- ABOUT ------------------------------ */
-  // Source `PORTOFOLIO HAMZAH (7).png` was replaced in konten/, so About uses
-  // the office photograph plus the AirNav onboarding shot (see experience/).
-  ['Foto Kantor BeautyLab.png', 'about/office.webp', { w: 1200, q: Q.photo }],
+  /*
+    `Foto Kantor BeautyLab.png` is NOT used here any more.
+
+    Two reasons, both of which are honesty problems rather than taste ones:
+
+      1. It is a flattened slide composition. The deck's own navy and teal
+         decorative strokes and a diagonally-cropped white field are baked into
+         the pixels, so it is a slide, not a photograph.
+      2. Nothing in the frame shows signage, a name or anything else that ties
+         the building to Beauty Innovation Laboratories. The old alt text
+         asserted that tie anyway, which is a guess dressed as a fact.
+
+    In its place: the actual system, which the deck itself attributes to
+    BeautyLab and which the experience data already describes. It supports the
+    About copy instead of decorating it, and every claim in its alt text is
+    visible in the picture.
+  */
+  ['Gambaran Project di BeautyLab (2).png', 'about/beautylab-system.webp', { w: 1400, q: Q.shot }],
 
   /* --------------------- PROJECT: marketing data system ----------------- */
   // marketing-sheet-2 is the spreadsheet itself; marketing-sheet-1 is the

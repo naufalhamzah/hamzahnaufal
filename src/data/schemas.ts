@@ -48,6 +48,11 @@ export const mediaAssetSchema = z.object({
   width: z.number().int().positive().optional(),
   height: z.number().int().positive().optional(),
   caption: z.string().optional(),
+  /**
+   * How the image fills a fixed frame. `contain` is for documents — a journal
+   * cover or paper cropped to `cover` loses its masthead or a column of data.
+   */
+  fit: z.enum(['cover', 'contain']).optional(),
   isPlaceholder: z.boolean().optional(),
 });
 

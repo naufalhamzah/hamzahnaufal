@@ -263,10 +263,31 @@ const last = parts[parts.length - 1] ?? '';
     /* Native portrait ratio — nothing cropped. */
     object-fit: cover;
     border-radius: var(--r-xs);
-    box-shadow: var(--shadow-lg);
-    /* A touch of desaturation keeps the photograph sitting inside the palette
-       instead of fighting it. */
-    filter: saturate(0.94) contrast(1.03);
+    /*
+      Theme-aware photograph treatment.
+
+      IMPORTANT, and it is not what it looks like: the source file is NOT a
+      photograph on a black backdrop. It is RGBA with the backdrop TRANSPARENT —
+      about 40% of the pixels have zero alpha, and the corner samples read
+      rgba(0,0,0,0), not black.
+
+      That matters, because a transparent backdrop is not a fixed colour: it
+      shows whatever is behind it. On the dark theme the page showed through and
+      it happened to read as a studio black; on paper the SAME FILE showed the
+      ivory page through it and the portrait turned into a light-backdrop shot.
+      The tone was following the page by accident, not by design.
+
+      So the matte is painted as the image's OWN background instead of a plate
+      behind it. Because the backdrop is transparent, that colour shows through
+      exactly where the "backdrop" is, and the photograph now sits on a matte
+      chosen per theme — a lifted charcoal on dark, a deep warm tone on light —
+      with the tint coming from the tokens rather than from whatever happens to
+      be underneath.
+    */
+    background-color: var(--photo-mat);
+    border: var(--hairline) solid var(--photo-edge);
+    box-shadow: var(--photo-shadow);
+    filter: var(--photo-filter);
   }
 
   /* ---------------- meta rule ---------------- */

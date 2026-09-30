@@ -119,26 +119,69 @@ const active = activePageFor(Astro.url.pathname);
     border-bottom: var(--hairline) solid var(--border-faint);
   }
 
+  /*
+    DO NOT put max-height:100% on the image here.
+
+    The plate is a grid item whose row is sized by its content, so a percentage
+    max-height has no definite height to resolve against and the declaration is
+    dropped. The <img> then falls back to its intrinsic size and the source
+    logos — AirNav is 447x447, the wide wordmarks are 900px — painted at full
+    size inside a 32px plate, blowing the footer to 361px tall and overlapping
+    the navigation links.
+
+    So the chip has a FIXED height and width; `height:100%` on the image then
+    resolves against something definite.
+  */
   .ft__logo {
     display: grid;
     place-items: center;
-    height: 2rem;
-    opacity: 0.55;
-    transition: opacity var(--t-base) var(--ease);
+    /*
+      A uniform WHITE chip, deliberately.
+
+      The supplied marks disagree on almost everything: three are on solid white
+      plates with no alpha (AirNav, SMA, UNNES), four are transparent cut-outs,
+      and the colour schemes run from navy to teal to gold. Dropped straight onto
+      a dark band, the white-plate ones glare as bright rectangles while the
+      dark-ink ones vanish.
+
+      A white chip settles all of it at once: a white-plate mark merges into it
+      seamlessly, and a transparent mark reads cleanly on it. The chip is held
+      slightly back so the band stays quiet rather than shouting in a dark footer,
+      and comes to full strength on hover.
+    */
+    height: 2.6rem;
+    width: 6.5rem;
+    padding: 0.4rem 0.55rem;
+    background-color: #fdfcfa;
+    border: var(--hairline) solid var(--border-faint);
+    border-radius: var(--r-xs);
+    opacity: 0.72;
+    transition:
+      opacity var(--t-base) var(--ease),
+      transform var(--t-base) var(--ease);
   }
 
   .ft__logo:hover {
-    opacity: 0.9;
+    opacity: 1;
+    transform: translateY(-2px);
   }
 
   .ft__logo img {
-    max-height: 100%;
+    /*
+      max-height in ABSOLUTE terms, not a percentage.
+
+      `max-height: 100%` on a grid item resolves against its grid area, and with
+      padding on the chip plus an auto-height image that produced an 84px logo
+      inside a 41px chip — the same percentage-resolution trap as before, one
+      level down. A fixed value cannot fail: the chip is 2.6rem tall with 0.4rem
+      of vertical padding, so the content box is 1.8rem and the image is capped
+      just under it.
+    */
+    max-height: 1.7rem;
+    max-width: 100%;
     width: auto;
     height: auto;
     object-fit: contain;
-    /* Logos with white backgrounds read badly on dark; this keeps them from
-       glowing without altering the source files. */
-    filter: grayscale(1) brightness(1.5);
   }
 
   /* ---------- grid ---------- */

@@ -6,15 +6,30 @@
  * areas; /about carries the complete background.
  *
  * IMAGE BUDGET: one photograph.
+ *
+ * On the photograph — this slot previously held `/images/about/office.webp`, a
+ * picture of an office building. It has been REPLACED, for two reasons:
+ *
+ *   1. The source image is a flattened slide composition: it carries the deck's
+ *      own navy and teal decorative strokes and a diagonally-cropped white field
+ *      baked into the pixels. It is not a photograph, it is a slide.
+ *   2. Its alt text asserted it was "the Beauty Innovation Laboratories office
+ *      building", but nothing in the frame shows any signage or name. Attributing
+ *      a building to a named employer on that basis is a guess, and a guess is
+ *      exactly what this project must not publish.
+ *
+ * What replaces it is a real photograph of the actual work — presenting at a
+ * university programme in the UNNES faculty jacket — which supports the About
+ * copy instead of decorating it, and needs no attribution it cannot prove.
  */
 import SectionHead from '@/components/ui/SectionHead.astro';
 import { profile } from '@/data/profile';
 
 const photo = {
-  src: '/images/about/office.webp',
-  alt: 'The Beauty Innovation Laboratories office building, where I built the marketing data system',
-  width: 1200,
-  height: 1697,
+  src: '/images/about/beautylab-system.webp',
+  alt: 'The Beauty Innovation Laboratories customer data spreadsheet, listing brand, product, sample value, payment status and PIC columns',
+  width: 1400,
+  height: 788,
 };
 ---
 
@@ -25,7 +40,7 @@ const photo = {
       eyebrow="About"
       title="Where data, process and technology meet"
       href="/about"
-      linkLabel="Read full background"
+      linkLabel="See more about me"
     />
 
     <div class="ab__grid">
@@ -61,21 +76,41 @@ const photo = {
 
   @media (min-width: 880px) {
     .ab__grid {
-      /* The image is the smaller column — the text leads this section. */
-      grid-template-columns: minmax(0, 0.62fr) minmax(0, 1fr);
+      /*
+        The image column is WIDER here than in the previous version, because the
+        photograph changed from a portrait building shot to a landscape
+        screenshot. A landscape image in a narrow column renders about 180px
+        tall — too small to read, and it looks like an afterthought.
+
+        The text still leads: it keeps the larger share (1.15fr against 1fr) and
+        the image sits on its own row alignment rather than being stretched.
+      */
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
     }
   }
 
   .ab__figure {
     position: relative;
     margin: 0;
+    /*
+      Theme-aware matte for the photograph, same treatment as the hero: a
+      screenshot is mostly WHITE, so on paper it needs a visible edge to separate
+      from ivory, and on dark it needs a matte so the bright panel reads as a
+      deliberate plate rather than a hole punched in the page.
+    */
+    padding: 0.5rem;
+    background-color: var(--photo-mat);
+    border: var(--hairline) solid var(--photo-edge);
+    border-radius: var(--r-xs);
+    box-shadow: var(--photo-shadow);
   }
 
   .ab__figure img {
+    display: block;
     width: 100%;
     height: auto;
-    border: var(--hairline) solid var(--border);
-    border-radius: var(--r-xs);
+    border-radius: calc(var(--r-xs) - 2px);
+    filter: var(--photo-filter);
   }
 
   /* A short accent rule at the top-left, echoing the hero. */
@@ -90,7 +125,7 @@ const photo = {
 
   @media (max-width: 879px) {
     .ab__figure {
-      max-width: 15rem;
+      max-width: 26rem;
     }
   }
 

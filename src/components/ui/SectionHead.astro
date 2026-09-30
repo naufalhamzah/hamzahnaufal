@@ -9,7 +9,6 @@
  * The `index` is decorative ("01", "02"…) and gives the homepage its editorial
  * numbering rhythm.
  */
-import CTALink from './CTALink.astro';
 
 interface Props {
   index: string;
@@ -52,7 +51,20 @@ const {
   {
     href && (
       <div class="sh__act">
-        <CTALink href={href} label={linkLabel} note={note} />
+        {/*
+          A real BUTTON here, not a text link.
+
+          The homepage is deliberately a preview: each section shows a slice and
+          the full set lives on its own page. A quiet underlined link understated
+          that hand-off, so the affordance is a bordered button that reads as
+          clickable at a glance — "See all 8 projects →" rather than a word pair
+          the visitor has to notice.
+        */}
+        <a href={href} class="sh__more">
+          <span class="sh__more-label">{linkLabel}</span>
+          {note && <span class="sh__more-note mono">{note}</span>}
+          <span class="sh__more-arrow" aria-hidden="true">→</span>
+        </a>
       </div>
     )
   }
@@ -108,5 +120,61 @@ const {
 
   .sh__act {
     flex: none;
+  }
+
+  /* ---------------- "See all" button ---------------- */
+  .sh__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.8rem 1.1rem;
+    border: var(--hairline) solid var(--border-strong);
+    border-radius: var(--r-xs);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-strong);
+    white-space: nowrap;
+    transition:
+      border-color var(--t-base) var(--ease),
+      background-color var(--t-base) var(--ease),
+      color var(--t-base) var(--ease);
+  }
+
+  .sh__more:hover {
+    border-color: var(--accent);
+    background-color: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  .sh__more-note {
+    padding-inline-start: 0.55rem;
+    border-inline-start: var(--hairline) solid var(--border-faint);
+    color: var(--fg-faint);
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
+
+  .sh__more:hover .sh__more-note {
+    color: var(--accent);
+  }
+
+  .sh__more-arrow {
+    font-size: 0.95rem;
+    transition: transform var(--t-base) var(--ease);
+  }
+
+  .sh__more:hover .sh__more-arrow {
+    transform: translateX(4px);
+  }
+
+  /* Full-width on narrow screens so the button is a comfortable tap target
+     rather than a cramped pill beside the title. */
+  @media (max-width: 799px) {
+    .sh__more {
+      width: 100%;
+      justify-content: space-between;
+    }
   }
 </style>

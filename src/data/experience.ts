@@ -136,10 +136,21 @@ const raw: ExperienceEntry[] = [
     },
     photos: [
       {
-        src: '/images/about/office.webp',
-        alt: 'The Beauty Innovation Laboratories office building',
-        width: 1200,
-        caption: 'Beauty Innovation Laboratories',
+        /*
+          The ACTUAL system, not the building.
+
+          This slot previously held a photograph of an office building captioned
+          "Beauty Innovation Laboratories". Nothing in that frame showed any
+          signage or name, so the caption asserted a link the picture could not
+          support. The deck does attribute this spreadsheet to BeautyLab, and
+          this entry already describes building it — so this image is both
+          relevant and provable, while the building shot was neither.
+        */
+        src: '/images/about/beautylab-system.webp',
+        alt: 'The Beauty Innovation Laboratories customer data spreadsheet, listing brand, product, sample value, payment status and PIC columns',
+        width: 1400,
+        height: 788,
+        caption: 'Customer data management system',
       },
     ],
     source: 'both',

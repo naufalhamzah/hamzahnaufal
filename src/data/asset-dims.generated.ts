@@ -13,7 +13,7 @@ export const imageDims: Record<string, [number, number]> = {
   '/images/experience/pln-work.webp': [1500, 999],
   '/images/experience/jaist-page.webp': [1300, 1293],
   '/images/experience/ppk-ormawa.webp': [1500, 999],
-  '/images/about/office.webp': [1200, 1697],
+  '/images/about/beautylab-system.webp': [1400, 788],
   '/images/projects/marketing-sheet-1.webp': [1700, 956],
   '/images/projects/marketing-script-1.webp': [1500, 844],
   '/images/projects/pln-dashboard-1.webp': [748, 422],

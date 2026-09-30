@@ -22,23 +22,8 @@ import {
   featuredProjects,
 } from '@/data/projects';
 import { profile } from '@/data/profile';
-import { getImageDims } from '@/data/image-dims';
 import { PROJECT_CATEGORY_LABELS, PROJECT_CATEGORY_ORDER } from '@/types/content';
 
-/**
- * Card variant, chosen from the IMAGE'S OWN ratio rather than its category.
- *
- * WHY: `tall` gives the frame a 9:16 box, which is right for a phone screenshot
- * and wrong for anything landscape — a 9:16 crop of a desktop dashboard cuts the
- * content in half and the text becomes unreadable. Picking by category alone
- * sent Kedai Nyam's desktop shot into a tall frame purely because the project is
- * UI/UX. Aspect ratio is the honest signal, so it decides.
- */
-function variantFor(src: string): 'wide' | 'tall' {
-  const dims = getImageDims(src);
-  if (!dims) return 'wide';
-  return dims[1] / dims[0] > 1.2 ? 'tall' : 'wide';
-}
 
 /** Index numbers follow the master list, so they never renumber on filtering. */
 const numbered = projectsSorted.map((p) => ({
@@ -121,7 +106,7 @@ const meta = [
               <ProjectCard
                 project={n.project}
                 index={n.index}
-                variant={variantFor(n.project.visual.src)}
+                
               />
             </div>
           ))
