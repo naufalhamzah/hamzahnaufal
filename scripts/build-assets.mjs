@@ -69,9 +69,12 @@ const RECIPES = [
       guessed coordinates sliced a shoulder off and then cut the top of the head
       flat, and both looked plausible in a thumbnail.
 
-      · TOP leaves 60px of headroom above the crown — about a third of a head.
-        Clipping the crown reads as a mistake at hero size even when it looks
-        fine small.
+      · TOP leaves 226px of headroom above the crown (y 0.1572). An earlier value
+        of 0.1926 left only 61px, which is 2% of the frame — rendered at 521px
+        wide that is 14px, and the top of the hair sat hard against the crop with
+        no air above it. At hero size it read as a clipped head, which is how the
+        user reported it. 7.5% gives the figure room to breathe, and the crop
+        still ends above the sash's medal so nothing is lost at the bottom.
       · WIDTH 0.7242 is the NARROWEST that still contains the whole figure. The
         subject spans 2045px of 3125 (0.6544), so a tighter crop slices the arms
         off at the frame edge — which is what a 0.55 attempt did, cutting 296px.
@@ -83,7 +86,13 @@ const RECIPES = [
       `ratio` is width/height and the height is DERIVED from it, so the output
       aspect cannot drift.
     */
-    crop: { left: 0.1402, top: 0.1926, width: 0.7242, ratio: 3 / 4 },
+    crop: { left: 0.1402, top: 0.1572, width: 0.7242, ratio: 3 / 4 },
+    /*
+      The matting residue is what drew a faint rectangle around the figure. See
+      the `stripFaintAlpha` note in convert() — this is the one image on the site
+      that needs it, because it is the one cut-out used at large size.
+    */
+    stripFaintAlpha: { floor: 40, ceil: 120 },
   }],
   // The uncropped original, so nothing is lost if the framing is ever revisited.
   /*
@@ -287,6 +296,46 @@ async function convert(from, rel, opts) {
         const ch = Math.min(Math.round(cw / opts.crop.ratio), h - top);
         pipe = pipe.extract({ left, top, width: cw, height: ch });
       }
+    }
+
+    /*
+      stripFaintAlpha: clean the RESIDUE left behind by background removal.
+
+      The cut-out source was produced by a matting tool, and it did not leave a
+      clean binary edge. Measured on the crop that ships: 46.9% of pixels are
+      fully transparent and 51.7% fully opaque, but ~1.4% sit BETWEEN — faint
+      alpha (1..80) scattered over the whole frame, including blocks at the
+      extreme left and right edges and along the bottom.
+
+      Those few percent are invisible against a dark page and nearly invisible
+      against a light one — which is exactly why they went unnoticed — but they
+      are the reason the user could see a RECTANGLE around a cut-out that has no
+      rectangle: the faint residue traces the original photo's bounds, so the
+      eye reads a faint plate edge where there is none.
+
+      The fix is a hard threshold with a narrow ramp. Alpha below `floor` becomes
+      0 (gone); alpha above `ceil` stays as it is; between them it is stretched,
+      so genuine anti-aliased edges (hair, the sash) keep their softness instead
+      of turning into a jagged cut.
+
+      Applied ONLY where this is safe: an alpha photograph, never a logo (a
+      logo's own soft edges are the artwork).
+    */
+    if (opts.stripFaintAlpha) {
+      const floor = opts.stripFaintAlpha.floor ?? 40;
+      const ceil = opts.stripFaintAlpha.ceil ?? 120;
+      const { data, info } = await pipe
+        .ensureAlpha()
+        .raw()
+        .toBuffer({ resolveWithObject: true });
+      const N = info.width * info.height;
+      for (let i = 0; i < N; i++) {
+        const o = i * 4 + 3;
+        const v = data[o];
+        if (v <= floor) data[o] = 0;
+        else if (v < ceil) data[o] = Math.round(((v - floor) / (ceil - floor)) * 255);
+      }
+      pipe = sharp(data, { raw: info });
     }
 
     /*

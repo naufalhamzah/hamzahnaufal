@@ -99,9 +99,21 @@ const last = parts[parts.length - 1] ?? '';
 
   @media (min-width: 940px) {
     .hero__grid {
-      /* Type leads. The portrait column is narrower and pulled upward, which
-         is what creates the asymmetry. */
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.78fr);
+      /*
+        Type still leads, but the portrait is now close to parity (0.95fr against
+        1fr, where it used to be 0.78fr against 1.1fr).
+
+        Why: at 0.78fr the portrait rendered 521px wide on a 1440px viewport, and
+        the user's note was that it should look "more real". Size is the main
+        reason a cut-out reads as pasted: too small and the eye treats it as a
+        graphic in a box rather than a person in the page. At 0.95fr the figure
+        is roughly a third larger, the face reaches a usable size, and the
+        stacked drop-shadows have enough silhouette to be legible.
+
+        The asymmetry survives — the type column is still the wider one and the
+        image still sits below the headline's optical line.
+      */
+      grid-template-columns: minmax(0, 1fr) minmax(0, 0.95fr);
       gap: clamp(2rem, 4vw, 3.5rem);
       align-items: start;
     }
@@ -264,26 +276,14 @@ const last = parts[parts.length - 1] ?? '';
      sitting BEHIND it. It has no edge to see, so the subject appears lit from
      within the page rather than placed on top of it.
 
-     Kept FAINT. The first attempt used the full matte colour at its centre,
-     which on the light theme showed up as a visible beige ellipse floating
-     behind the subject — the opposite of the intent. The centre now carries only
-     a fraction of the matte, and the falloff starts much earlier, so it reads as
-     a lift in the page rather than a shape. */
-  .hero__figure::before {
-    content: '';
-    position: absolute;
-    inset: -14% -16% -4% -16%;
-    z-index: -1;
-    background: radial-gradient(
-      58% 52% at 50% 38%,
-      color-mix(in srgb, var(--photo-mat) 62%, transparent) 0%,
-      color-mix(in srgb, var(--photo-mat) 24%, transparent) 48%,
-      transparent 74%
-    );
-    pointer-events: none;
-  }
-
-  @media (min-width: 940px) {
+     Two failure modes to avoid, both seen in earlier attempts:
+       · too STRONG at the centre (the full matte colour) showed up as a visible
+         beige ellipse floating behind the subject — a shape, not a lift;
+       · too WEAK left the figure looking pasted onto a flat page.
+     The falloff is therefore narrow and quick: a modest lift close to the
+     subject that reaches fully transparent well before the edge, so there is no
+     boundary anywhere for the eye to catch. */
+    @media (min-width: 940px) {
     .hero__figure {
       /* Pulled up so the cut-out breaks past the section's top padding and the
          composition feels cropped rather than contained. */
@@ -297,6 +297,27 @@ const last = parts[parts.length - 1] ?? '';
     width: 100%;
     height: auto;
     /*
+      NO OUTLINE ON THE IMAGE.
+
+      The page's global `:focus-visible` rule draws a 3px accent outline, and the
+      hero <img> receives focus on load — so a rectangle was drawn around a
+      cut-out that has no rectangle. The user reported it as a "border" on the
+      photo, which is exactly what it was.
+
+      Suppressed deliberately: an image is not an interactive control, so a focus
+      ring on it signals an affordance that does not exist. Nothing is lost for
+      keyboard users — there is no action to reach here.
+    */
+    /*
+      `!important` is load-bearing here, not laziness. The global `:focus-visible`
+      rule sets BOTH `outline` and `outline-offset`, and a plain `outline: none`
+      does not neutralise the offset — the browser then draws the ring from a
+      stale offset on some engines. These three declarations together are what
+      actually remove the rectangle.
+    */
+    outline: none !important;
+    outline-offset: 0 !important;
+    /*
       `drop-shadow`, NOT `box-shadow`.
 
       box-shadow draws around the element's BOX, so on a cut-out it paints a
@@ -305,9 +326,25 @@ const last = parts[parts.length - 1] ?? '';
       silhouette. Two stacked shadows: a tight one to seat the subject against
       the page, and a wide soft one for depth.
     */
+    /*
+      THREE stacked drop-shadows, which is what makes a cut-out read as a real
+      person standing in the page rather than a flat sticker:
+
+        1. a tight contact shadow — seats the figure, the way a hard light source
+           would
+        2. a mid shadow — gives the body a sense of separation from the surface
+        3. a wide, very soft one — the ambient falloff, which is the part the eye
+           reads as "occupying space"
+
+      All three follow the ALPHA silhouette, so the shadow is the shape of the
+      person (shoulders, arm, the sash's edge) and not a rectangle. One shadow
+      alone reads as a graphic cut-out; the stack is what makes it photographic.
+    */
     filter: var(--photo-filter) drop-shadow(
-        0 2px 3px rgba(0, 0, 0, 0.28)
-      ) drop-shadow(0 18px 34px rgba(0, 0, 0, 0.34));
+        0 1px 2px rgba(0, 0, 0, 0.45)
+      ) drop-shadow(0 4px 10px rgba(0, 0, 0, 0.28))
+      drop-shadow(0 14px 28px rgba(0, 0, 0, 0.26))
+      drop-shadow(0 34px 60px rgba(0, 0, 0, 0.30));
     /*
       THE BOTTOM FADE — this is what removes the "patahan".
 
@@ -324,20 +361,28 @@ const last = parts[parts.length - 1] ?? '';
       computed from the full silhouette and then faded along with it. The shadow
       therefore fades too, and no shadow edge is left floating below the figure.
     */
+    /*
+      A LONG, even fade — the earlier curve dropped from solid to 0.2 in the last
+      fifth, which is a visible gradient band rather than a dissolve. Spreading
+      it over the last third with a smooth ramp makes the figure recede instead of
+      being wiped, so there is no line where the crop ends.
+    */
     mask-image: linear-gradient(
       to bottom,
       #000 0%,
-      #000 74%,
-      rgba(0, 0, 0, 0.62) 84%,
-      rgba(0, 0, 0, 0.2) 94%,
+      #000 66%,
+      rgba(0, 0, 0, 0.86) 76%,
+      rgba(0, 0, 0, 0.52) 87%,
+      rgba(0, 0, 0, 0.18) 95%,
       transparent 100%
     );
     -webkit-mask-image: linear-gradient(
       to bottom,
       #000 0%,
-      #000 74%,
-      rgba(0, 0, 0, 0.62) 84%,
-      rgba(0, 0, 0, 0.2) 94%,
+      #000 66%,
+      rgba(0, 0, 0, 0.86) 76%,
+      rgba(0, 0, 0, 0.52) 87%,
+      rgba(0, 0, 0, 0.18) 95%,
       transparent 100%
     );
   }
@@ -346,8 +391,10 @@ const last = parts[parts.length - 1] ?? '';
      ivory reads as dirt rather than depth. */
   :global([data-theme='light']) .hero__img {
     filter: var(--photo-filter) drop-shadow(
-        0 2px 3px rgba(62, 46, 30, 0.16)
-      ) drop-shadow(0 16px 30px rgba(62, 46, 30, 0.22));
+        0 1px 2px rgba(62, 46, 30, 0.24)
+      ) drop-shadow(0 4px 10px rgba(62, 46, 30, 0.15))
+      drop-shadow(0 14px 26px rgba(62, 46, 30, 0.14))
+      drop-shadow(0 32px 56px rgba(62, 46, 30, 0.18));
   }
 
   /* ---------------- meta rule ---------------- */
@@ -382,10 +429,6 @@ const last = parts[parts.length - 1] ?? '';
     }
 
     /* The pool scales with the figure; slightly tighter so it does not halo. */
-    .hero__figure::before {
-      inset: -10% -10% -4% -10%;
-    }
-
     .hero__name-line--last em::after {
       width: clamp(1.25rem, 12vw, 3.5rem);
     }
