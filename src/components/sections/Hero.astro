@@ -232,20 +232,67 @@ const last = parts[parts.length - 1] ?? '';
   }
 
   /* ---------------- portrait ---------------- */
+  /*
+    THE PORTRAIT IS A CUT-OUT.
+
+    This is the single most important fact about this figure, and the design
+    depends on it. The source has no backdrop at all — the background was removed
+    and ~40% of the pixels are fully transparent. The subject's silhouette is the
+    only thing in the file.
+
+    An earlier version ignored that and treated it like a rectangular photograph:
+    a filled plate, a 1px border and rounded corners on the <img>. On a cut-out
+    those draw a visible RECTANGLE around a person who has no rectangle — which
+    is exactly what makes it read as "pasted on". A box-shadow made it worse: it
+    casts a rectangle, so the eye sees a card, not a person.
+
+    So there is no plate, no border and no radius here. Instead:
+      · `drop-shadow` — which follows the ALPHA SILHOUETTE, so the shadow the
+        subject casts is their own shape (shoulders, arm, sash). This is what
+        seats them in the page instead of pasting them on it.
+      · a soft radial pool behind the figure, so the subject emerges from a lift
+        in the background rather than starting at a hard edge.
+      · the offset hairline frame already in the markup, which anchors the
+        composition architecturally.
+  */
   .hero__figure {
     position: relative;
     margin: 0;
+    isolation: isolate;
+  }
+
+  /* The pool: a soft elliptical lift in the background, sized to the figure and
+     sitting BEHIND it. It has no edge to see, so the subject appears lit from
+     within the page rather than placed on top of it.
+
+     Kept FAINT. The first attempt used the full matte colour at its centre,
+     which on the light theme showed up as a visible beige ellipse floating
+     behind the subject — the opposite of the intent. The centre now carries only
+     a fraction of the matte, and the falloff starts much earlier, so it reads as
+     a lift in the page rather than a shape. */
+  .hero__figure::before {
+    content: '';
+    position: absolute;
+    inset: -14% -16% -8% -16%;
+    z-index: -1;
+    background: radial-gradient(
+      58% 52% at 50% 38%,
+      color-mix(in srgb, var(--photo-mat) 62%, transparent) 0%,
+      color-mix(in srgb, var(--photo-mat) 24%, transparent) 48%,
+      transparent 74%
+    );
+    pointer-events: none;
   }
 
   @media (min-width: 940px) {
     .hero__figure {
-      /* Pulled up so the photograph breaks past the section's top padding and
-         the composition feels cropped rather than contained. */
+      /* Pulled up so the cut-out breaks past the section's top padding and the
+         composition feels cropped rather than contained. */
       margin-top: clamp(-5rem, -6vw, -2rem);
     }
   }
 
-  /* Offset hairline frame — up and to the left of the photograph. */
+  /* Offset hairline frame — up and to the left of the figure. */
   .hero__frame {
     position: absolute;
     inset: -0.85rem 0.85rem auto -0.85rem;
@@ -260,34 +307,26 @@ const last = parts[parts.length - 1] ?? '';
     display: block;
     width: 100%;
     height: auto;
-    /* Native portrait ratio — nothing cropped. */
-    object-fit: cover;
-    border-radius: var(--r-xs);
     /*
-      Theme-aware photograph treatment.
+      `drop-shadow`, NOT `box-shadow`.
 
-      IMPORTANT, and it is not what it looks like: the source file is NOT a
-      photograph on a black backdrop. It is RGBA with the backdrop TRANSPARENT —
-      about 40% of the pixels have zero alpha, and the corner samples read
-      rgba(0,0,0,0), not black.
-
-      That matters, because a transparent backdrop is not a fixed colour: it
-      shows whatever is behind it. On the dark theme the page showed through and
-      it happened to read as a studio black; on paper the SAME FILE showed the
-      ivory page through it and the portrait turned into a light-backdrop shot.
-      The tone was following the page by accident, not by design.
-
-      So the matte is painted as the image's OWN background instead of a plate
-      behind it. Because the backdrop is transparent, that colour shows through
-      exactly where the "backdrop" is, and the photograph now sits on a matte
-      chosen per theme — a lifted charcoal on dark, a deep warm tone on light —
-      with the tint coming from the tokens rather than from whatever happens to
-      be underneath.
+      box-shadow draws around the element's BOX, so on a cut-out it paints a
+      rectangle behind a person who has none — the "sticker" look. drop-shadow
+      is applied to the rendered ALPHA, so the shadow traces the actual
+      silhouette. Two stacked shadows: a tight one to seat the subject against
+      the page, and a wide soft one for depth.
     */
-    background-color: var(--photo-mat);
-    border: var(--hairline) solid var(--photo-edge);
-    box-shadow: var(--photo-shadow);
-    filter: var(--photo-filter);
+    filter: var(--photo-filter) drop-shadow(
+        0 2px 3px rgba(0, 0, 0, 0.28)
+      ) drop-shadow(0 18px 34px rgba(0, 0, 0, 0.34));
+  }
+
+  /* On paper the shadows have to be softer and warmer — a hard black drop on
+     ivory reads as dirt rather than depth. */
+  :global([data-theme='light']) .hero__img {
+    filter: var(--photo-filter) drop-shadow(
+        0 2px 3px rgba(62, 46, 30, 0.16)
+      ) drop-shadow(0 16px 30px rgba(62, 46, 30, 0.22));
   }
 
   /* ---------------- meta rule ---------------- */
@@ -308,11 +347,22 @@ const last = parts[parts.length - 1] ?? '';
 
   /* ---------------- mobile ---------------- */
   @media (max-width: 939px) {
-    /* Portrait first, and capped hard — a 2:3 photograph at full width would be
-       ~530px tall and push the name off the first screen. */
+    /*
+      Portrait first, and capped hard.
+
+      The cap matters more now than it did with a rectangular photo: this is a
+      CUT-OUT, so at full width a 3:4 figure would be ~530px of free-floating
+      person with nothing containing it. Capping the column keeps it a portrait
+      inset the eye reads as an introduction, not a full-bleed poster.
+    */
     .hero__figure {
       order: -1;
-      max-width: 14rem;
+      max-width: 13rem;
+    }
+
+    /* The pool scales with the figure; slightly tighter so it does not halo. */
+    .hero__figure::before {
+      inset: -10% -10% -4% -10%;
     }
 
     /* The offset frame reads as a stray line at this size. */

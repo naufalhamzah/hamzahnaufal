@@ -64,13 +64,24 @@ const RECIPES = [
     w: 1400,
     q: Q.photo,
     /*
-      Fractions of the ORIGINAL frame, measured from the subject's actual extent
-      (the figure occupies roughly x 0.22-0.81 and y 0.14-0.92).
-      `ratio` is width/height, and the height is DERIVED from it — writing the
-      height as a manual fraction is how the first attempt came out 0.53 instead
-      of the intended 0.8.
+      Fractions of the ORIGINAL frame. The source is a CUT-OUT — the backdrop is
+      transparent, not black — and its subject occupies x 554..2083 and
+      y 384..3749 of 2500x3750.
+
+      The previous crop (left 0.18 -> x 450..2050) stopped 33px SHORT of the
+      subject's right edge, so the right shoulder and arm were sliced off. These
+      fractions are measured from the subject's real extent instead of being
+      estimated.
+
+      The bottom edge is set BELOW the cum-laude sash's tassel, not across it:
+      cutting at y 0.667 sliced the sash mid-way, which read as a clumsy crop
+      rather than a composed portrait. Stopping at y 0.702 keeps the whole sash
+      — the detail that makes the photo personal — inside the frame.
+
+      `ratio` is width/height and the height is DERIVED from it, so the output
+      aspect cannot drift.
     */
-    crop: { left: 0.18, top: 0.10, width: 0.64, ratio: 4 / 5 },
+    crop: { left: 0.208, top: 0.1333, width: 0.64, ratio: 3 / 4 },
   }],
   // The uncropped original, so nothing is lost if the framing is ever revisited.
   ['Foto Cover.png', 'hero/portrait-full.webp', { w: 1200, q: Q.photo }],

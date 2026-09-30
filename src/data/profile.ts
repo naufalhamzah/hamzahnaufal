@@ -101,17 +101,20 @@ const rawProfile: Profile = {
    * `Foto Cover.png`), shot against a black backdrop — which is what makes the
    * dark editorial hero treatment work.
    *
-   * CROPPED to a head-and-shoulders 4:5 by the asset pipeline. The supplied
-   * frame is full-length with the figure occupying only part of it, so at hero
-   * size the face became a small figure on a large black field. The crop is
-   * measured from the subject's actual extent and keeps the sash in shot. The
-   * uncropped original is still produced as `/images/hero/portrait-full.webp`.
+   * CROPPED to a head-to-chest 3:4 by the asset pipeline, measured from the
+   * subject's actual extent. The supplied frame is full-length, so at hero size
+   * the face became a small figure on a large empty field.
+   *
+   * NOTE the file has NO BACKDROP — it is a cut-out with roughly 40% of its
+   * pixels fully transparent, so the hero renders it as a silhouette in the page
+   * (drop-shadow, soft pool) rather than a pasted rectangle. The uncropped
+   * original is still produced as `/images/hero/portrait-full.webp`.
    */
   portrait: {
     src: '/images/hero/portrait.webp',
-    alt: 'Portrait of Hamzah Naufal Zuhdi against a dark background, wearing a graduation sash',
+    alt: 'Portrait of Hamzah Naufal Zuhdi, wearing a graduation sash',
     width: 1400,
-    height: 1750,
+    height: 1866,
   },
 
   contactLinks: [
