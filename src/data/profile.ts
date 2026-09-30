@@ -102,8 +102,13 @@ const rawProfile: Profile = {
    * dark editorial hero treatment work.
    *
    * CROPPED to a head-to-chest 3:4 by the asset pipeline, measured from the
-   * subject's actual extent. The supplied frame is full-length, so at hero size
-   * the face became a small figure on a large empty field.
+   * subject's actual extent rather than estimated. Two details that were wrong
+   * before and are worth not regressing:
+   *   · the crop starts ABOVE the crown, leaving ~52px of headroom — an earlier
+   *     top edge cut 111px off the top of the head, which reads as a mistake at
+   *     hero size;
+   *   · the bottom edge sits below the cum-laude sash's tassel, so the whole
+   *     sash stays in frame instead of being sliced mid-way.
    *
    * NOTE the file has NO BACKDROP — it is a cut-out with roughly 40% of its
    * pixels fully transparent, so the hero renders it as a silhouette in the page

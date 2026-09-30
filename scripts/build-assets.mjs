@@ -73,15 +73,27 @@ const RECIPES = [
       fractions are measured from the subject's real extent instead of being
       estimated.
 
+      The top edge is set ABOVE the top of the head, with margin — the earlier
+      crop started at y 0.0987 (y 370) while the subject's head begins at y 388,
+      so the top of the hair was cut off flat. A portrait that clips the crown
+      reads as a mistake at hero size even though it looks plausible in a
+      thumbnail, because the eye goes straight to the missing skull line.
+
+      The subject's real extent, measured from the alpha channel rather than
+      estimated: x 559..2078, y 388..3749 (alpha > 200; a 16 threshold adds a few
+      px of anti-aliasing noise). The crop below leaves ~60px of headroom, which
+      is roughly a third of a head — enough to read as deliberate framing without
+      wasting the frame on empty backdrop.
+
       The bottom edge is set BELOW the cum-laude sash's tassel, not across it:
-      cutting at y 0.667 sliced the sash mid-way, which read as a clumsy crop
-      rather than a composed portrait. Stopping at y 0.702 keeps the whole sash
-      — the detail that makes the photo personal — inside the frame.
+      cutting mid-sash sliced it, which read as a clumsy crop rather than a
+      composed portrait. Keeping the whole sash — the detail that makes the photo
+      personal — inside the frame.
 
       `ratio` is width/height and the height is DERIVED from it, so the output
       aspect cannot drift.
     */
-    crop: { left: 0.208, top: 0.1333, width: 0.64, ratio: 3 / 4 },
+    crop: { left: 0.208, top: 0.0875, width: 0.64, ratio: 3 / 4 },
   }],
   // The uncropped original, so nothing is lost if the framing is ever revisited.
   ['Foto Cover.png', 'hero/portrait-full.webp', { w: 1200, q: Q.photo }],
