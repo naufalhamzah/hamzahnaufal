@@ -255,8 +255,16 @@ const ratioStyle = `--ar: ${dims ? (dims[1] / dims[0]).toFixed(4) : 0.6667}`;
      VARIANT: tall — for portrait phone screens
      ========================================================================== */
   .pc--tall .pc__frame {
-    /* Cap the height so a 9:16 phone shot does not become 900px tall. */
-    aspect-ratio: 3 / 4;
+    /*
+      9:16, not 3:4. These are phone-app screenshots whose native ratio is
+      ~0.49 (already close to 9:16). Forcing 3:4 cut about a third of the
+      height, which removed the navigation bar and the lower content of every
+      screen — the frames looked cropped rather than composed. 9:16 is only a
+      small trim from native and reads as a deliberate phone frame.
+
+      max-height still caps the column so a tall shot cannot dominate the grid.
+    */
+    aspect-ratio: 9 / 16;
     max-height: 30rem;
   }
 

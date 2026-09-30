@@ -122,8 +122,14 @@ const rest = layout === 'many' ? images.slice(3) : [];
     display: block;
     width: 100%;
     height: 100%;
-    /* cover keeps the frame tidy without distorting the photo */
+    /*
+      cover keeps the frames tidy without distorting the photo, but the anchor
+      matters: these are mostly photographs of people, and a centred crop of a
+      standing group cuts the heads off and keeps the floor. Anchoring the crop
+      to the TOP keeps faces in frame at every frame ratio.
+    */
     object-fit: cover;
+    object-position: center top;
     transition: transform var(--t-slow) var(--ease);
   }
 

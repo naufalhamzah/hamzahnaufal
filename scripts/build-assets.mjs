@@ -43,8 +43,37 @@ const Q = { photo: 80, shot: 84, doc: 86, cert: 86, logo: 92, gallery: 76 };
 
 /** [source, outputPath, options] */
 const RECIPES = [
-  /* -------------------------------- HERO -------------------------------- */
-  ['Foto Cover.png', 'hero/portrait.webp', { w: 1400, q: Q.photo }],
+  /* -------------------------------- HERO --------------------------------
+     CROPPED, deliberately — twice over.
+
+     The source is a 2500x3750 full-length frame with a lot of empty black
+     around a standing figure. Passing it through whole put a small person on a
+     big dark field, and even a plain top-crop to 4:5 still left the face small
+     because the subject only occupies roughly x 560-2030 and y 510-3450 of the
+     original.
+
+     So this is a HEAD-AND-SHOULDERS portrait crop: horizontally tight to the
+     subject, vertically from just above the head to mid-chest, in a 4:5 frame.
+     The face now carries the hero, and the cum-laude sash — which is what makes
+     the photo personal rather than generic — stays in shot.
+
+     No pixels are invented: it is a crop of the supplied photograph, and the
+     untouched original is still produced as hero/portrait-full.webp.
+     ---------------------------------------------------------------------- */
+  ['Foto Cover.png', 'hero/portrait.webp', {
+    w: 1400,
+    q: Q.photo,
+    /*
+      Fractions of the ORIGINAL frame, measured from the subject's actual extent
+      (the figure occupies roughly x 0.22-0.81 and y 0.14-0.92).
+      `ratio` is width/height, and the height is DERIVED from it — writing the
+      height as a manual fraction is how the first attempt came out 0.53 instead
+      of the intended 0.8.
+    */
+    crop: { left: 0.18, top: 0.10, width: 0.64, ratio: 4 / 5 },
+  }],
+  // The uncropped original, so nothing is lost if the framing is ever revisited.
+  ['Foto Cover.png', 'hero/portrait-full.webp', { w: 1200, q: Q.photo }],
 
   /* -------------------------- AIRNAV (explicit) ------------------------- */
   ['Gambaran Pengalaman di Airnav.jpeg', 'experience/airnav-onboarding.webp', {
@@ -201,9 +230,32 @@ async function convert(from, rel, opts) {
     const meta = await sharp(from, { failOn: 'none' }).metadata();
     const targetW = Math.min(opts.w, meta.width ?? opts.w);
 
-    let pipe = sharp(from, { failOn: 'none' })
-      .rotate()
-      .resize({ width: targetW, withoutEnlargement: true });
+    let pipe = sharp(from, { failOn: 'none' }).rotate();
+
+    /*
+      crop: { left, top, width, height } as FRACTIONS of the original frame.
+
+      WHY FRACTIONS: a portrait cannot be re-framed by aspect ratio alone — a
+      standing figure in a tall frame has the subject occupying only part of the
+      width, so a full-width crop keeps a lot of empty background and the face
+      stays small. The fractions here were measured from where the subject
+      actually is, and expressing them relatively means re-exporting the source
+      at another size still crops the same region.
+    */
+    if (opts.crop) {
+      const w = meta.width ?? 0;
+      const h = meta.height ?? 0;
+      if (w && h) {
+        const left = Math.round(w * opts.crop.left);
+        const top = Math.round(h * opts.crop.top);
+        const cw = Math.min(Math.round(w * opts.crop.width), w - left);
+        // Height comes FROM the ratio, so the output aspect is exact.
+        const ch = Math.min(Math.round(cw / opts.crop.ratio), h - top);
+        pipe = pipe.extract({ left, top, width: cw, height: ch });
+      }
+    }
+
+    pipe = pipe.resize({ width: targetW, withoutEnlargement: true });
 
     if (opts.logo) {
       if (!meta.hasAlpha) pipe = pipe.flatten({ background: '#ffffff' });
