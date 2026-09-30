@@ -117,10 +117,23 @@ const fit = project.visual.fit ?? 'cover';
 
       {
         project.tools.length > 0 && (
-          <ul class="pc__tools" aria-label="Tools">
-            {project.tools.slice(0, 4).map((t) => (
+          /*
+            Show five, then a "+N" chip rather than silently truncating.
+
+            The list was capped at four with no indication that anything had been
+            dropped, so a project with seven tools looked like it had four. The
+            overflow chip states the remainder honestly, and the full set is on
+            the case-study page.
+          */
+          <ul class="pc__tools" aria-label={`Tools (${project.tools.length})`}>
+            {project.tools.slice(0, 5).map((t) => (
               <li class="pc__tool mono">{t}</li>
             ))}
+            {project.tools.length > 5 && (
+              <li class="pc__tool pc__tool--more mono" aria-hidden="true">
+                +{project.tools.length - 5}
+              </li>
+            )}
           </ul>
         )
       }
@@ -280,13 +293,50 @@ const fit = project.visual.fit ?? 'cover';
     list-style: none;
   }
 
+  /*
+    Tools as small labelled chips.
+
+    The chips are tinted with the ACCENT rather than a neutral border, and the
+    first one is emphasised. That is what stops a row of tools reading as a row
+    of identical grey pills — the eye gets an entry point, and the row looks
+    composed rather than dumped.
+  */
+  .pc__tools {
+    gap: 0.4rem 0.45rem;
+  }
+
   .pc__tool {
-    padding: 0.24rem 0.55rem;
+    padding: 0.24rem 0.6rem;
     border: var(--hairline) solid var(--border);
     border-radius: var(--r-full);
+    background-color: color-mix(in srgb, var(--surface-3) 55%, transparent);
     color: var(--fg-subtle);
     text-transform: none;
     letter-spacing: 0.03em;
+    transition:
+      border-color var(--t-fast) var(--ease),
+      color var(--t-fast) var(--ease);
+  }
+
+  /* The primary tool is the one the project is actually built in, so it is the
+     one that gets the accent treatment. */
+  .pc__tool:first-child {
+    border-color: var(--accent-line);
+    color: var(--accent);
+  }
+
+  .pc__link:hover .pc__tool {
+    border-color: var(--border-strong);
+  }
+
+  .pc__link:hover .pc__tool:first-child {
+    border-color: var(--accent);
+  }
+
+  /* The overflow chip reads as a count, not as a tool. */
+  .pc__tool--more {
+    border-style: dashed;
+    color: var(--fg-faint);
   }
 
   /* Pins the CTA to the bottom of the card so a row's links line up. */

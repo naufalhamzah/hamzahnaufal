@@ -9,6 +9,12 @@
  *
  * The phone number is NOT listed. Links come from `activeContactLinks`, which
  * filters out disabled entries, so a hidden number can never leak into the HTML.
+ *
+ * LAYOUT NOTE
+ * The email is not a bordered card any more. A card made the address look like a
+ * form field; setting it as OVERSIZED DISPLAY TYPE instead makes it the single
+ * loudest thing on the page, which is what a contact page should do — the
+ * address IS the content, and everything else is supporting matter.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PageHeader from '@/components/ui/PageHeader.astro';
@@ -16,6 +22,7 @@ import { profile, activeContactLinks } from '@/data/profile';
 
 const email = activeContactLinks.find((l) => l.href.startsWith('mailto:'));
 const socials = activeContactLinks.filter((l) => l !== email);
+const emailAddress = email?.href.replace('mailto:', '') ?? '';
 
 /** Facts worth stating up front when someone is deciding whether to reach out. */
 const facts = [
@@ -38,27 +45,31 @@ const facts = [
   />
 
   <section class="co" aria-labelledby="co-main">
-    <div class="shell co__shell">
-      <!-- ---------------- primary action ---------------- -->
-      <div class="co__main">
-        <h2 id="co-main" class="sr-only">Contact details</h2>
+    <div class="shell">
+      <h2 id="co-main" class="sr-only">Contact details</h2>
 
-        {
-          email && (
+      <!-- ============ the address, set as display type ============ -->
+      {
+        email && (
+          <div class="co__lead">
+            <p class="label co__lead-h">Email — the fastest route</p>
+
             <a href={email.href} class="co__mail">
-              <span class="co__mail-label mono">Email</span>
-              <span class="co__mail-addr">{email.href.replace('mailto:', '')}</span>
+              <span class="co__mail-addr">{emailAddress}</span>
               <span class="co__mail-arrow" aria-hidden="true">→</span>
             </a>
-          )
-        }
 
-        <p class="co__note">
-          Tell me what you are working on and what you need. If it is a fit, I will
-          come back with how I would approach it.
-        </p>
+            <p class="co__note">
+              Tell me what you are working on and what you need. If it is a fit, I
+              will come back with how I would approach it.
+            </p>
+          </div>
+        )
+      }
 
-        <div class="co__socials-block">
+      <!-- ============ supporting columns ============ -->
+      <div class="co__grid">
+        <div class="co__col">
           <h3 class="label co__h">Elsewhere</h3>
           <ul class="co__socials">
             {
@@ -74,40 +85,41 @@ const facts = [
                     <span class="co__social-href mono">
                       {s.href.replace(/^https?:\/\/(www\.)?/, '')}
                     </span>
-                    {s.external && <span class="co__social-arrow" aria-hidden="true">↗</span>}
+                    <span class="co__social-arrow" aria-hidden="true">
+                      {s.external ? '↗' : '→'}
+                    </span>
                   </a>
                 </li>
               ))
             }
           </ul>
         </div>
+
+        <aside class="co__col" aria-label="At a glance">
+          <h3 class="label co__h">At a glance</h3>
+          <dl class="co__facts">
+            {
+              facts.map((f) => (
+                <div class="co__fact">
+                  <dt class="mono">{f.k}</dt>
+                  <dd>{f.v}</dd>
+                </div>
+              ))
+            }
+          </dl>
+
+          <div class="co__links">
+            <a href="/projects" class="co__link">
+              <span>See the work</span>
+              <span aria-hidden="true">→</span>
+            </a>
+            <a href="/about" class="co__link">
+              <span>Read the background</span>
+              <span aria-hidden="true">→</span>
+            </a>
+          </div>
+        </aside>
       </div>
-
-      <!-- ---------------- facts rail ---------------- -->
-      <aside class="co__side" aria-label="At a glance">
-        <h3 class="label co__h">At a glance</h3>
-        <dl class="co__facts">
-          {
-            facts.map((f) => (
-              <div class="co__fact">
-                <dt class="mono">{f.k}</dt>
-                <dd>{f.v}</dd>
-              </div>
-            ))
-          }
-        </dl>
-
-        <div class="co__links">
-          <a href="/projects" class="co__link">
-            <span>See the work</span>
-            <span aria-hidden="true">→</span>
-          </a>
-          <a href="/about" class="co__link">
-            <span>Read the background</span>
-            <span aria-hidden="true">→</span>
-          </a>
-        </div>
-      </aside>
     </div>
   </section>
 </BaseLayout>
@@ -117,83 +129,103 @@ const facts = [
     padding-block: clamp(1.5rem, 3vw, 2.5rem) var(--space-section);
   }
 
-  .co__shell {
-    display: grid;
-    gap: clamp(2rem, 4.5vw, 4rem);
-    grid-template-columns: 1fr;
+  /* ---------------- the address, oversized ---------------- */
+  .co__lead {
+    padding-bottom: clamp(2rem, 4vw, 3rem);
+    border-bottom: var(--hairline) solid var(--border);
   }
 
-  @media (min-width: 900px) {
-    .co__shell {
-      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
-      align-items: start;
-    }
+  .co__lead-h {
+    display: block;
+    margin-bottom: clamp(0.75rem, 1.5vw, 1.1rem);
+    color: var(--accent);
   }
 
-  /* ---------------- email ---------------- */
   .co__mail {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: clamp(1.1rem, 2.5vw, 1.5rem);
-    border: var(--hairline) solid var(--border-strong);
-    border-radius: var(--r-xs);
-    background-color: var(--surface);
-    transition:
-      border-color var(--t-base) var(--ease),
-      background-color var(--t-base) var(--ease);
+    display: inline-flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.35rem 1rem;
+    max-width: 100%;
   }
 
-  .co__mail:hover {
-    border-color: var(--accent);
-    background-color: var(--accent-soft);
-  }
-
-  .co__mail-label {
-    flex: none;
-    color: var(--fg-faint);
-  }
-
+  /*
+    The address in display type at the largest size on the page. It wraps rather
+    than shrinking, because an email that has been scaled down to fit stops
+    reading as the page's subject.
+  */
   .co__mail-addr {
     font-family: var(--font-display);
-    font-size: var(--text-2xl);
+    font-size: clamp(1.6rem, 5.2vw, var(--text-display));
+    font-weight: 500;
+    line-height: 1.06;
+    letter-spacing: -0.028em;
     color: var(--fg-strong);
     overflow-wrap: anywhere;
-    min-width: 0;
+    transition: color var(--t-base) var(--ease);
+  }
+
+  /* A rule under the address that fills on hover — the underline is the
+     affordance, so no border or card is needed around it. */
+  .co__mail-addr::after {
+    content: '';
+    display: block;
+    height: 3px;
+    margin-top: 0.28em;
+    background-color: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--t-slow) var(--ease);
+  }
+
+  .co__mail:hover .co__mail-addr,
+  .co__mail:focus-visible .co__mail-addr {
+    color: var(--accent);
+  }
+
+  .co__mail:hover .co__mail-addr::after,
+  .co__mail:focus-visible .co__mail-addr::after {
+    transform: scaleX(1);
   }
 
   .co__mail-arrow {
-    margin-inline-start: auto;
-    flex: none;
-    font-size: 1.35rem;
+    font-size: clamp(1.3rem, 3vw, 2rem);
     color: var(--accent);
     transition: transform var(--t-base) var(--ease);
   }
 
   .co__mail:hover .co__mail-arrow {
-    transform: translateX(5px);
+    transform: translateX(6px);
   }
 
   .co__note {
-    margin-top: clamp(1.25rem, 2.5vw, 1.75rem);
-    max-width: 56ch;
+    margin-top: clamp(1.1rem, 2.5vw, 1.6rem);
+    max-width: 54ch;
     font-size: var(--text-lg);
     color: var(--fg-muted);
   }
 
-  /* ---------------- socials ---------------- */
-  .co__socials-block {
-    margin-top: clamp(2rem, 4vw, 2.75rem);
-    padding-top: clamp(1.75rem, 3.5vw, 2.25rem);
-    border-top: var(--hairline) solid var(--border);
+  /* ---------------- supporting grid ---------------- */
+  .co__grid {
+    display: grid;
+    gap: clamp(2rem, 4.5vw, 4rem);
+    grid-template-columns: 1fr;
+    padding-top: clamp(2rem, 4vw, 3rem);
+  }
+
+  @media (min-width: 900px) {
+    .co__grid {
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    }
   }
 
   .co__h {
     display: block;
-    margin-bottom: 1rem;
+    margin-bottom: 1.1rem;
     color: var(--accent);
   }
 
+  /* ---------------- socials ---------------- */
   .co__socials {
     display: grid;
     gap: 0.6rem;
@@ -206,17 +238,20 @@ const facts = [
     display: flex;
     align-items: baseline;
     gap: 0.85rem;
-    padding: 0.85rem 1rem;
+    padding: 0.9rem 1.05rem;
     border: var(--hairline) solid var(--border);
     border-radius: var(--r-xs);
+    background-color: var(--surface);
     transition:
       border-color var(--t-base) var(--ease),
-      background-color var(--t-base) var(--ease);
+      background-color var(--t-base) var(--ease),
+      transform var(--t-base) var(--ease);
   }
 
   .co__social:hover {
     border-color: var(--accent);
     background-color: var(--accent-soft);
+    transform: translateY(-2px);
   }
 
   .co__social-label {
@@ -239,13 +274,14 @@ const facts = [
   .co__social-arrow {
     margin-inline-start: auto;
     color: var(--accent);
+    transition: transform var(--t-base) var(--ease);
+  }
+
+  .co__social:hover .co__social-arrow {
+    transform: translateX(4px);
   }
 
   /* ---------------- facts ---------------- */
-  .co__side {
-    padding-top: clamp(0.5rem, 1.5vw, 1rem);
-  }
-
   .co__facts {
     display: grid;
     gap: 0;
@@ -256,7 +292,7 @@ const facts = [
     display: flex;
     flex-direction: column;
     gap: 0.3rem;
-    padding: 0.8rem 0;
+    padding: 0.85rem 0;
     border-top: var(--hairline) solid var(--border-faint);
   }
 
@@ -302,15 +338,6 @@ const facts = [
   }
 
   @media (max-width: 560px) {
-    .co__mail {
-      flex-wrap: wrap;
-      gap: 0.4rem 0.75rem;
-    }
-
-    .co__mail-addr {
-      font-size: var(--text-xl);
-    }
-
     .co__social {
       flex-wrap: wrap;
       gap: 0.25rem 0.85rem;

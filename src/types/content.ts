@@ -177,6 +177,16 @@ export interface ProjectEntry {
   link?: ContentLink;
   /** Extra links (e.g. a second platform variant of the same design). */
   links?: ContentLink[];
+  /**
+   * A link that EXISTS but has no URL yet.
+   *
+   * Set this when the work has something worth opening (a dashboard, a live
+   * prototype) but the address has not been supplied. The page then renders a
+   * clearly-labelled placeholder row instead of either hiding the fact or
+   * shipping a dead `href="#"` — so the slot is visible, obviously pending, and
+   * becomes a real button the moment `link.href` is filled in.
+   */
+  linkPending?: string;
   featured: boolean;
   source: SourceRef;
   todo?: string;

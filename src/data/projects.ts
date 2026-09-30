@@ -45,7 +45,7 @@ const raw: ProjectEntry[] = [
       'Ensured all business data was recorded accurately and accessible in real time',
       'Helped sustain the system in daily operations after handover',
     ],
-    tools: ['Google Sheets', 'JavaScript'],
+    tools: ['Google Sheets', 'Google Apps Script', 'JavaScript', 'Data modelling', 'Workflow automation', 'Data validation'],
     visual: {
       src: '/images/projects/marketing-sheet-1.webp',
       alt: 'The marketing data management spreadsheet, showing customer records with brand, no-HP reference, drive link, product detail, customer type, sample value, payment status and PIC columns',
@@ -68,6 +68,7 @@ const raw: ProjectEntry[] = [
         caption: 'Automation logic in Google Apps Script',
       },
     ],
+    linkPending: 'Open the marketing system',
     featured: true,
     source: 'both',
   },
@@ -97,7 +98,7 @@ const raw: ProjectEntry[] = [
       'Made monitoring performance, material-need analysis and management reporting easier',
       'Made the evaluation process faster, more accurate and more efficient',
     ],
-    tools: ['Google Looker Studio', 'Google Sheets'],
+    tools: ['Google Looker Studio', 'Google Sheets', 'Data visualisation', 'Dashboard design', 'Data integration', 'Business process mapping'],
     /**
      * VISUALS — the four newest dashboard captures replace the earlier
      * screenshots; each is a distinct view, so the gallery shows the breadth
@@ -173,7 +174,7 @@ const raw: ProjectEntry[] = [
       'Contributed to documentation and publication that increased the programme’s exposure',
       'Supported the programme’s reported improvement in agricultural productivity and water management efficiency',
     ],
-    tools: ['IoT-based smart farming', 'Automatic irrigation system', 'SIMPELDES'],
+    tools: ['IoT-based smart farming', 'Automatic irrigation system', 'ESP32 / ESP8266', 'Sensor integration', 'SIMPELDES', 'Renewable energy', 'Scientific writing'],
     visual: {
       src: '/images/projects/smart-farming-article.webp',
       alt: 'Cover page of the Ampoen journal article on Smart Farming in Desa Gonoharjo, listing the author team and the article DOI',
@@ -198,6 +199,7 @@ const raw: ProjectEntry[] = [
         caption: 'Field programme',
       },
     ],
+    linkPending: 'Open the SIMPELDES village system',
     featured: true,
     source: 'both',
     todo:
@@ -227,7 +229,7 @@ const raw: ProjectEntry[] = [
       'Reported accuracy of 93.33%–95.00% across the tested K values',
       'Published in IJIRSE Vol. 4 No. 1, Maret 2024, pp. 40–46',
     ],
-    tools: ['K-Nearest Neighbors', 'Confusion matrix', 'Python'],
+    tools: ['K-Nearest Neighbors', 'Python', 'Confusion matrix', 'Model evaluation', 'Classification', 'Academic writing'],
     visual: {
       src: '/images/projects/knn-paper.webp',
       alt: 'Cover of the Indonesian Journal of Informatic Research and Software Engineering (IJIRSE), Vol. 4 No. 1, March 2024 — the issue carrying the K-Nearest Neighbors creditworthiness paper',
@@ -260,7 +262,7 @@ const raw: ProjectEntry[] = [
       'Reported a 75% F1-score on an 80:20 data split',
       'Published in IJIRSE Vol. 5 No. 1, Maret 2025, pp. 12–19',
     ],
-    tools: ['Naive Bayes', 'Python'],
+    tools: ['Naive Bayes', 'Python', 'Sentiment analysis', 'Text preprocessing', 'Train–test split', 'Academic writing'],
     visual: {
       src: '/images/projects/naive-bayes-paper.webp',
       alt: 'Cover of the Indonesian Journal of Informatic Research and Software Engineering (IJIRSE), Vol. 5 No. 1, March 2025 — the issue carrying the iPusnas Naive Bayes sentiment paper',
@@ -291,7 +293,7 @@ const raw: ProjectEntry[] = [
       'Explored 5D Planner and Augmented Reality features',
     ],
     outcomes: [],
-    tools: ['Figma'],
+    tools: ['Figma', 'UI/UX design', 'Wireframing', 'Prototyping', 'Augmented Reality concept'],
     visual: {
       src: '/images/projects/guzelev-2.webp',
       alt: 'Guzelev home decor app screen showing product browsing in the mobile interface',
@@ -342,7 +344,7 @@ const raw: ProjectEntry[] = [
       'Covered counselling flows via chat and video call',
     ],
     outcomes: [],
-    tools: ['Figma', 'Canva'],
+    tools: ['Figma', 'Canva', 'UI/UX design', 'User flow', 'Prototyping', 'Accessibility'],
     visual: {
       src: '/images/projects/wellmind-2.webp',
       alt: 'WellMind app showing the list of licensed mental health professionals',
@@ -400,7 +402,7 @@ const raw: ProjectEntry[] = [
       'Focused the mobile version on a fast, easy ordering experience',
     ],
     outcomes: [],
-    tools: ['Figma'],
+    tools: ['Figma', 'UI/UX design', 'Design system', 'Responsive design', 'Role-based flows'],
     visual: {
       src: '/images/projects/kedai-nyam-1.webp',
       alt: 'Kedai Nyam desktop dashboard with sales summary and transaction figures',
@@ -490,34 +492,41 @@ export const projectsSorted = [...projectEntries].sort((a, b) => {
  * category, and so on. That keeps the output deterministic (no randomness) and
  * leaves the relative recency ordering intact inside each category.
  */
-export const projectsInterleaved = (() => {
-  const queues = new Map<string, typeof projectEntries>();
-  for (const p of projectsSorted) {
-    const key = p.categories[0];
-    if (!queues.has(key)) queues.set(key, []);
-    queues.get(key)!.push(p);
-  }
-  /** A stable category order, by how many projects each holds (then name). */
-  const order = [...queues.keys()].sort((a, b) => {
-    const d = queues.get(b)!.length - queues.get(a)!.length;
-    return d !== 0 ? d : a.localeCompare(b);
-  });
-  const out: typeof projectEntries = [];
-  let added = true;
-  while (added) {
-    added = false;
-    for (const key of order) {
-      const q = queues.get(key)!;
-      if (q.length) {
-        out.push(q.shift()!);
-        added = true;
-      }
-    }
-  }
-  return out;
-})();
-
 /**
+ * Grid order for /projects.
+ *
+ * The order is EXPLICIT, not derived from dates or categories. It follows the
+ * priority the work should be read in:
+ *
+ *   1. the dashboard    — the most complete case study (a real system, in use)
+ *   2. the UI/UX set    — product design across three different products
+ *   3. the BeautyLab system — the from-scratch build
+ *   4. everything else  — the published research
+ *
+ * WHY NOT SORT BY DATE OR CATEGORY
+ * Sorting by date put the newest first, which buried the UI/UX work entirely.
+ * Grouping by category clustered three data/systems projects at the top, so the
+ * opening row showed one kind of work repeated. This list is the honest answer:
+ * a deliberate editorial order, stated as such rather than dressed up as an
+ * algorithm. Anything not named here keeps its recency order at the end, so
+ * ADDING a project does not require touching this function.
+ */
+const PRIORITY = [
+  'procurement-dashboard',
+  'guzelev',
+  'wellmind',
+  'kedai-nyam',
+  'marketing-data-system',
+];
+
+export const projectsInterleaved = [
+  // Named entries first, in the order above.
+  ...PRIORITY.map((id) => projectEntries.find((p) => p.id === id)).filter(
+    (p): p is (typeof projectEntries)[number] => Boolean(p),
+  ),
+  // Then everything else, newest first — including any project added later.
+  ...projectsSorted.filter((p) => !PRIORITY.includes(p.id)),
+];/**
  * The homepage's three selected projects.
  *
  * NOT simply "the newest three" and not simply every `featured` entry. Both of

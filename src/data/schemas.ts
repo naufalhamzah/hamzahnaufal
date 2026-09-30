@@ -163,6 +163,8 @@ export const projectEntrySchema = z.object({
   gallery: z.array(mediaAssetSchema).optional(),
   link: contentLinkSchema.optional(),
   links: z.array(contentLinkSchema).optional(),
+  /** A link worth showing whose URL has not been supplied yet. */
+  linkPending: z.string().optional(),
   featured: z.boolean(),
   source: sourceRefSchema,
   todo: z.string().optional(),

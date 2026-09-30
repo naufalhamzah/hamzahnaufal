@@ -189,29 +189,6 @@ const raw: ExperienceEntry[] = [
     ],
     source: 'both',
   },
-  {
-    id: 'gurumengajar',
-    company: 'GuruMengajar.id',
-    role: 'Freelance Admin',
-    // [D] gives only month and year.
-    dateRange: 'February 2024',
-    sortKey: '2024-02',
-    location: 'Indonesia',
-    summary:
-      'Supported the day-to-day operation of the platform by managing customer communication, payment transactions and administrative documentation.',
-    highlights: [
-      'Handled customer chat and responded quickly to questions and complaints',
-      'Managed transaction data to keep information accurate and detailed',
-    ],
-    logo: {
-      src: '/images/logos/guru-mengajar.webp',
-      alt: 'GuruMengajar.id logo',
-      width: 1000,
-      height: 469,
-    },
-    source: 'portfolio',
-    todo: 'Only month and year are documented; no end date is given.',
-  },
 ];
 
 /**

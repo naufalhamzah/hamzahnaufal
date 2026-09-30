@@ -220,7 +220,7 @@ const links = [
         </div>
 
         {
-          links.length > 0 && (
+          (links.length > 0 || project.linkPending) && (
             <div class="pd-side-block">
               <h2 class="label pd-side-h">Links</h2>
               <ul class="pd-links">
@@ -237,6 +237,23 @@ const links = [
                     </a>
                   </li>
                 ))}
+
+                {/*
+                  A link that is worth having but has no URL yet.
+
+                  Rendered as a DISABLED row rather than an anchor: a live-looking
+                  button with `href="#"` goes nowhere and reads as a broken site,
+                  whereas a clearly-marked pending row is honest about the state
+                  and turns into a real button the moment the URL is supplied.
+                */}
+                {project.linkPending && (
+                  <li>
+                    <span class="pd-link pd-link--pending" aria-disabled="true">
+                      <span>{project.linkPending}</span>
+                      <span class="pd-link-tag mono">Link coming soon</span>
+                    </span>
+                  </li>
+                )}
               </ul>
             </div>
           )
@@ -576,6 +593,29 @@ const links = [
     margin: 0;
     padding: 0;
     list-style: none;
+  }
+
+  /*
+    A pending link: the same row shape as a real one, but visibly inactive —
+    dashed border, muted ink, and a "coming soon" tag. It must be obvious at a
+    glance that it is not clickable, or it reads as a broken button.
+  */
+  .pd-link--pending {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+    border-style: dashed;
+    color: var(--fg-faint);
+    cursor: default;
+  }
+
+  .pd-link--pending:hover {
+    border-color: var(--border-strong);
+    background-color: transparent;
+  }
+
+  .pd-link-tag {
+    color: var(--accent);
   }
 
   .pd-link {

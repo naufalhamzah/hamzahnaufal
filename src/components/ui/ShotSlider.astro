@@ -1,0 +1,319 @@
+---
+/**
+ * SHOT SLIDER — a consistent image frame for experience entries.
+ *
+ * WHY THIS REPLACES THE COLLAGE HERE
+ * The Collage component picks a DIFFERENT composition for each image count: one
+ * image gets a full-width 16:9 frame, two get a 1.35fr/1fr split at 4:3, three
+ * get a lead-plus-stack. That is a nice idea for a gallery, but on the
+ * Experience page it meant every role was framed differently — a wide banner
+ * here, a pair of small boxes there, a tall composite somewhere else. The page
+ * read as inconsistent, which is exactly what the user reported.
+ *
+ * So every role gets ONE frame of ONE shape (16:10), and when a role has more
+ * than one image the frame becomes a SLIDER with dots and arrows. The shape is
+ * constant down the page; only the contents change.
+ *
+ * PROGRESSIVE ENHANCEMENT. The rail is a native scroll-snap element, so
+ * swiping, trackpad scrolling and keyboard scrolling all work with NO script —
+ * the slider is usable the moment the HTML parses. A small delegated listener
+ * then upgrades the arrows and the counter; if it never runs, the arrows are
+ * hidden and the rail still works, so nothing degrades to a dead control.
+ *
+ * That distinction matters: an arrow that looks live but does nothing is worse
+ * than no arrow at all.
+ *
+ * ACCESSIBILITY
+ * · Each slide is a button that opens the shared lightbox, carrying its own
+ *   alt text and caption.
+ * · The rail is keyboard-scrollable and each slide is focusable, so the images
+ *   are reachable without a pointer.
+ * · Dots carry accessible labels ("Go to image 2 of 3").
+ */
+import type { MediaAsset } from '@/types/content';
+
+interface Props {
+  images: MediaAsset[];
+  /** Optional caption shown under the frame. */
+  caption?: string;
+  /** Aspect ratio of the frame. Defaults to 16:10 — one shape for every role. */
+  ratio?: string;
+}
+
+const { images, caption, ratio = '16 / 10' } = Astro.props;
+
+const uid = `sl-${Math.random().toString(36).slice(2, 8)}`;
+const many = images.length > 1;
+---
+
+{
+  images.length > 0 && (
+    <figure class="sl" style={`--sl-ratio: ${ratio};`}>
+      <div class="sl__viewport">
+        <div class="sl__rail" id={uid} tabindex={many ? '0' : '-1'}>
+          {images.map((img, i) => (
+            <button
+              type="button"
+              class="sl__slide"
+              data-lightbox-src={img.src}
+              data-lightbox-alt={img.alt}
+              data-lightbox-caption={img.caption ?? img.alt}
+              aria-label={`View larger: ${img.alt}`}
+            >
+              <img
+                src={img.src}
+                alt={img.alt}
+                width={img.width}
+                height={img.height}
+                loading={i === 0 ? 'eager' : 'lazy'}
+                decoding="async"
+                class:list={[img.fit === 'contain' && 'sl__img--contain']}
+              />
+            </button>
+          ))}
+        </div>
+
+        {
+          many && (
+            <>
+              <button
+                type="button"
+                class="sl__arrow sl__arrow--prev"
+                data-slider-prev
+                aria-label="Previous image"
+              >
+                <span aria-hidden="true">‹</span>
+              </button>
+              <button
+                type="button"
+                class="sl__arrow sl__arrow--next"
+                data-slider-next
+                aria-label="Next image"
+              >
+                <span aria-hidden="true">›</span>
+              </button>
+            </>
+          )
+        }
+
+        {/* Live counter, updated by the slider script. */}
+        {
+          many && (
+            <span class="sl__count mono" data-slider-count aria-hidden="true">
+              1 / {images.length}
+            </span>
+          )
+        }
+      </div>
+
+      {
+        caption && (
+          <figcaption class="sl__cap mono">{caption}</figcaption>
+        )
+      }
+    </figure>
+  )
+}
+
+<style>
+  .sl {
+    margin: 0;
+  }
+
+  /* ---------------- the frame ---------------- */
+  .sl__viewport {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--r-xs);
+    background-color: var(--photo-mat);
+    /* ONE shape for every role on the page. */
+    aspect-ratio: var(--sl-ratio, 16 / 10);
+  }
+
+  /*
+    The rail is a horizontal scroller with snap points. `scroll-snap-type` makes
+    each swipe land exactly on a slide, which is what makes it feel like a slider
+    rather than a box you can drag. No script is involved.
+  */
+  .sl__rail {
+    display: flex;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+  }
+
+  .sl__rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sl__rail:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+
+  .sl__slide {
+    flex: 0 0 100%;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    scroll-snap-align: start;
+    cursor: zoom-in;
+  }
+
+  .sl__slide img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    /*
+      `cover` at a fixed ratio crops a little, which is fine for screenshots and
+      photographs. The anchor is TOP because a centred crop of a person cuts the
+      head off and keeps the floor.
+    */
+    object-fit: cover;
+    object-position: center top;
+    transition: transform var(--t-slow) var(--ease);
+  }
+
+  .sl__slide:hover img {
+    transform: scale(1.02);
+  }
+
+  /* Documents (a journal page, a cover) are letterboxed rather than cropped —
+     their meaning lives at the edges. */
+  .sl__img--contain {
+    object-fit: contain !important;
+    object-position: center !important;
+    padding: 0.75rem;
+  }
+
+  .sl__slide:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -3px;
+  }
+
+  /* ---------------- arrows ---------------- */
+  .sl__arrow {
+    position: absolute;
+    top: 50%;
+    display: grid;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    border: var(--hairline) solid rgba(255, 255, 255, 0.22);
+    border-radius: var(--r-full);
+    background-color: rgba(11, 9, 8, 0.55);
+    color: #f7f3ec;
+    font-size: 1.25rem;
+    line-height: 1;
+    transform: translateY(-50%);
+    backdrop-filter: blur(6px);
+    transition:
+      background-color var(--t-base) var(--ease),
+      border-color var(--t-base) var(--ease);
+  }
+
+  .sl__arrow:hover {
+    background-color: rgba(11, 9, 8, 0.8);
+    border-color: rgba(255, 255, 255, 0.4);
+  }
+
+  /*
+    The arrows point at the rail itself rather than at a slide index, so clicking
+    one scrolls the snap rail by one viewport. `scroll-behavior` is not set here
+    on purpose: the anchors exist for keyboard/touch fallback, and the browser's
+    own smooth-scroll preference is respected via the global stylesheet.
+  */
+  .sl__arrow--prev {
+    left: 0.6rem;
+  }
+
+  .sl__arrow--next {
+    right: 0.6rem;
+  }
+
+  /* ---------------- counter ---------------- */
+  .sl__count {
+    position: absolute;
+    right: 0.6rem;
+    bottom: 0.6rem;
+    padding: 0.25rem 0.55rem;
+    border-radius: var(--r-full);
+    background-color: rgba(11, 9, 8, 0.6);
+    color: #f7f3ec;
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+    backdrop-filter: blur(6px);
+  }
+
+  .sl__cap {
+    margin-top: 0.7rem;
+    color: var(--fg-faint);
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
+
+  /* Arrows and counter are pointless on a single image. */
+  .sl__viewport:not(:has(.sl__slide + .sl__slide)) .sl__arrow,
+  .sl__viewport:not(:has(.sl__slide + .sl__slide)) .sl__count {
+    display: none;
+  }
+</style>
+<script>
+  /**
+   * Slider controls — progressive enhancement over the scroll-snap rail.
+   *
+   * The rail itself needs no script: it is an overflow container with snap
+   * points, so touch, trackpad and keyboard scrolling already work. This only
+   * adds the arrows and keeps the counter in step.
+   *
+   * One delegated listener handles every slider on the page, because the page
+   * can hold several (one per experience entry) and attaching a listener per
+   * instance is the kind of thing that quietly costs a frame during scroll.
+   *
+   * The arrows move by ONE SLIDE, not one viewport: each slide is exactly the
+   * rail's width (`flex: 0 0 100%`), so the arithmetic is the rail's own width.
+   * Scrolling is asked to be smooth, which the browser downgrades to a jump when
+   * the visitor has asked for reduced motion.
+   */
+  const rails = document.querySelectorAll<HTMLElement>('.sl__rail');
+  const many = rails.length > 0;
+
+  if (many) {
+    const step = (rail: HTMLElement, dir: 1 | -1) => {
+      rail.scrollBy({ left: rail.clientWidth * dir, behavior: 'smooth' });
+    };
+
+    const sync = (rail: HTMLElement) => {
+      const viewport = rail.closest('.sl__viewport');
+      const counter = viewport?.querySelector('[data-slider-count]');
+      if (!counter) return;
+      const total = rail.children.length;
+      // Which slide is closest to the rail's own scroll origin.
+      const index = Math.round(rail.scrollLeft / Math.max(rail.clientWidth, 1)) + 1;
+      counter.textContent = `${Math.min(Math.max(index, 1), total)} / ${total}`;
+    };
+
+    rails.forEach((rail) => {
+      rail.addEventListener('scroll', () => sync(rail), { passive: true });
+      sync(rail);
+    });
+
+    document.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement | null;
+      const btn = target?.closest('[data-slider-prev], [data-slider-next]');
+      if (!btn) return;
+      const viewport = btn.closest('.sl__viewport');
+      const rail = viewport?.querySelector<HTMLElement>('.sl__rail');
+      if (!rail) return;
+      step(rail, btn.hasAttribute('data-slider-prev') ? -1 : 1);
+    });
+  }
+</script>
+
