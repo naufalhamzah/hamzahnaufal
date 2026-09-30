@@ -133,22 +133,41 @@ const active = activePageFor(Astro.url.pathname);
   /*
     NO CHIP, NO PLATE — the logos are transparent.
 
-    Every mark is now a cut-out (the three that arrived on opaque white plates are
+    Every mark is a cut-out (the three that arrived on opaque white plates are
     flood-filled clean by the asset pipeline), so they sit directly on the band.
     An earlier version boxed each one in a white chip to paper over the fact that
     only some had transparent backgrounds — which just drew a SECOND rectangle
     around the ones that already had one.
 
-    SIZING. These marks have wildly different shapes: the content ratios run from
-    1.00 (AirNav, a square badge) to 5.87 (JAIST, a very wide wordmark). Sizing
-    them all to one BOX makes the wide ones tiny, because a wide mark inside a
-    fixed width collapses to a few pixels of height — which is why JAIST was
-    barely legible.
+    SIZING IS BY VISUAL WEIGHT, NOT BY HEIGHT.
 
-    So the sizing key is OPTICAL, not geometric: each logo is given a height in
-    rem, and the wide wordmarks get a slightly larger one so their lettering
-    reads at the same size as the square badges. `width: auto` lets each keep its
-    own shape. The cap on width stops the widest mark from running away.
+    Setting one height for every mark does not make them look equal, and the
+    numbers show why. Visual presence is roughly (height² × aspect × ink coverage),
+    and these logos differ on every one of those:
+
+      mark          ar     ink    area at h=30
+      AirNav        0.99   0.63     718px²
+      BeautyLab     4.88   0.66    2932px²
+      PLN           3.25   0.49    1434px²
+      JAIST         5.88   0.32    1698px²
+
+    A square badge and a long wordmark at the SAME height differ by 4× in area —
+    so the badge reads as an afterthought next to the wordmark, which is exactly
+    the complaint. AirNav carries a second line of type below the roundel
+    ("AirNav Indonesia") that also has to stay legible, and that line is 44/447 of
+    the file's height, so at 30px it renders under 4px and turns to mush.
+
+    The fix is to size each class so the AREAS land in the same band. Measured
+    ratios of badge-area to wordmark-area: 0.36 as it was (badge far too small),
+    0.53 at 44px, 0.65 at 52px, 0.77 at 60px (badge starts to dominate the row).
+    52px against 34px sits at 0.65 — the badge reads as an equal without becoming
+    the loudest thing in the strip, and the AirNav wordmark underneath reaches
+    ~5px, which holds up.
+
+    The asset pipeline trims each file to its alpha bounding box first, so these
+    heights refer to the CONTENT, not to whatever empty canvas the exporter left.
+    `width: auto` keeps every mark's own shape; the width cap only stops the
+    widest one from running away.
   */
   .ft__logo {
     display: block;
@@ -157,9 +176,9 @@ const active = activePageFor(Astro.url.pathname);
   .ft__logo img {
     display: block;
     width: auto;
-    /* Default: square-ish badges. */
-    height: 2.1rem;
-    max-width: 10rem;
+    /* Square-ish badges: the roundel plus its wordmark underneath. */
+    height: 3.25rem;
+    max-width: 7rem;
     object-fit: contain;
     opacity: 0.72;
     transition:
@@ -167,18 +186,23 @@ const active = activePageFor(Astro.url.pathname);
       transform var(--t-base) var(--ease);
   }
 
-  /* Wide wordmarks: taller box so their type matches the badges optically. */
+  /* Wide wordmarks: shorter, because a wide mark covers more area per pixel of
+     height. Sized so their lettering reads at the same optical size. */
   .ft__logo--wide img {
-    /*
-      Taller AND allowed to be wider.
-
-      JAIST is an extremely wide mark (content ratio ~6.3). At the badge's height
-      it renders only ~25px tall and its lettering is barely legible, so the wide
-      variant gets a larger box — and the width cap has to grow with it, or the
-      cap itself becomes the binding constraint and collapses the height again.
-    */
-    height: 1.9rem;
+    height: 2.125rem;
     max-width: 13rem;
+  }
+
+  /* On narrow screens the row wraps; the badge keeps its weight but the tallest
+     mark is trimmed a little so four logos still fit two rows comfortably. */
+  @media (max-width: 560px) {
+    .ft__logo img {
+      height: 2.75rem;
+    }
+
+    .ft__logo--wide img {
+      height: 1.8rem;
+    }
   }
 
   .ft__logo:hover img {

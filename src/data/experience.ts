@@ -50,8 +50,8 @@ const raw: ExperienceEntry[] = [
     logo: {
       src: '/images/logos/airnav.webp',
       alt: 'AirNav Indonesia logo',
-      width: 447,
-      height: 447,
+      width: 357,
+      height: 354,
     },
     /**
      * Both images are UNAMBIGUOUSLY AirNav: the onboarding session has the
@@ -128,7 +128,7 @@ const raw: ExperienceEntry[] = [
       src: '/images/logos/jaist.webp',
       alt: 'JAIST journal logo',
       width: 1400,
-      height: 221,
+      height: 238,
     },
     photos: [
       {
@@ -170,7 +170,7 @@ const raw: ExperienceEntry[] = [
       src: '/images/logos/beauty-lab.webp',
       alt: 'Beauty Innovation Laboratories logo',
       width: 1200,
-      height: 242,
+      height: 246,
     },
     photos: [
       {
@@ -215,7 +215,7 @@ const raw: ExperienceEntry[] = [
       src: '/images/logos/pln-pusharlis.webp',
       alt: 'PT PLN (Persero) Pusharlis logo',
       width: 1200,
-      height: 361,
+      height: 369,
     },
     photos: [
       {

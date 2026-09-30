@@ -189,13 +189,42 @@ const RECIPES = [
   ['Publikasi Artikel AMPOEN.png', 'publications/ampoen-article.webp', { w: 1200, q: Q.doc }],
 
   /* ---------------------- EMPLOYER LOGOS (from konten) ------------------ */
-  ['Logo AirNav.jfif', 'logos/airnav.webp', { w: 800, q: Q.logo, logo: true, knockOutWhite: true }],
-  ['Logo Beauty Lab.png', 'logos/beauty-lab.webp', { w: 1200, q: Q.logo, logo: true }],
-  ['Logo PLN Pusharlis.png', 'logos/pln-pusharlis.webp', { w: 1200, q: Q.logo, logo: true }],
-  ['Logo Jaist.png', 'logos/jaist.webp', { w: 1400, q: Q.logo, logo: true }],
-  ['Logo Guru Mengajar.png', 'logos/guru-mengajar.webp', { w: 1000, q: Q.logo, logo: true }],
-  ['Logo UNNES.png', 'logos/unnes.webp', { w: 800, q: Q.logo, logo: true, knockOutWhite: true }],
-  ['Logo SMA.png', 'logos/sma.webp', { w: 800, q: Q.logo, logo: true, knockOutWhite: true }],
+  /*
+    AirNav — ROUNDEL ONLY, the second line of type dropped.
+
+    The supplied mark stacks a roundel and, below it, "AirNav Indonesia" in a dark
+    grey set for a white page. Measured: 51% of that second line's pixels are
+    darker than L<110, which is invisible against the dark theme's band (L≈22) —
+    and it also sits OUTSIDE the roundel, so it renders at a smaller size than the
+    rest of the mark and turns to mush at footer scale even where it is visible.
+
+    Nothing is lost by cropping to the roundel: "AirNav" is already lettered
+    inside it, and the alt text still names the organisation in full. What the
+    crop removes is a line that read as a smudge in one theme and a weak grey in
+    the other.
+
+    `crop` runs BEFORE `trim`, so the fractions describe the full source. The
+    roundel ends at 0.8164 of the height (measured from the alpha row profile:
+    content y 12..367, then a 9px gap, then the type).
+  */
+  [
+    'Logo AirNav.jfif',
+    'logos/airnav.webp',
+    {
+      w: 800,
+      q: Q.logo,
+      logo: true,
+      knockOutWhite: true,
+      crop: { left: 0, top: 0, width: 1, ratio: 1 / 0.8164 },
+      trim: true,
+    },
+  ],
+  ['Logo Beauty Lab.png', 'logos/beauty-lab.webp', { w: 1200, q: Q.logo, logo: true, trim: true }],
+  ['Logo PLN Pusharlis.png', 'logos/pln-pusharlis.webp', { w: 1200, q: Q.logo, logo: true, trim: true }],
+  ['Logo Jaist.png', 'logos/jaist.webp', { w: 1400, q: Q.logo, logo: true, trim: true }],
+  ['Logo Guru Mengajar.png', 'logos/guru-mengajar.webp', { w: 1000, q: Q.logo, logo: true, trim: true }],
+  ['Logo UNNES.png', 'logos/unnes.webp', { w: 800, q: Q.logo, logo: true, knockOutWhite: true, trim: true }],
+  ['Logo SMA.png', 'logos/sma.webp', { w: 800, q: Q.logo, logo: true, knockOutWhite: true, trim: true }],
 ];
 
 /* --------------- PERSONAL / ACTIVITY PHOTOS → gallery/ ---------------- */
@@ -271,7 +300,7 @@ async function convert(from, rel, opts) {
 
   try {
     const meta = await sharp(from, { failOn: 'none' }).metadata();
-    const targetW = Math.min(opts.w, meta.width ?? opts.w);
+    let targetW = Math.min(opts.w, meta.width ?? opts.w);
 
     let pipe = sharp(from, { failOn: 'none' }).rotate();
 
@@ -295,6 +324,104 @@ async function convert(from, rel, opts) {
         // Height comes FROM the ratio, so the output aspect is exact.
         const ch = Math.min(Math.round(cw / opts.crop.ratio), h - top);
         pipe = pipe.extract({ left, top, width: cw, height: ch });
+      }
+    }
+
+    /*
+      trim: crop away TRANSPARENT PADDING around a logo's content.
+
+      Supplied marks carry wildly different amounts of empty canvas: measured on
+      this set, the content occupies between 77.2% and 100% of the file's height,
+      so a logo rendered at the same box height as its neighbours can be more
+      than a fifth smaller in practice. `height: 34px` on a file whose artwork
+      ends at 77% of the canvas draws 26px of actual mark.
+
+      Cropping to the alpha bounding box makes the CSS height mean what it says:
+      every logo then renders its CONTENT at the declared size, and the optical
+      sizing in the layout works from real proportions instead of from whatever
+      margin the exporter happened to leave.
+
+      The bbox is taken from the alpha channel at a strict threshold (>16) so
+      anti-aliasing noise in the empty field cannot inflate it, with a margin of
+      a couple of pixels kept so the mark does not touch its own frame edge.
+      Opaque marks (a flat white plate) fall back to a colour-difference bbox
+      against the corner pixel, which is what "content" means for those.
+    */
+    if (opts.trim) {
+      const { data, info } = await pipe
+        .ensureAlpha()
+        .raw()
+        .toBuffer({ resolveWithObject: true });
+      const { width: iw, height: ih } = info;
+
+      // Is the file actually transparent, or is it a flat plate?
+      let transparent = 0;
+      for (let i = 3; i < data.length; i += 4) if (data[i] < 250) transparent++;
+      const hasAlpha = transparent > iw * ih * 0.01;
+
+      const bgR = data[0];
+      const bgG = data[1];
+      const bgB = data[2];
+
+      let minX = iw,
+        minY = ih,
+        maxX = -1,
+        maxY = -1;
+      for (let y = 0; y < ih; y++) {
+        for (let x = 0; x < iw; x++) {
+          const o = (y * iw + x) * 4;
+          const isContent = hasAlpha
+            ? data[o + 3] > 16
+            : Math.abs(data[o] - bgR) > 28 ||
+              Math.abs(data[o + 1] - bgG) > 28 ||
+              Math.abs(data[o + 2] - bgB) > 28;
+          if (!isContent) continue;
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+          if (y < minY) minY = y;
+          if (y > maxY) maxY = y;
+        }
+      }
+
+      if (maxX >= minX && maxY >= minY) {
+        // Never trim to nothing, and never grow beyond the frame.
+        const pad = 2;
+        const left = Math.max(0, minX - pad);
+        const top = Math.max(0, minY - pad);
+        const width = Math.min(iw - left, maxX - minX + 1 + pad * 2);
+        const height = Math.min(ih - top, maxY - minY + 1 + pad * 2);
+
+        /*
+          START A FRESH PIPELINE from the raw buffer, then crop.
+
+          This is not stylistic. `pipe.ensureAlpha().raw().toBuffer()` MUTATES
+          `pipe` — sharp's methods return the same instance — so by the time the
+          probe has been read, the queue holds `ensureAlpha` and `raw`.
+          Continuing with `pipe.extract(...)` then appends the crop AFTER a
+          raw-format conversion, and the later `resize` is applied to a pipeline
+          whose intermediate state is no longer a normal image. The symptoms were
+          exactly what that implies: every mark that took this path logged
+          `undefinedxundefined` and wrote a file whose dimensions could not be
+          read back.
+
+          `knockOutWhite` below already avoids this by replacing `pipe` with a
+          fresh instance built from the raw buffer; the trim does the same. Any
+          pass that PEEKS at intermediate pixels must reset the pipeline rather
+          than keep appending to it.
+        */
+        pipe = sharp(data, { raw: info }).extract({ left, top, width, height });
+
+        /*
+          Recompute the resize target from the TRIMMED width.
+
+          `targetW` was derived from `meta` BEFORE this trim. Left alone, the
+          later `resize({ width: targetW })` aims at the untrimmed width while the
+          pipeline now holds a smaller image. Never upscale: the target can only
+          shrink to the trimmed width.
+        */
+        meta.width = width;
+        meta.height = height;
+        targetW = Math.min(targetW, width);
       }
     }
 
