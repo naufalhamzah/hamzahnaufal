@@ -97,23 +97,28 @@ const rawProfile: Profile = {
   tagline: 'Learning never stops — every project is a chance to grow.',
 
   /**
-   * The hero portrait. A real photograph taken for the portfolio (originally
-   * `Foto Cover.png`), shot against a black backdrop — which is what makes the
-   * dark editorial hero treatment work.
+   * The hero portrait — `Foto Cover 1.png`, cropped and optimised by the asset
+   * pipeline.
    *
-   * CROPPED to a head-to-chest 3:4 by the asset pipeline, measured from the
-   * subject's actual extent rather than estimated. Two details that were wrong
-   * before and are worth not regressing:
-   *   · the crop starts ABOVE the crown, leaving ~52px of headroom — an earlier
-   *     top edge cut 111px off the top of the head, which reads as a mistake at
-   *     hero size;
-   *   · the bottom edge sits below the cum-laude sash's tassel, so the whole
-   *     sash stays in frame instead of being sliced mid-way.
+   * THIS FILE HAS NO BACKDROP. It is a cut-out: roughly 67% of its pixels are
+   * fully transparent, so the hero renders it as a silhouette standing in the
+   * page (drop-shadow following the alpha shape, a soft pool behind it) rather
+   * than a pasted rectangle. An earlier revision gave it a border and a shadow
+   * box, which drew a visible rectangle around a person who has none — that is
+   * what makes a cut-out read as "stuck on", and it is worth not regressing.
    *
-   * NOTE the file has NO BACKDROP — it is a cut-out with roughly 40% of its
-   * pixels fully transparent, so the hero renders it as a silhouette in the page
-   * (drop-shadow, soft pool) rather than a pasted rectangle. The uncropped
-   * original is still produced as `/images/hero/portrait-full.webp`.
+   * CROPPED to a head-to-chest 3:4, measured from the subject's actual extent
+   * rather than estimated (x 547..2591, y 963..4687 of 3125x4688). Three details
+   * that were wrong before and must not regress:
+   *   · the crop leaves ~37px of headroom above the crown. An earlier pass cut
+   *     111px off the top of the head, which reads as a mistake at hero size;
+   *   · the width (0.7242) is the NARROWEST that still contains the whole figure.
+   *     The subject spans 0.6544 of the frame, so a tighter crop sliced the arms
+   *     off at the edge — a 0.55 attempt cut 296px;
+   *   · the bottom edge falls below the sash's medal, so the whole sash stays in
+   *     frame instead of being sliced mid-way.
+   *
+   * The uncropped original is still produced as `/images/hero/portrait-full.webp`.
    */
   portrait: {
     src: '/images/hero/portrait.webp',

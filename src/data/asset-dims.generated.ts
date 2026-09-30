@@ -7,7 +7,7 @@
  */
 export const imageDims: Record<string, [number, number]> = {
   '/images/hero/portrait.webp': [1400, 1866],
-  '/images/hero/portrait-full.webp': [1200, 1800],
+  '/images/hero/portrait-full.webp': [1400, 2100],
   '/images/experience/airnav-onboarding.webp': [1800, 1012],
   '/images/experience/airnav-building.webp': [639, 480],
   '/images/experience/pln-work.webp': [1500, 999],

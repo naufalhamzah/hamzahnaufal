@@ -44,59 +44,55 @@ const Q = { photo: 80, shot: 84, doc: 86, cert: 86, logo: 92, gallery: 76 };
 /** [source, outputPath, options] */
 const RECIPES = [
   /* -------------------------------- HERO --------------------------------
-     CROPPED, deliberately — twice over.
+     SOURCE: `Foto Cover 1.png` (3125x4688), replacing `Foto Cover.png`.
 
-     The source is a 2500x3750 full-length frame with a lot of empty black
-     around a standing figure. Passing it through whole put a small person on a
-     big dark field, and even a plain top-crop to 4:5 still left the face small
-     because the subject only occupies roughly x 560-2030 and y 510-3450 of the
-     original.
+     Both are cut-outs of the same person on a removed backdrop. The newer frame
+     is the taller shot: the subject spans y 963..4687 rather than y 388..3749,
+     so at the same 3:4 crop the figure sits LARGER in the frame and the face
+     reads at a size the hero can actually use. It also has cleaner margins on
+     both sides (547 left / 533 right, against 559 / 421).
 
-     So this is a HEAD-AND-SHOULDERS portrait crop: horizontally tight to the
-     subject, vertically from just above the head to mid-chest, in a 4:5 frame.
-     The face now carries the hero, and the cum-laude sash — which is what makes
-     the photo personal rather than generic — stays in shot.
+     CROPPED, deliberately. The source has a lot of empty backdrop around a
+     standing figure, so passing it through whole puts a small person on a big
+     dark field.
 
-     No pixels are invented: it is a crop of the supplied photograph, and the
+     No pixels are invented: this is a crop of the supplied photograph, and the
      untouched original is still produced as hero/portrait-full.webp.
      ---------------------------------------------------------------------- */
-  ['Foto Cover.png', 'hero/portrait.webp', {
+  ['Foto Cover 1.png', 'hero/portrait.webp', {
     w: 1400,
     q: Q.photo,
     /*
-      Fractions of the ORIGINAL frame. The source is a CUT-OUT — the backdrop is
-      transparent, not black — and its subject occupies x 554..2083 and
-      y 384..3749 of 2500x3750.
+      Fractions of the ORIGINAL frame, measured from the subject's real extent
+      via the alpha channel — x 547..2591, y 963..4687 (alpha > 200, so
+      anti-aliasing noise is excluded). Not estimated: two earlier passes that
+      guessed coordinates sliced a shoulder off and then cut the top of the head
+      flat, and both looked plausible in a thumbnail.
 
-      The previous crop (left 0.18 -> x 450..2050) stopped 33px SHORT of the
-      subject's right edge, so the right shoulder and arm were sliced off. These
-      fractions are measured from the subject's real extent instead of being
-      estimated.
-
-      The top edge is set ABOVE the top of the head, with margin — the earlier
-      crop started at y 0.0987 (y 370) while the subject's head begins at y 388,
-      so the top of the hair was cut off flat. A portrait that clips the crown
-      reads as a mistake at hero size even though it looks plausible in a
-      thumbnail, because the eye goes straight to the missing skull line.
-
-      The subject's real extent, measured from the alpha channel rather than
-      estimated: x 559..2078, y 388..3749 (alpha > 200; a 16 threshold adds a few
-      px of anti-aliasing noise). The crop below leaves ~60px of headroom, which
-      is roughly a third of a head — enough to read as deliberate framing without
-      wasting the frame on empty backdrop.
-
-      The bottom edge is set BELOW the cum-laude sash's tassel, not across it:
-      cutting mid-sash sliced it, which read as a clumsy crop rather than a
-      composed portrait. Keeping the whole sash — the detail that makes the photo
-      personal — inside the frame.
+      · TOP leaves 60px of headroom above the crown — about a third of a head.
+        Clipping the crown reads as a mistake at hero size even when it looks
+        fine small.
+      · WIDTH 0.7242 is the NARROWEST that still contains the whole figure. The
+        subject spans 2045px of 3125 (0.6544), so a tighter crop slices the arms
+        off at the frame edge — which is what a 0.55 attempt did, cutting 296px.
+        This leaves 109px of backdrop on each side, so the arms read as inside
+        the picture rather than running into it.
+      · The bottom edge falls below the sash's medal, so the whole sash — the
+        detail that makes the photograph personal — stays in shot.
 
       `ratio` is width/height and the height is DERIVED from it, so the output
       aspect cannot drift.
     */
-    crop: { left: 0.208, top: 0.0875, width: 0.64, ratio: 3 / 4 },
+    crop: { left: 0.1402, top: 0.1926, width: 0.7242, ratio: 3 / 4 },
   }],
   // The uncropped original, so nothing is lost if the framing is ever revisited.
-  ['Foto Cover.png', 'hero/portrait-full.webp', { w: 1200, q: Q.photo }],
+  /*
+    The uncropped original, so nothing is lost if the framing is revisited.
+    Same source as the hero crop above — keeping these two in step matters,
+    because a "full" version of a DIFFERENT photograph would quietly mislead
+    anyone reviewing the framing later.
+  */
+  ['Foto Cover 1.png', 'hero/portrait-full.webp', { w: 1400, q: Q.photo }],
 
   /* -------------------------- AIRNAV (explicit) ------------------------- */
   ['Gambaran Pengalaman di Airnav.jpeg', 'experience/airnav-onboarding.webp', {
