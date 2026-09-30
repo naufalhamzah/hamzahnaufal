@@ -1,0 +1,197 @@
+---
+/**
+ * GALLERY / MOMENTS — the full set of personal and activity photographs.
+ *
+ * WHY THESE ARE NOT UNDER AN EMPLOYER
+ * The photographs are not organised by activity, so attributing any of them to
+ * AirNav, PLN or Beauty Innovation Laboratories would be an assumption. They are
+ * collected here instead, which is exactly what the brief asks for. The only
+ * images placed inside an Experience entry are the ones whose employer is
+ * unambiguous from the image itself.
+ *
+ * LAYOUT: a masonry-style column layout rather than a grid of equal tiles, so
+ * portrait and landscape photographs keep their natural shape. Cards are grouped
+ * by their `group` field, which comes from the data.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/ui/PageHeader.astro';
+import { galleryEntries, galleryGroups } from '@/data/gallery';
+import { profile } from '@/data/profile';
+
+const byGroup = galleryGroups.map((g) => ({
+  name: g,
+  items: galleryEntries.filter((e) => e.group === g),
+}));
+
+const meta = [
+  { label: 'Photographs', value: String(galleryEntries.length) },
+  { label: 'Collections', value: String(galleryGroups.length) },
+  { label: 'Note', value: 'Not attributed to a specific employer' },
+];
+---
+
+<BaseLayout
+  title={`Gallery — ${profile.name}`}
+  description="Selected moments from committees, field programmes and campus activities — a collection of personal and activity photographs."
+>
+  <PageHeader
+    index="07"
+    eyebrow="Gallery"
+    title="Selected moments"
+    standfirst="Committee work, field programmes and campus activities. These are collected as one body rather than filed under a particular job, because the photographs themselves do not identify which role they belong to."
+    meta={meta}
+  />
+
+  <section class="gl" aria-label="Photographs">
+    <div class="shell">
+      {
+        byGroup.map((group) => (
+          <section class="gl__group" aria-labelledby={`gl-${group.name.replace(/\W+/g, '-')}`}>
+            <header class="gl__head">
+              <h2
+                id={`gl-${group.name.replace(/\W+/g, '-')}`}
+                class="label gl__title"
+              >
+                {group.name}
+              </h2>
+              <p class="mono gl__count">{group.items.length} photos</p>
+            </header>
+
+            {/*
+              CSS columns give a masonry effect with no JavaScript and no fixed
+              aspect ratios, so every photo keeps its own shape. The count can
+              change freely without touching this layout.
+            */}
+            <div class="gl__masonry" data-lightbox-group>
+              {group.items.map((g, i) => (
+                <button
+                  type="button"
+                  class:list={['gl__item', i === 0 && 'gl__item--feature']}
+                  data-lightbox-src={g.visual.src}
+                  data-lightbox-alt={g.visual.alt}
+                  data-lightbox-caption={g.caption}
+                  aria-label={`View larger: ${g.visual.alt}`}
+                >
+                  <img
+                    src={g.visual.src}
+                    alt={g.visual.alt}
+                    width={g.visual.width}
+                    height={g.visual.height}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <span class="gl__cap">{g.caption}</span>
+                </button>
+              ))}
+            </div>
+          </section>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .gl {
+    padding-block: clamp(1.5rem, 3vw, 2.5rem) var(--section-y);
+  }
+
+  .gl__group + .gl__group {
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    padding-top: clamp(2.5rem, 5vw, 4rem);
+    border-top: var(--hairline) solid var(--border);
+  }
+
+  .gl__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    margin-bottom: clamp(1.25rem, 2.5vw, 1.75rem);
+  }
+
+  .gl__count {
+    color: var(--fg-faint);
+  }
+
+  /* ---- masonry via CSS columns: no JS, natural aspect ratios ---- */
+  .gl__masonry {
+    columns: 1;
+    column-gap: clamp(0.6rem, 1.5vw, 1rem);
+  }
+
+  @media (min-width: 620px) {
+    .gl__masonry {
+      columns: 2;
+    }
+  }
+
+  @media (min-width: 1020px) {
+    .gl__masonry {
+      columns: 3;
+    }
+  }
+
+  .gl__item {
+    position: relative;
+    display: block;
+    width: 100%;
+    margin: 0 0 clamp(0.6rem, 1.5vw, 1rem);
+    padding: 0;
+    overflow: hidden;
+    border: var(--hairline) solid var(--border);
+    border-radius: var(--r-xs);
+    background-color: var(--surface-2);
+    cursor: zoom-in;
+    /* Stops a column break splitting the frame in Chromium. */
+    break-inside: avoid;
+  }
+
+  .gl__item img {
+    display: block;
+    width: 100%;
+    height: auto;
+    transition: transform var(--t-slow) var(--ease);
+  }
+
+  .gl__item:hover img {
+    transform: scale(1.03);
+  }
+
+  /* Caption sits on a dark scrim so it stays legible over any photograph,
+     in either theme. */
+  .gl__cap {
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: 0.55rem 0.65rem;
+    background: linear-gradient(
+      180deg,
+      rgba(11, 9, 8, 0) 0%,
+      rgba(11, 9, 8, 0.85) 100%
+    );
+    color: #f7f3ec;
+    font-size: 0.72rem;
+    line-height: 1.35;
+    text-align: left;
+    opacity: 0;
+    transform: translateY(4px);
+    transition:
+      opacity var(--t-base) var(--ease),
+      transform var(--t-base) var(--ease);
+  }
+
+  .gl__item:hover .gl__cap,
+  .gl__item:focus-visible .gl__cap {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* On touch devices there is no hover, so captions stay visible. */
+  @media (hover: none) {
+    .gl__cap {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>

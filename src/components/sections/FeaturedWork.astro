@@ -1,252 +1,82 @@
 ---
 /**
- * FEATURED WORK
- * The three strongest projects, each given room to breathe with a summary of
- * problem, approach and documented outcome — not just a card.
+ * PREVIEW: FEATURED WORK  (the homepage's ★★★★★ section)
+ *
+ * Shows the three featured projects with deliberately DIFFERENT card sizes, so
+ * the section reads as a curated spread rather than a card grid:
+ *
+ *   01  a wide hero spread (visual left, text right)
+ *   02  and 03 side by side, narrower
+ *
+ * The brief forbids subjective labels like "Best Project", so the heading is
+ * "Selected Work" and the copy states only what the projects are.
+ *
+ * IMAGE BUDGET: three project visuals, no more.
  */
-import Section from '@/components/ui/Section.astro';
-import SectionHeader from '@/components/ui/SectionHeader.astro';
-import ImageFrame from '@/components/ui/ImageFrame.astro';
-import Tag from '@/components/ui/Tag.astro';
-import Button from '@/components/ui/Button.astro';
-import TodoBadge from '@/components/ui/TodoBadge.astro';
-import { featuredProjects } from '@/content/projects';
+import SectionHead from '@/components/ui/SectionHead.astro';
+import ProjectCard from '@/components/ui/ProjectCard.astro';
+import { featuredProjects } from '@/data/projects';
+import { projectEntries } from '@/data/projects';
+
+/** Index numbers follow the full project list, so they stay stable. */
+const numbered = featuredProjects.map((p) => ({
+  project: p,
+  index: projectEntries.findIndex((e) => e.id === p.id) + 1,
+}));
+
+const [lead, ...rest] = numbered;
 ---
 
-<Section id="featured-work" aria-labelledby="featured-work-title" textured>
-  <SectionHeader
-    id="featured-work-title"
-    eyebrow="Featured work"
-    title="Three projects worth a closer look"
-    lead="Systems and analysis work with documented roles, tools and outcomes — built largely from scratch, in real operational settings."
-    aside={`${featuredProjects.length} case studies`}
-  />
+<section class="fw" id="featured">
+  <div class="shell">
+    <SectionHead
+      index="02"
+      eyebrow="Selected Work"
+      title="Projects I have built and researched"
+      lede="Three projects that show the range: an internal data system built from scratch, a procurement monitoring dashboard, and a funded smart-farming research programme."
+      href="/projects"
+      linkLabel="All projects"
+      note={`${projectEntries.length} total`}
+      emphasis
+    />
 
-  <div class="fw">
+    {lead && <ProjectCard project={lead.project} index={lead.index} variant="hero" />}
+
     {
-      featuredProjects.map((project, i) => (
-        <article class="fw__item" id={`work-${project.id}`}>
-          <div class="fw__index meta" aria-hidden="true">
-            {String(i + 1).padStart(2, '0')}
-          </div>
-
-          <div class="fw__body">
-            <div class="fw__meta">
-              <span class="meta">{project.role}</span>
-              {project.dateRange && <span class="meta">· {project.dateRange}</span>}
-              {project.organisation && (
-                <span class="meta fw__org">· {project.organisation}</span>
-              )}
-            </div>
-
-            <h3 class="fw__title">
-              <a href={`/projects/${project.id}/`}>{project.title}</a>
-            </h3>
-
-            {project.subtitle && <p class="fw__subtitle">{project.subtitle}</p>}
-
-            <p class="fw__tagline">{project.tagline}</p>
-
-            {project.context && (
-              <div class="fw__block">
-                <h4 class="fw__block-title meta">Context</h4>
-                <p>{project.context}</p>
-              </div>
-            )}
-
-            {project.approach && project.approach.length > 0 && (
-              <div class="fw__block">
-                <h4 class="fw__block-title meta">Approach</h4>
-                <ul class="fw__list">
-                  {project.approach.map((a) => (
-                    <li>{a}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {project.outcomes.length > 0 && (
-              <div class="fw__block">
-                <h4 class="fw__block-title meta">Documented outcomes</h4>
-                <ul class="fw__list fw__list--outcome">
-                  {project.outcomes.map((o) => (
-                    <li>{o}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            <ul class="fw__tools" aria-label="Tools and technologies">
-              {project.tools.map((t) => (
-                <li>
-                  <Tag label={t} small />
-                </li>
-              ))}
-            </ul>
-
-            {project.todo && <TodoBadge note={project.todo} small />}
-
-            <div class="fw__actions">
-              <Button href={`/projects/${project.id}/`} variant="ghost" arrow>
-                Read the case study
-              </Button>
-              {project.link && (
-                <Button href={project.link.href} external variant="quiet">
-                  {project.link.label} ↗
-                </Button>
-              )}
-            </div>
-          </div>
-
-          <div class="fw__media">
-            <ImageFrame visual={project.visual} />
-          </div>
-        </article>
-      ))
+      rest.length > 0 && (
+        <div class="fw__row">
+          {rest.map((r) => (
+            <ProjectCard project={r.project} index={r.index} variant="wide" />
+          ))}
+        </div>
+      )
     }
   </div>
-</Section>
+</section>
 
 <style>
   .fw {
-    display: grid;
-    gap: clamp(2rem, 5vw, 3.5rem);
+    padding-block: var(--section-y);
+    /* A slightly different surface separates this section from its
+       neighbours — part of the hierarchy work the brief asks for. */
+    background-color: color-mix(in srgb, var(--surface) 55%, transparent);
+    border-block: var(--hairline) solid var(--border-faint);
   }
 
-  .fw__item {
+  /* The lead project is followed by an accent rule, which reads as a deliberate
+     break between the hero spread and the pair below. */
+  .fw__row {
     display: grid;
-    gap: 1.25rem;
+    gap: clamp(2rem, 4vw, 3rem);
     grid-template-columns: 1fr;
-    padding-top: clamp(1.5rem, 3vw, 2.25rem);
-    border-top: 1px solid var(--border);
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    padding-top: clamp(2.5rem, 5vw, 4rem);
+    border-top: var(--hairline) solid var(--border);
   }
 
-  .fw__item:first-child {
-    padding-top: 0;
-    border-top: none;
-  }
-
-  @media (min-width: 920px) {
-    .fw__item {
-      grid-template-columns: 3rem minmax(0, 1.5fr) minmax(0, 1.05fr);
-      gap: 1.75rem;
-      align-items: start;
+  @media (min-width: 860px) {
+    .fw__row {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-  }
-
-  .fw__index {
-    font-size: var(--text-sm);
-    color: var(--accent);
-    padding-top: 0.2rem;
-  }
-
-  .fw__body {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    min-width: 0;
-  }
-
-  .fw__media {
-    min-width: 0;
-  }
-
-  .fw__meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem 0.4rem;
-    align-items: baseline;
-  }
-
-  .fw__org {
-    color: var(--subtle-foreground);
-  }
-
-  .fw__title {
-    font-size: var(--text-2xl);
-    letter-spacing: -0.028em;
-  }
-
-  .fw__title a:hover {
-    color: var(--accent);
-  }
-
-  .fw__subtitle {
-    margin-top: -0.35rem;
-    font-size: var(--text-sm);
-    color: var(--accent);
-    font-weight: 500;
-  }
-
-  .fw__tagline {
-    max-width: 62ch;
-    color: var(--muted-foreground);
-    font-size: var(--text-base);
-    line-height: 1.7;
-  }
-
-  .fw__block {
-    max-width: 64ch;
-  }
-
-  .fw__block-title {
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-size: 0.64rem;
-    margin-bottom: 0.35rem;
-    color: var(--subtle-foreground);
-  }
-
-  .fw__block p {
-    font-size: var(--text-sm);
-    line-height: 1.7;
-    color: var(--muted-foreground);
-  }
-
-  .fw__list {
-    display: grid;
-    gap: 0.35rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .fw__list li {
-    position: relative;
-    padding-inline-start: 1.05rem;
-    font-size: var(--text-sm);
-    line-height: 1.65;
-    color: var(--muted-foreground);
-  }
-
-  .fw__list li::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0.62em;
-    width: 5px;
-    height: 1px;
-    background-color: var(--border-strong);
-  }
-
-  .fw__list--outcome li::before {
-    background-color: var(--accent);
-  }
-
-  .fw__tools {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem;
-    margin: 0.35rem 0 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .fw__actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
   }
 </style>

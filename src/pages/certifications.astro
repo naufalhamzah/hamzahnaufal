@@ -1,0 +1,501 @@
+---
+/**
+ * CERTIFICATIONS — a professional credential showcase.
+ *
+ * The brief rejects the "image, image, image stacked vertically" treatment, so
+ * this renders as:
+ *
+ *   · a summary strip with derived counts per group
+ *   · three labelled groups (courses & credentials, programmes & committees,
+ *     organisation roles), each an EDITORIAL GRID of unequal cards
+ *   · every card opens the shared lightbox, which supports next/previous and
+ *     zoom across the whole set
+ *
+ * Counts come from the data, never hardcoded — adding a certificate updates the
+ * strip, the group count and the lightbox total automatically.
+ *
+ * Award piagam (Silver Medal, Finalist) live in the Achievements section at the
+ * bottom of this page rather than being duplicated here.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/ui/PageHeader.astro';
+import {
+  certificationsSorted,
+  certificationTotal,
+  credentialCount,
+  certificationIssuers,
+  CERTIFICATION_KIND_LABELS,
+  CERTIFICATION_KIND_ORDER,
+} from '@/data/certifications';
+import { achievementEntries } from '@/data/achievements';
+import { profile } from '@/data/profile';
+
+const byKind = CERTIFICATION_KIND_ORDER.map((kind) => ({
+  kind,
+  label: CERTIFICATION_KIND_LABELS[kind],
+  items: certificationsSorted.filter((c) => c.kind === kind),
+})).filter((g) => g.items.length > 0);
+
+const meta = [
+  { label: 'Certificates', value: String(certificationTotal) },
+  { label: 'Course credentials', value: String(credentialCount) },
+  { label: 'Issuers', value: String(certificationIssuers.length) },
+  { label: 'Awards', value: String(achievementEntries.length) },
+];
+---
+
+<BaseLayout
+  title={`Certifications — ${profile.name}`}
+  description="Certifications and credentials of Hamzah Naufal Zuhdi — MySkill, Dicoding, Cisco Networking Academy and Oracle Academy, plus programme and organisation certificates."
+>
+  <PageHeader
+    index="06"
+    eyebrow="Certifications"
+    title="Credentials and certificates"
+    standfirst="Every certificate below is a real scan from the source material. Select any card to view it full size — the viewer supports arrow keys, zoom and browsing the whole set."
+    meta={meta}
+  />
+
+  <!-- ===================== groups ===================== -->
+  <section class="ce" aria-label="Certificates">
+    <div class="shell">
+      {
+        byKind.map((group, gi) => (
+          <section class="ce__group" aria-labelledby={`ce-${group.kind}`}>
+            <header class="ce__head">
+              <h2 id={`ce-${group.kind}`} class="ce__title">
+                <span class="ce__num mono" aria-hidden="true">
+                  {String(gi + 1).padStart(2, '0')}
+                </span>
+                <span>{group.label}</span>
+              </h2>
+              <p class="ce__count mono">{group.items.length}</p>
+            </header>
+
+            {/*
+              One lightbox group per section, so browsing with the arrow keys
+              stays within a category instead of jumping across all 15.
+            */}
+            <ol class="ce__grid" data-lightbox-group>
+              {group.items.map((c, i) => (
+                <li class:list={['ce__cell', i === 0 && 'ce__cell--lead']}>
+                  <button
+                    type="button"
+                    class="ce__card"
+                    data-lightbox-src={c.visual.src}
+                    data-lightbox-alt={c.visual.alt}
+                    data-lightbox-title={`${c.issuer} — ${c.title}`}
+                    data-lightbox-caption={[c.date, c.credentialId]
+                      .filter(Boolean)
+                      .join(' · ')}
+                    aria-label={`View certificate: ${c.title} from ${c.issuer}`}
+                  >
+                    <span class="ce__frame">
+                      <img
+                        src={c.visual.src}
+                        alt={c.visual.alt}
+                        width={c.visual.width}
+                        height={c.visual.height}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      <span class="ce__zoom" aria-hidden="true">⤢</span>
+                    </span>
+
+                    <span class="ce__body">
+                      <span class="ce__issuer mono">
+                        {c.issuerLogo && (
+                          <img
+                            class="ce__issuer-logo"
+                            src={c.issuerLogo.src}
+                            alt=""
+                            width={c.issuerLogo.width ?? 40}
+                            height={c.issuerLogo.height ?? 40}
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        )}
+                        {c.issuer}
+                      </span>
+
+                      <span class="ce__name">{c.title}</span>
+
+                      {c.path && <span class="ce__path">{c.path}</span>}
+
+                      <span class="ce__foot mono">
+                        {c.date && <span>{c.date}</span>}
+                        {c.credentialId && (
+                          <span class="ce__id" title={c.credentialId}>
+                            {c.credentialId}
+                          </span>
+                        )}
+                      </span>
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ol>
+          </section>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- ===================== achievements ===================== -->
+  <section class="ce-aw" id="achievements" aria-labelledby="ce-aw-h">
+    <div class="shell">
+      <header class="ce-aw__head">
+        <h2 id="ce-aw-h" class="label">Awards &amp; achievements</h2>
+        <p class="mono ce-aw__count">{achievementEntries.length} entries</p>
+      </header>
+
+      <ul class="ce-aw__list">
+        {
+          achievementEntries.map((a) => (
+            <li class="ce-aw__row">
+              {
+                /* The piagam is shown where one exists — the claim is then
+                   verifiable on the page rather than asserted. */
+                a.visual && (
+                  <button
+                    type="button"
+                    class="ce-aw__thumb"
+                    data-lightbox-src={a.visual.src}
+                    data-lightbox-alt={a.visual.alt}
+                    data-lightbox-title={a.title}
+                    data-lightbox-caption={a.year ?? ''}
+                    aria-label={`View certificate: ${a.title}`}
+                  >
+                    <img
+                      src={a.visual.src}
+                      alt={a.visual.alt}
+                      width={a.visual.width}
+                      height={a.visual.height}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </button>
+                )
+              }
+
+              <div class="ce-aw__body">
+                <p class="ce-aw__meta mono">
+                  <span class="ce-aw__kind">{a.kind}</span>
+                  {a.year && <span class="ce-aw__year">{a.year}</span>}
+                </p>
+                <h3 class="ce-aw__title">{a.title}</h3>
+                <p class="ce-aw__detail">{a.detail}</p>
+                {a.context && <p class="ce-aw__ctx mono">{a.context}</p>}
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* ==========================================================================
+     certificate groups
+     ========================================================================== */
+  .ce {
+    padding-block: clamp(1.5rem, 3vw, 2.5rem) var(--section-y);
+  }
+
+  .ce__group + .ce__group {
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    padding-top: clamp(2.5rem, 5vw, 4rem);
+    border-top: var(--hairline) solid var(--border);
+  }
+
+  .ce__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    margin-bottom: clamp(1.25rem, 2.5vw, 1.75rem);
+  }
+
+  .ce__title {
+    display: flex;
+    align-items: baseline;
+    gap: 0.7rem;
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 500;
+    letter-spacing: -0.018em;
+    color: var(--fg-strong);
+  }
+
+  .ce__num {
+    color: var(--accent);
+    font-size: var(--text-2xs);
+  }
+
+  .ce__count {
+    color: var(--fg-faint);
+  }
+
+  /* ---- grid: unequal columns, so the group reads as a composed spread ---- */
+  .ce__grid {
+    display: grid;
+    gap: clamp(0.75rem, 1.8vw, 1.25rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 640px) {
+    .ce__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1000px) {
+    .ce__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    /* The first card in a group takes a wider column — an asymmetric start
+       that stops the grid reading as a plain table of thumbnails. */
+    .ce__cell--lead {
+      grid-column: span 2;
+    }
+
+    .ce__grid:has(.ce__cell--lead) {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .ce__card {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    overflow: hidden;
+    border: var(--hairline) solid var(--border);
+    border-radius: var(--r-xs);
+    background-color: color-mix(in srgb, var(--surface) 65%, transparent);
+    text-align: left;
+    cursor: zoom-in;
+    transition:
+      border-color var(--t-base) var(--ease),
+      background-color var(--t-base) var(--ease),
+      transform var(--t-base) var(--ease);
+  }
+
+  .ce__card:hover {
+    border-color: var(--accent);
+    background-color: var(--surface-2);
+    transform: translateY(-2px);
+  }
+
+  /* ---- the scan itself ---- */
+  .ce__frame {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    background-color: var(--surface-3);
+    aspect-ratio: 3 / 2;
+  }
+
+  .ce__frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Certificates print their owner's name at the top, so anchoring there
+       keeps the identifying part visible in a cropped thumbnail. */
+    object-position: top center;
+    transition: transform var(--t-slow) var(--ease);
+  }
+
+  .ce__card:hover .ce__frame img {
+    transform: scale(1.04);
+  }
+
+  .ce__zoom {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    display: grid;
+    place-items: center;
+    width: 1.7rem;
+    height: 1.7rem;
+    border-radius: var(--r-xs);
+    background-color: rgba(11, 9, 8, 0.72);
+    color: #f7f3ec;
+    font-size: 0.8rem;
+    opacity: 0;
+    transition: opacity var(--t-base) var(--ease);
+  }
+
+  .ce__card:hover .ce__zoom,
+  .ce__card:focus-visible .ce__zoom {
+    opacity: 1;
+  }
+
+  /* ---- text ---- */
+  .ce__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    flex: 1;
+    padding: 0.9rem 1rem 1.05rem;
+  }
+
+  .ce__issuer {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--accent);
+  }
+
+  .ce__issuer-logo {
+    width: 1.1rem;
+    height: 1.1rem;
+    object-fit: contain;
+  }
+
+  .ce__name {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--fg-strong);
+  }
+
+  .ce__path {
+    font-size: var(--text-xs);
+    color: var(--fg-subtle);
+  }
+
+  .ce__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 0.7rem;
+    margin-top: auto;
+    padding-top: 0.7rem;
+    color: var(--fg-faint);
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
+
+  /* Credential IDs are long; ellipsis keeps the card tidy while the title
+     attribute preserves the full value. */
+  .ce__id {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 18ch;
+  }
+
+  /* ==========================================================================
+     achievements
+     ========================================================================== */
+  .ce-aw {
+    padding-block: var(--section-y);
+    border-top: var(--hairline) solid var(--border);
+    background-color: color-mix(in srgb, var(--surface) 45%, transparent);
+  }
+
+  .ce-aw__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    padding-bottom: 1rem;
+    border-bottom: var(--hairline) solid var(--border);
+  }
+
+  .ce-aw__count {
+    color: var(--fg-faint);
+  }
+
+  .ce-aw__list {
+    display: grid;
+    gap: 0;
+    margin: clamp(1.25rem, 2.5vw, 1.75rem) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .ce-aw__row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1.25rem 0;
+    border-bottom: var(--hairline) solid var(--border-faint);
+  }
+
+  @media (min-width: 700px) {
+    .ce-aw__row {
+      grid-template-columns: 8rem minmax(0, 1fr);
+      gap: clamp(1.25rem, 3vw, 2rem);
+      align-items: start;
+    }
+  }
+
+  .ce-aw__thumb {
+    display: block;
+    width: 100%;
+    max-width: 10rem;
+    padding: 0;
+    overflow: hidden;
+    border: var(--hairline) solid var(--border);
+    border-radius: var(--r-xs);
+    background-color: var(--surface-2);
+    cursor: zoom-in;
+    aspect-ratio: 3 / 2;
+  }
+
+  .ce-aw__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+  }
+
+  .ce-aw__meta {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .ce-aw__kind {
+    color: var(--accent);
+  }
+
+  .ce-aw__year {
+    padding-inline-start: 0.6rem;
+    border-inline-start: var(--hairline) solid var(--border);
+    color: var(--fg-faint);
+  }
+
+  .ce-aw__title {
+    margin-top: 0.5rem;
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 500;
+    color: var(--fg-strong);
+  }
+
+  .ce-aw__detail {
+    margin-top: 0.5rem;
+    max-width: 68ch;
+    font-size: var(--text-sm);
+    color: var(--fg-muted);
+  }
+
+  .ce-aw__ctx {
+    margin-top: 0.5rem;
+    color: var(--fg-faint);
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
+</style>

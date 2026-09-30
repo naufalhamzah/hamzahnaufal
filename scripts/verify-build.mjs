@@ -196,6 +196,46 @@ if (urls.length !== expectedUrls) {
   );
 }
 
+/* ------------------------------------------------ asset sanity ----------- */
+// Every referenced image must exist AND be one of our optimised formats
+// (.webp/.svg). A leftover path into the raw `konten` folder would mean the
+// pipeline was skipped.
+let rawRefs = 0;
+let heavyAssets = [];
+for (const file of htmlFiles) {
+  const html = readFileSync(file, 'utf8');
+  const srcs = [...html.matchAll(/(?:src|data-lightbox-src)="([^"]+)"/g)].map((m) => m[1]);
+  for (const src of srcs) {
+    if (/^(https?:|data:)/.test(src)) continue;
+    if (src.includes('/konten/')) {
+      rawRefs++;
+      failures.push(`${relative(DIST, file)}: references raw konten asset -> ${src}`);
+    }
+    const p = join(DIST, src.replace(/^\//, ''));
+    if (existsSync(p)) {
+      const kb = statSync(p).size / 1024;
+      if (kb > 400) heavyAssets.push(`${src} (${kb.toFixed(0)} kB)`);
+    }
+  }
+}
+if (heavyAssets.length) {
+  notes.push(`Heavy assets >400 kB: ${heavyAssets.join(', ')}`);
+}
+
+// Count real (non-placeholder) images actually wired into the pages.
+let placeholderRefs = 0;
+let realRefs = 0;
+for (const file of htmlFiles) {
+  const html = readFileSync(file, 'utf8');
+  const srcs = [...html.matchAll(/<img\b[^>]*\bsrc="([^"]+)"/g)].map((m) => m[1]);
+  for (const src of srcs) {
+    if (src.includes('/placeholders/')) placeholderRefs++;
+    else if (src.startsWith('/images/')) realRefs++;
+  }
+}
+notes.push(`Real images referenced: ${realRefs}`);
+notes.push(`Placeholder images referenced: ${placeholderRefs}`);
+
 /* ------------------------------------------------------------- JSON-LD ---- */
 const home = readFileSync(join(DIST, 'index.html'), 'utf8');
 if (!/"@type":"Person"/.test(home)) failures.push('home: Person JSON-LD missing');

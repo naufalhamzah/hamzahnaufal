@@ -1,0 +1,213 @@
+---
+/**
+ * FOOTER — mirrors the navbar's section list and shows the contact links plus
+ * the employer logos, which doubles as a quiet credibility band.
+ */
+import { navPages, activePageFor } from '@/utils/navigation';
+import { profile, activeContactLinks } from '@/data/profile';
+import { experienceLogos } from '@/data/experience';
+
+const year = new Date().getFullYear();
+const active = activePageFor(Astro.url.pathname);
+---
+
+<footer class="ft">
+  <div class="shell">
+    <!-- Employer / institution logos -->
+    {
+      experienceLogos.length > 0 && (
+        <div class="ft__logos" aria-label="Organisations">
+          {experienceLogos.map((job) =>
+            job.logo ? (
+              <span class="ft__logo">
+                <img
+                  src={job.logo.src}
+                  alt={job.logo.alt}
+                  width={job.logo.width ?? 200}
+                  height={job.logo.height ?? 80}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </span>
+            ) : null,
+          )}
+        </div>
+      )
+    }
+
+    <div class="ft__grid">
+      <div class="ft__col ft__col--brand">
+        <p class="ft__name">{profile.name}</p>
+        <p class="ft__role mono">{profile.headline}</p>
+        <p class="ft__tag">“{profile.tagline}”</p>
+      </div>
+
+      <nav class="ft__col" aria-label="Footer navigation">
+        <p class="label ft__h">Pages</p>
+        <ul class="ft__list">
+          <li>
+            <a
+              href="/"
+              class="ft__link"
+              aria-current={!active ? 'page' : undefined}>Home</a
+            >
+          </li>
+          {
+            navPages.map((page) => (
+              <li>
+                <a
+                  href={page.href}
+                  class="ft__link"
+                  aria-current={active?.href === page.href ? 'page' : undefined}
+                >
+                  {page.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <div class="ft__col">
+        <p class="label ft__h">Elsewhere</p>
+        <ul class="ft__list">
+          {
+            activeContactLinks.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  class="ft__link"
+                  rel={link.external ? 'noopener noreferrer' : undefined}
+                  target={link.external ? '_blank' : undefined}
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+
+    <div class="ft__base">
+      <p class="mono">© {year} {profile.name}</p>
+      <p class="mono">Built with Astro, TypeScript &amp; Tailwind</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .ft {
+    position: relative;
+    z-index: 1;
+    border-top: var(--hairline) solid var(--border);
+    padding-block: clamp(2.5rem, 5vw, 4rem) 2rem;
+    background-color: var(--bg-alt);
+  }
+
+  /* ---------- logos ---------- */
+  .ft__logos {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: clamp(1.25rem, 3vw, 2.5rem);
+    padding-bottom: clamp(1.75rem, 3vw, 2.5rem);
+    margin-bottom: clamp(1.75rem, 3vw, 2.5rem);
+    border-bottom: var(--hairline) solid var(--border-faint);
+  }
+
+  .ft__logo {
+    display: grid;
+    place-items: center;
+    height: 2rem;
+    opacity: 0.55;
+    transition: opacity var(--t-base) var(--ease);
+  }
+
+  .ft__logo:hover {
+    opacity: 0.9;
+  }
+
+  .ft__logo img {
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    /* Logos with white backgrounds read badly on dark; this keeps them from
+       glowing without altering the source files. */
+    filter: grayscale(1) brightness(1.5);
+  }
+
+  /* ---------- grid ---------- */
+  .ft__grid {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 700px) {
+    .ft__grid {
+      grid-template-columns: 1.6fr 1fr 1fr;
+      gap: 2.5rem;
+    }
+  }
+
+  .ft__name {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    color: var(--fg-strong);
+  }
+
+  .ft__role {
+    margin-top: 0.4rem;
+    max-width: 30ch;
+    text-transform: none;
+    letter-spacing: 0.02em;
+    color: var(--fg-muted);
+  }
+
+  .ft__tag {
+    margin-top: 1rem;
+    max-width: 34ch;
+    font-size: var(--text-sm);
+    font-style: italic;
+    color: var(--fg-faint);
+  }
+
+  .ft__h {
+    display: block;
+    margin-bottom: 0.9rem;
+  }
+
+  .ft__h::before {
+    display: none;
+  }
+
+  .ft__list {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .ft__link {
+    font-size: var(--text-sm);
+    color: var(--fg-muted);
+    transition: color var(--t-fast) var(--ease);
+  }
+
+  .ft__link:hover {
+    color: var(--accent);
+  }
+
+  .ft__base {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    justify-content: space-between;
+    margin-top: clamp(2rem, 4vw, 3rem);
+    padding-top: 1.25rem;
+    border-top: var(--hairline) solid var(--border-faint);
+  }
+</style>

@@ -1,256 +1,209 @@
-# Hamzah Naufal Zuhdi — Personal Portfolio
+# Hamzah Naufal Zuhdi — Portfolio
 
-A static, editorial-technical portfolio built with **Astro**, **TypeScript** and
-**Tailwind CSS v4**. Dark-first, responsive from 360px up, and structured so
-personal content can be edited without touching any UI component.
+A personal portfolio for **Hamzah Naufal Zuhdi**, an Information Systems graduate
+working across data, technology, business process and digital solutions.
+
+Built as a **homepage plus real detail pages**: the landing page sells the work in
+one screen, and each section links through to a full page.
+
+---
+
+## Stack
+
+| Piece | Choice | Why |
+| --- | --- | --- |
+| Framework | **Astro 7** (`output: 'static'`) | Every page is pre-rendered HTML. No server needed. |
+| Types | **TypeScript** (strict) | Content is typed; a missing field fails the build. |
+| Styles | **Tailwind CSS v4** + design tokens | One token file drives the whole visual system. |
+| Validation | **Zod** | Content files are parsed at load, so gaps fail loudly. |
+| Islands | **React** — exactly one | Only the project filter needs client state. |
+| Icons | **simple-icons** + local fallbacks | Official marks where redistributable. |
+| Images | **sharp** via `scripts/build-assets.mjs` | 275 MB of source → ~5 MB of WebP. |
+| Fonts | `@fontsource-variable` (self-hosted) | No external requests, no layout shift. |
 
 ---
 
 ## Quick start
 
 ```bash
-npm install       # install dependencies
-npm run dev       # start the dev server
+npm install
+npm run dev          # http://localhost:4321
 ```
 
-Then open the URL printed in the terminal — normally **http://localhost:4321**
-
-### Other commands
-
 | Command | What it does |
-|---|---|
+| --- | --- |
 | `npm run dev` | Dev server with hot reload |
 | `npm run build` | Production build into `dist/` |
 | `npm run preview` | Serve the built `dist/` locally |
-| `npm run check` | Type-check all `.astro`/`.ts`/`.tsx` files |
-| `npm run verify` | **Assert** the built output is correct (see below) |
+| `npm run check` | Type + template diagnostics (`astro check`) |
+| `npm run verify` | Asserts the built HTML: links, images, SEO, no phone leak |
+| `npm run contrast` | WCAG AA contrast audit in both themes (needs a running server) |
+| `npm run assets` | Re-optimise images from `konten/` into `public/images/` |
 
 ---
 
-## The one architectural rule
+## Architecture — data vs. presentation
 
-> **Content lives in `src/content/`. UI lives in `src/components/`.
-> Components never contain personal facts.**
-
-Every fact on the site comes from a typed data file:
-
-```
-src/content/
-  profile.ts         name, headline, contact links, about narrative
-  experience.ts      5 professional roles
-  organizations.ts   15 leadership & committee roles
-  projects.ts        8 projects (3 featured)
-  publications.ts    3 papers
-  certifications.ts  10 credentials
-  achievements.ts    awards, competition results, funding
-  education.ts       2 institutions
-  skills.ts          7 skill groups
-  schemas.ts         Zod schemas — validation rules
-```
-
-So updating a job title, adding a certificate, or fixing a date means editing
-**one line in one data file**. No markup changes, no risk of breaking layout.
-
-### A worked example
-
-To add a certification, open `src/content/certifications.ts` and append:
-
-```ts
-{
-  id: 'my-new-cert',
-  issuer: 'Issuer Name',
-  title: 'Certificate Title',
-  date: '3 March 2026',
-  sortKey: '2026-03',              // YYYY-MM, controls ordering
-  credentialId: 'ABC-123',         // optional — omit if unknown
-  visual: {
-    src: '/images/placeholders/cert-my-new-cert.svg',
-    alt: 'Description of the certificate',
-    isPlaceholder: true,           // set false once a real scan exists
-    aspect: '4/3',
-  },
-  source: 'portfolio',
-},
-```
-
-That single object renders in the right group, in the right order, with no other
-change. `npm run build` will fail loudly if a required field is missing — which
-is intentional (see below).
-
----
-
-## How the "never invent information" rule is enforced
-
-The brief's hardest rule — do not fabricate facts — is implemented mechanically,
-not by good intentions:
-
-1. **Zod schemas** (`src/content/schemas.ts`) validate every content file at
-   build time. A missing required field **fails the build** with the field named.
-   It is impossible to ship a page with a silently empty gap.
-2. **Unknown facts are absent, not guessed.** Where a document doesn't state
-   something, the field is omitted and a `todo` string is attached instead.
-3. **`TodoBadge`** renders those notes visibly, so an unresolved question appears
-   as an honest gap on the page rather than a plausible invention.
-4. **`source`** on every entry records which document it came from
-   (`profile` / `portfolio` / `both`), so any claim is traceable.
-5. **`npm run verify`** asserts the built HTML contains no phone number, no
-   placeholder domain in visible text, no broken links and no missing images.
-
-### Document priority used throughout
-
-- **`Profile.pdf`** — authoritative for identity, employment dates, and dates
-  where the two documents conflict.
-- **`PORTOFOLIO HAMZAH (3).pdf`** — authoritative for project detail, skills,
-  certifications, publications, achievements and descriptions.
-
-**Known conflict already handled:** the portfolio deck's PT PLN slide contains a
-copy-paste error (its body text is identical to its JAIST editorial text and says
-nothing about IT support). `experience.ts` uses the Profile description instead.
-Four committee roles are also dated 2024 in the deck but are 2023 events; the
-Profile dates win and each correction is commented in `organizations.ts`.
-
----
-
-## Project structure
+**Data lives in `src/data/`. Components render it. Components never contain a
+personal fact.** That is the rule the whole structure is built around.
 
 ```
 src/
-  content/          ← ALL personal data (see above)
-  types/
-    content.ts      TypeScript interfaces for every content shape
-    site.ts         Site metadata type
-  lib/
-    site.ts         Site URL, locale, OG image
-    theme.ts        Dark/light theme resolution + persistence
-    navigation.ts   The single nav list used by header AND footer
-  components/
-    ui/             Button, Tag, Section, SectionHeader, ImageFrame,
-                    ProjectCard, TodoBadge
-    layout/         SiteHeader, SiteFooter, ThemeToggle, ThemeScript
-    sections/       12 page sections (Hero, About, FeaturedWork, …)
-    islands/        ProjectFilter.tsx — the ONE React island
-  layouts/
-    BaseLayout.astro  HTML shell, SEO, JSON-LD, theme bootstrap
-  pages/
-    index.astro            the portfolio (all sections)
-    projects/[id].astro    8 generated case-study pages
-    404.astro              not-found page
-  styles/
-    tokens.css      design tokens (colour, type scale, spacing, motion)
-    global.css      Tailwind import + base styles + shared primitives
-public/
-  images/placeholders/   22 generated placeholder SVGs
-  favicon.svg
-  robots.txt
-scripts/
-  make-placeholders.mjs  regenerates the placeholder SVGs
-  verify-build.mjs       asserts the built output
+├── data/                    ← EVERY fact lives here
+│   ├── profile.ts           identity, About narrative, contact links
+│   ├── projects.ts          project case studies
+│   ├── experience.ts        professional roles
+│   ├── organizations.ts     student-body / committee roles
+│   ├── education.ts
+│   ├── skills.ts            skill groups + icon keys
+│   ├── skill-icons.ts       icon key → SVG
+│   ├── publications.ts
+│   ├── certifications.ts
+│   ├── achievements.ts
+│   ├── gallery.ts           personal/activity photographs
+│   ├── schemas.ts           Zod validation for all of the above
+│   ├── image-dims.ts        accessor for real pixel sizes
+│   └── asset-dims.generated.ts   ← GENERATED, do not edit
+│
+├── components/
+│   ├── layout/              Navbar, Footer, ThemeToggle
+│   ├── ui/                  reusable primitives (cards, collage, lightbox…)
+│   ├── sections/            homepage preview sections
+│   └── islands/             the React filter (the only client JS)
+│
+├── pages/                   one file per route
+├── layouts/BaseLayout.astro <head>, theme bootstrap, nav, footer, lightbox
+├── styles/                  global.css + tokens.css (the design system)
+├── types/content.ts         the shapes of the data
+└── utils/                   site config, navigation model
 ```
+
+### Adding content
+
+Every one of these is **one object appended to one array** — no component edits:
+
+| To add… | Edit |
+| --- | --- |
+| A project | `src/data/projects.ts` — its card, gallery and `/projects/<id>` page generate automatically |
+| A role | `src/data/experience.ts` |
+| A certificate | `src/data/certifications.ts` + drop the scan in `public/images/certificates/` |
+| A paper | `src/data/publications.ts` |
+| A skill | `src/data/skills.ts` (add an icon key in `skill-icons.ts` if you want a logo) |
+| A gallery photo | `src/data/gallery.ts` + the file in `public/images/gallery/` |
+| A nav destination | `src/utils/navigation.ts` — navbar, mobile panel, footer and sitemap all follow |
+
+Counts shown on the site ("15 certificates", "18 photos") are **derived from the
+data**, never hardcoded, so they update themselves.
+
+### Adding images
+
+Drop the original into `konten/`, add one line to the `RECIPES` array in
+`scripts/build-assets.mjs`, then:
+
+```bash
+npm run assets     # writes optimised WebP + refreshes the generated dimension map
+```
+
+Real pixel dimensions are emitted to `src/data/asset-dims.generated.ts`, which is
+what lets cards reserve the correct space and avoid layout shift.
 
 ---
 
 ## Design system
 
 Everything visual is a token in `src/styles/tokens.css`. Components reference
-`var(--accent)`, never a hex value — so the theme switches with no duplicated CSS
-and the accent colour changes in one place.
+`var(--x)` and never a raw colour, so the whole site re-skins from one file.
 
-- **Dark-first**, with a light theme and `prefers-color-scheme` respected
-- An inline pre-paint script applies the saved theme **before first render**, so
-  there is no white flash
-- One restrained teal accent; neutral slate base
-- **Inter** for prose, **JetBrains Mono** for all metadata (dates, locations,
-  tags, technical labels) — both self-hosted via Fontsource, no external requests
-- **No skill percentage bars** — neither source document states a proficiency
-  level, so showing "Python 87%" would be fabrication
+- **Dark-first**, warm ivory type, muted burgundy accent.
+- **Background**: two wide radial washes (burgundy, charcoal) plus a vignette —
+  depth rather than decoration; no patterns, photos, glows or particles.
+- **Light theme** is a warm paper palette, not an inverted dark one.
+- Typography: Playfair Display (display serif), Inter (body), JetBrains Mono
+  (metadata labels).
+- Corners stay near-square (`2–6px`).
 
 ---
 
-## Images and placeholders
-
-No real screenshots exist yet, so the site uses **22 generated placeholder SVGs**
-in `public/images/placeholders/`. Each is deliberately obvious: a dashed frame,
-diagonal hatching, a "PLACEHOLDER" badge and the target dimensions. They cannot
-be mistaken for real screenshots.
-
-Every image is wrapped by `ImageFrame.astro`, which reads `visual.isPlaceholder`
-and shows a "Placeholder image" badge automatically.
-
-**To replace a placeholder with a real asset:**
-
-1. Drop the file in `public/images/projects/` (or `publications/`, `certifications/`)
-2. Point `visual.src` at it in the relevant content file
-3. Set `isPlaceholder: false`
-
-The badge disappears and the layout is unchanged. No component edits.
-
-Regenerate all placeholders with `node scripts/make-placeholders.mjs`.
-
----
-
-## Interactivity — and why only one React island
-
-Astro ships **zero JavaScript by default** and hydrates only what you mark.
-
-The site has exactly **one** React island: `ProjectFilter.tsx`, because category
-filtering needs real client state and re-rendering from that state.
-
-Everything else is deliberately not React:
-
-| Feature | Implementation | Why not React |
-|---|---|---|
-| Theme toggle | Inline script | One button, one boolean — React would cost more than it saves |
-| Mobile menu | Inline script | Same |
-| Scroll-spy | `IntersectionObserver` | Browser-native |
-| Scroll reveal | CSS + tiny script | CSS transitions |
-
-The filter is also **progressive enhancement**: all 8 project cards are
-server-rendered into the HTML by Astro, and the island only toggles their
-visibility. With JavaScript disabled the full list still appears.
-
----
-
-## SEO & accessibility
-
-- Per-page `<title>`, meta description, canonical, Open Graph and Twitter cards
-- `Person` JSON-LD on the home page with `alumniOf` and `sameAs` (LinkedIn,
-  Instagram)
-- Auto-generated `sitemap-index.xml`; `robots.txt`
-- Semantic landmarks (`header`/`main`/`nav`/`footer`), one `<h1>` per page,
-  no skipped heading levels
-- Skip-to-content link, visible focus rings on every control, `aria-current`
-  on the active nav item, `aria-live` on the filter result count
-- Full `prefers-reduced-motion` support — reveal animations and pulses are
-  disabled, not merely shortened
-
----
-
-## Deployment
-
-The build is fully static. Any static host works.
+## Verification
 
 ```bash
-npm run build     # → dist/
-npm run verify    # assert the output is correct
+npm run build && npm run verify
 ```
 
-**Before deploying, change the placeholder domain** (currently
-`hamzahnaufal.example.com`). It is centralised in **two** places that must match:
+`verify-build.mjs` asserts against the **built HTML**, not the source:
 
-1. `SITE_URL` in `astro.config.mjs`
-2. `url` in `src/lib/site.ts`
-3. `public/robots.txt` (the `Sitemap:` line)
+- no phone number anywhere in rendered output
+- no broken internal links or missing image files
+- every page has title, meta description, canonical, OG tags, one `<h1>`, landmarks, a skip link
+- every `<img>` carries an `alt` attribute
+- sitemap, robots.txt and favicon exist
 
----
-
-## Adding a new project
-
-1. Append an entry to `src/content/projects.ts`
-2. Its case-study page is generated automatically at `/projects/<id>/`
-3. Add its two category tags; the filter counts update themselves
+`contrast.mjs` drives a real browser (CDP) to measure every text element in both
+themes against WCAG AA. It reloads per theme so colours resolve from scratch, and
+skips gradient-backed captions it cannot measure honestly.
 
 ---
 
-## License
+## Content rules (important)
 
-Personal portfolio. Content © Hamzah Naufal Zuhdi.
+This site is **strictly factual**. The two source documents are:
+
+- `Profile.pdf` — authoritative for **dates** and current status
+- `PORTOFOLIO HAMZAH (3).pdf` — authoritative for **descriptions, projects, skills, certificates**
+
+Rules that were followed throughout, and must keep being followed:
+
+1. **Never invent** experience, projects, metrics, dates, technologies, clients,
+   testimonials or URLs.
+2. Where a fact is genuinely unknown, it is **absent** or carries a visible note —
+   never a plausible guess. Search `todo:` in `src/data/` for the open items.
+3. **No proficiency percentages** for skills; the sources state none.
+4. **The phone number is never published.** `CONTACT_PHONE_ENABLED` in
+   `src/data/profile.ts` is `false`; contact links are read from
+   `activeContactLinks`, which filters disabled entries so one cannot leak.
+5. **Positioning**: the site leads with *Information Systems Graduate*. AirNav
+   Indonesia appears only inside Experience, labelled as an internship — it is
+   not the site's identity.
+6. **Personal photographs are not attributed to an employer** unless the image
+   itself proves it. Ambiguous photos live in the Gallery.
+
+### Certificate corrections made from the source text layer
+
+Three credential IDs previously transcribed from a rendered image were wrong.
+The PDF text layer is authoritative:
+
+| Certificate | Correct ID |
+| --- | --- |
+| Google Looker Studio | `MS-6/5/2025-sHCYqF5VgVDWEZRcHThr` |
+| Basic Data | `MS-26/1/2024-TnKfD2HxnGX2FbdOf8QT` |
+| Meniti Karier | `MRZM820DRZYQ` |
+
+Also corrected: the Olimpiade Numerasi Nasional Silver Medal is **2020** (not
+2022), and B2B Sales is **28 May 2025**.
+
+---
+
+## Deploying
+
+The build is fully static — deploy `dist/` anywhere.
+
+Before going live, set the real domain in **`astro.config.mjs`**:
+
+```js
+export const SITE_URL = 'https://your-real-domain.com';
+```
+
+It feeds canonical URLs, the sitemap and Open Graph tags. While it is still the
+placeholder, `npm run verify` fails if that domain ever appears in visible page
+text (it is allowed only in metadata).
+
+---
+
+## Known open items
+
+Search the data layer for `todo:` to see everything unresolved. The main ones:
+
+- AirNav responsibilities are **provisional** — expand with real detail.
+- No graduation month is documented, so none is shown.
+- The 2023 HIMA Ilkom and UKM Penelitian scans have no text layer, so their role
+  titles come from `Profile.pdf` alone.

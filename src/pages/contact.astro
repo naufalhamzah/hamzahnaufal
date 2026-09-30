@@ -1,0 +1,319 @@
+---
+/**
+ * CONTACT — how to get in touch.
+ *
+ * The site is fully static, so there is no form: a form would need a
+ * third-party service that the brief has not approved, and a form that silently
+ * drops messages is worse than no form. Email is presented as the primary
+ * action instead.
+ *
+ * The phone number is NOT listed. Links come from `activeContactLinks`, which
+ * filters out disabled entries, so a hidden number can never leak into the HTML.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/ui/PageHeader.astro';
+import { profile, activeContactLinks } from '@/data/profile';
+
+const email = activeContactLinks.find((l) => l.href.startsWith('mailto:'));
+const socials = activeContactLinks.filter((l) => l !== email);
+
+/** Facts worth stating up front when someone is deciding whether to reach out. */
+const facts = [
+  { k: 'Based in', v: profile.location },
+  { k: 'Open to', v: 'Data, analytics and information-systems roles' },
+  { k: 'Focus', v: profile.focusAreas.slice(0, 3).join(' · ') },
+  { k: 'Reply time', v: 'Email is the fastest route' },
+];
+---
+
+<BaseLayout
+  title={`Contact — ${profile.name}`}
+  description="Get in touch with Hamzah Naufal Zuhdi — Information Systems graduate working across data analytics, information systems and business process improvement."
+>
+  <PageHeader
+    index="08"
+    eyebrow="Contact"
+    title="Get in touch"
+    standfirst="Open to conversations about a role, a project, or a problem worth solving with data. Email reaches me directly."
+  />
+
+  <section class="co" aria-labelledby="co-main">
+    <div class="shell co__shell">
+      <!-- ---------------- primary action ---------------- -->
+      <div class="co__main">
+        <h2 id="co-main" class="sr-only">Contact details</h2>
+
+        {
+          email && (
+            <a href={email.href} class="co__mail">
+              <span class="co__mail-label mono">Email</span>
+              <span class="co__mail-addr">{email.href.replace('mailto:', '')}</span>
+              <span class="co__mail-arrow" aria-hidden="true">→</span>
+            </a>
+          )
+        }
+
+        <p class="co__note">
+          Tell me what you are working on and what you need. If it is a fit, I will
+          come back with how I would approach it.
+        </p>
+
+        <div class="co__socials-block">
+          <h3 class="label co__h">Elsewhere</h3>
+          <ul class="co__socials">
+            {
+              socials.map((s) => (
+                <li>
+                  <a
+                    href={s.href}
+                    class="co__social"
+                    rel={s.external ? 'noopener noreferrer' : undefined}
+                    target={s.external ? '_blank' : undefined}
+                  >
+                    <span class="co__social-label">{s.label}</span>
+                    <span class="co__social-href mono">
+                      {s.href.replace(/^https?:\/\/(www\.)?/, '')}
+                    </span>
+                    {s.external && <span class="co__social-arrow" aria-hidden="true">↗</span>}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+
+      <!-- ---------------- facts rail ---------------- -->
+      <aside class="co__side" aria-label="At a glance">
+        <h3 class="label co__h">At a glance</h3>
+        <dl class="co__facts">
+          {
+            facts.map((f) => (
+              <div class="co__fact">
+                <dt class="mono">{f.k}</dt>
+                <dd>{f.v}</dd>
+              </div>
+            ))
+          }
+        </dl>
+
+        <div class="co__links">
+          <a href="/projects" class="co__link">
+            <span>See the work</span>
+            <span aria-hidden="true">→</span>
+          </a>
+          <a href="/about" class="co__link">
+            <span>Read the background</span>
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .co {
+    padding-block: clamp(1.5rem, 3vw, 2.5rem) var(--section-y);
+  }
+
+  .co__shell {
+    display: grid;
+    gap: clamp(2rem, 4.5vw, 4rem);
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 900px) {
+    .co__shell {
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+      align-items: start;
+    }
+  }
+
+  /* ---------------- email ---------------- */
+  .co__mail {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: clamp(1.1rem, 2.5vw, 1.5rem);
+    border: var(--hairline) solid var(--border-strong);
+    border-radius: var(--r-xs);
+    background-color: color-mix(in srgb, var(--surface) 60%, transparent);
+    transition:
+      border-color var(--t-base) var(--ease),
+      background-color var(--t-base) var(--ease);
+  }
+
+  .co__mail:hover {
+    border-color: var(--accent);
+    background-color: var(--accent-soft);
+  }
+
+  .co__mail-label {
+    flex: none;
+    color: var(--fg-faint);
+  }
+
+  .co__mail-addr {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    color: var(--fg-strong);
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+
+  .co__mail-arrow {
+    margin-inline-start: auto;
+    flex: none;
+    font-size: 1.35rem;
+    color: var(--accent);
+    transition: transform var(--t-base) var(--ease);
+  }
+
+  .co__mail:hover .co__mail-arrow {
+    transform: translateX(5px);
+  }
+
+  .co__note {
+    margin-top: clamp(1.25rem, 2.5vw, 1.75rem);
+    max-width: 56ch;
+    font-size: var(--text-lg);
+    color: var(--fg-muted);
+  }
+
+  /* ---------------- socials ---------------- */
+  .co__socials-block {
+    margin-top: clamp(2rem, 4vw, 2.75rem);
+    padding-top: clamp(1.75rem, 3.5vw, 2.25rem);
+    border-top: var(--hairline) solid var(--border);
+  }
+
+  .co__h {
+    display: block;
+    margin-bottom: 1rem;
+    color: var(--accent);
+  }
+
+  .co__socials {
+    display: grid;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .co__social {
+    display: flex;
+    align-items: baseline;
+    gap: 0.85rem;
+    padding: 0.85rem 1rem;
+    border: var(--hairline) solid var(--border);
+    border-radius: var(--r-xs);
+    transition:
+      border-color var(--t-base) var(--ease),
+      background-color var(--t-base) var(--ease);
+  }
+
+  .co__social:hover {
+    border-color: var(--accent);
+    background-color: var(--accent-soft);
+  }
+
+  .co__social-label {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    color: var(--fg-strong);
+  }
+
+  .co__social-href {
+    color: var(--fg-faint);
+    text-transform: none;
+    letter-spacing: 0.02em;
+    /* Long handles must not push the arrow off the row. */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+
+  .co__social-arrow {
+    margin-inline-start: auto;
+    color: var(--accent);
+  }
+
+  /* ---------------- facts ---------------- */
+  .co__side {
+    padding-top: clamp(0.5rem, 1.5vw, 1rem);
+  }
+
+  .co__facts {
+    display: grid;
+    gap: 0;
+    margin: 0;
+  }
+
+  .co__fact {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 0.8rem 0;
+    border-top: var(--hairline) solid var(--border-faint);
+  }
+
+  .co__fact:last-child {
+    border-bottom: var(--hairline) solid var(--border-faint);
+  }
+
+  .co__fact dd {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--fg);
+  }
+
+  .co__links {
+    display: grid;
+    gap: 0.6rem;
+    margin-top: clamp(1.75rem, 3vw, 2.25rem);
+  }
+
+  .co__link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 1rem;
+    border: var(--hairline) solid var(--border-strong);
+    border-radius: var(--r-xs);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--fg);
+    transition:
+      border-color var(--t-base) var(--ease),
+      background-color var(--t-base) var(--ease),
+      color var(--t-base) var(--ease);
+  }
+
+  .co__link:hover {
+    border-color: var(--accent);
+    background-color: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  @media (max-width: 560px) {
+    .co__mail {
+      flex-wrap: wrap;
+      gap: 0.4rem 0.75rem;
+    }
+
+    .co__mail-addr {
+      font-size: var(--text-xl);
+    }
+
+    .co__social {
+      flex-wrap: wrap;
+      gap: 0.25rem 0.85rem;
+    }
+  }
+</style>

@@ -1,0 +1,127 @@
+/**
+ * SKILLS — with icons
+ * ============================================================================
+ * SOURCE: [D] = "Skills and Expertise" slide, plus tools evidenced in [P]'s
+ *         experience descriptions.
+ *
+ * ICON STRATEGY (see src/data/skill-icons.ts):
+ *   - `icon` names a key in the icon registry.
+ *   - Icons come from `simple-icons` (official brand marks, MIT-licensed data)
+ *     where the brand exists, otherwise from a hand-written local set.
+ *   - simple-icons intentionally omits some trademarks (Tableau, Adobe products,
+ *     Microsoft Office, Canva). Those use a local monogram fallback so nothing
+ *     renders as a missing image.
+ *
+ * NO PROFICIENCY LEVELS. Neither source document states any, so showing
+ * "Python 90%" would be fabrication. This is a list of things worked with,
+ * grouped by area.
+ *
+ * TO ADD A SKILL: add one string to the relevant `items` array, plus an `icon`
+ * entry in skill-icons.ts if you want a logo. Add an icon-less skill by leaving
+ * `icon: null`.
+ * ============================================================================
+ */
+
+import { skillGroupListSchema } from './schemas';
+import type { SkillGroup } from '@/types/content';
+
+const raw: SkillGroup[] = [
+  {
+    id: 'data-analytics',
+    title: 'Data Analytics & Visualization',
+    description: 'Turning raw data into readable, decision-ready views.',
+    items: [
+      { name: 'Google Looker Studio', icon: 'looker' },
+      { name: 'Tableau', icon: 'tableau' },
+      { name: 'Microsoft Excel', icon: 'excel' },
+      { name: 'Google Sheets', icon: 'sheets' },
+      { name: 'Data visualisation', icon: null },
+      { name: 'Data processing & validation', icon: null },
+    ],
+    source: 'both',
+  },
+  {
+    id: 'programming-database',
+    title: 'Programming & Database',
+    description: 'Writing code and working with structured data.',
+    items: [
+      { name: 'Python', icon: 'python' },
+      { name: 'SQL', icon: 'sql' },
+      { name: 'Java', icon: 'java' },
+      { name: 'C++', icon: 'cpp' },
+      { name: 'JavaScript', icon: 'javascript' },
+      { name: 'Google Apps Script', icon: 'appsscript' },
+    ],
+    source: 'both',
+  },
+  {
+    id: 'machine-learning',
+    title: 'Machine Learning & Modeling',
+    description: 'Methods applied in published research and coursework.',
+    items: [
+      { name: 'K-Nearest Neighbors', icon: null },
+      { name: 'Naive Bayes', icon: null },
+      { name: 'SVM', icon: null },
+      { name: 'Transformer model', icon: null },
+    ],
+    source: 'portfolio',
+  },
+  {
+    id: 'business-process',
+    title: 'Business Process & Analysis',
+    description: 'Mapping how work actually flows, then improving it.',
+    items: [
+      { name: 'Business process flowcharting', icon: 'drawio' },
+      { name: 'Systems analysis', icon: null },
+      { name: 'Process improvement', icon: null },
+      { name: 'Requirements documentation', icon: null },
+    ],
+    source: 'both',
+  },
+  {
+    id: 'design-creative',
+    title: 'Design & Creative',
+    description: 'Interface design and supporting visual work.',
+    items: [
+      { name: 'Figma', icon: 'figma' },
+      { name: 'Adobe Photoshop', icon: 'photoshop' },
+      { name: 'Adobe Lightroom', icon: 'lightroom' },
+      { name: 'Canva', icon: 'canva' },
+      { name: 'CapCut', icon: 'capcut' },
+      { name: 'UI/UX design', icon: null },
+    ],
+    source: 'portfolio',
+  },
+  {
+    id: 'office-documentation',
+    title: 'Office & Documentation',
+    description: 'Reporting, formal documents and written output.',
+    items: [
+      { name: 'Microsoft Word', icon: 'word' },
+      { name: 'Microsoft PowerPoint', icon: 'powerpoint' },
+      { name: 'Google Docs', icon: 'gdocs' },
+      { name: 'Technical reporting', icon: null },
+      { name: 'Scientific article writing', icon: null },
+      { name: 'Popular article writing', icon: null },
+    ],
+    source: 'portfolio',
+  },
+  {
+    id: 'collaboration-tooling',
+    title: 'Collaboration & Tooling',
+    description: 'The everyday stack used to get work done with others.',
+    items: [
+      { name: 'GitHub', icon: 'github' },
+      { name: 'Git', icon: 'git' },
+      { name: 'Google Drive', icon: 'gdrive' },
+      { name: 'Draw.io', icon: 'drawio' },
+      { name: 'OBS Studio', icon: 'obs' },
+      { name: 'Zoom', icon: 'zoom' },
+    ],
+    source: 'both',
+  },
+];
+
+export const skillGroups: SkillGroup[] = skillGroupListSchema.parse(raw);
+
+export const totalSkills = skillGroups.reduce((n, g) => n + g.items.length, 0);

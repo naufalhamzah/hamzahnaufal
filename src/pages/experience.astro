@@ -1,0 +1,477 @@
+---
+/**
+ * EXPERIENCE — the complete professional and organisational record.
+ *
+ * The brief is precise about two things here:
+ *   1. AirNav must appear as EXPERIENCE, not as the site's identity.
+ *   2. Its AirNav photographs must be used, but not stacked vertically — they
+ *      belong in an editorial collage/grid.
+ *
+ * So each role renders as: meta column → description → optional COLLAGE of its
+ * unambiguous images. Only roles whose images are provably theirs have photos;
+ * everything else is typographic.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/ui/PageHeader.astro';
+import Collage from '@/components/ui/Collage.astro';
+import { experienceSorted, currentExperience } from '@/data/experience';
+import { organizationsSorted, organizationGroups } from '@/data/organizations';
+import { profile } from '@/data/profile';
+
+const roles = experienceSorted;
+const orgGroups = organizationGroups.map((g) => ({
+  name: g,
+  roles: organizationsSorted.filter((o) => o.group === g),
+}));
+
+/** Derived figures — never hardcoded, so they follow the data. */
+const meta = [
+  { label: 'Professional roles', value: String(roles.length) },
+  { label: 'Currently', value: currentExperience.map((e) => e.company).join(', ') },
+  { label: 'Organisational roles', value: String(organizationsSorted.length) },
+  { label: 'Based in', value: profile.location },
+];
+---
+
+<BaseLayout
+  title={`Experience — ${profile.name}`}
+  description="Professional experience of Hamzah Naufal Zuhdi — including Information Technology Administration Staff Intern at AirNav Indonesia, data and marketing work at Beauty Innovation Laboratories, and IT support at PT PLN (Persero)."
+>
+  <PageHeader
+    index="03"
+    eyebrow="Experience"
+    title="Where I have worked"
+    standfirst="Professional roles, then the student-body and committee record alongside them. Dates follow the LinkedIn profile export where the two source documents disagree."
+    meta={meta}
+  />
+
+  <!-- ===================== professional ===================== -->
+  <section class="xp" aria-labelledby="xp-pro">
+    <div class="shell">
+      <h2 id="xp-pro" class="label xp__h">Professional roles</h2>
+
+      <ol class="xp__list">
+        {
+          roles.map((job, i) => (
+            <li class:list={['xp__row', job.current && 'xp__row--current']}>
+              {/* ---- meta column ---- */}
+              <div class="xp__meta">
+                <p class="xp__dates mono">{job.dateRange}</p>
+
+                {job.logo ? (
+                  <span class="xp__logo">
+                    <img
+                      src={job.logo.src}
+                      alt={job.logo.alt}
+                      width={job.logo.width ?? 200}
+                      height={job.logo.height ?? 80}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </span>
+                ) : (
+                  <span class="xp__logo xp__logo--empty mono" aria-hidden="true">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                )}
+
+                {job.location && <p class="xp__loc mono">{job.location}</p>}
+              </div>
+
+              {/* ---- body ---- */}
+              <div class="xp__body">
+                <h3 class="xp__role">
+                  {job.role}
+                  {job.current && <span class="xp__badge mono">Current</span>}
+                </h3>
+
+                <p class="xp__company">
+                  {job.company}
+                  {job.companyFull && job.companyFull !== job.company && (
+                    <span class="xp__full mono">{job.companyFull}</span>
+                  )}
+                </p>
+
+                <p class="xp__summary">{job.summary}</p>
+
+                {job.highlights.length > 0 && (
+                  <ul class="xp__points">
+                    {job.highlights.map((h) => <li>{h}</li>)}
+                  </ul>
+                )}
+
+                {job.tools && job.tools.length > 0 && (
+                  <ul class="xp__tools" aria-label="Tools">
+                    {job.tools.map((t) => <li class="xp__tool mono">{t}</li>)}
+                  </ul>
+                )}
+
+                {job.todo && (
+                  <p class="xp__todo mono">
+                    <span class="xp__todo-tag">Note</span>
+                    {job.todo}
+                  </p>
+                )}
+              </div>
+
+              {/* ---- images: only where the role is unambiguous ---- */}
+              {job.photos && job.photos.length > 0 && (
+                <div class="xp__media">
+                  <Collage images={job.photos} dense />
+                </div>
+              )}
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- ===================== organisations ===================== -->
+  <section class="xp-org" id="organizations" aria-labelledby="xp-orgs">
+    <div class="shell">
+      <div class="xp-org__head">
+        <h2 id="xp-orgs" class="label">Organisations &amp; leadership</h2>
+        <p class="mono xp-org__count">{organizationsSorted.length} roles</p>
+      </div>
+
+      <p class="xp-org__lede">
+        Committee and student-body positions held alongside study. Grouped by the
+        body they belong to, newest first.
+      </p>
+
+      {
+        orgGroups.map(({ name, roles: groupRoles }) => (
+          <div class="xp-org__group">
+            <h3 class="xp-org__name mono">{name}</h3>
+
+            <ol class="xp-org__list">
+              {groupRoles.map((r) => (
+                <li class="xp-org__row">
+                  <p class="xp-org__when mono">{r.dateRange}</p>
+                  <div class="xp-org__body">
+                    <p class="xp-org__role">{r.role}</p>
+                    {r.summary && <p class="xp-org__sum">{r.summary}</p>}
+                    {r.tools && r.tools.length > 0 && (
+                      <p class="xp-org__tools mono">{r.tools.join(' · ')}</p>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* ==========================================================================
+     professional roles
+     ========================================================================== */
+  .xp {
+    padding-block: clamp(1.5rem, 3vw, 2.5rem) var(--section-y);
+  }
+
+  .xp__h {
+    padding-bottom: 1rem;
+    border-bottom: var(--hairline) solid var(--border);
+  }
+
+  .xp__list {
+    display: grid;
+    margin: clamp(1.75rem, 3.5vw, 2.5rem) 0 0;
+    padding: 0;
+    list-style: none;
+    gap: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  .xp__row {
+    display: grid;
+    gap: clamp(1.25rem, 3vw, 2rem);
+    grid-template-columns: 1fr;
+    padding-top: clamp(1.75rem, 3.5vw, 2.5rem);
+    border-top: var(--hairline) solid var(--border-faint);
+  }
+
+  .xp__row:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  @media (min-width: 900px) {
+    .xp__row {
+      grid-template-columns: minmax(0, 13rem) minmax(0, 1fr);
+      align-items: start;
+    }
+
+    /* Roles WITH images get a third column for the collage. */
+    .xp__row:has(.xp__media) {
+      grid-template-columns: minmax(0, 13rem) minmax(0, 1fr);
+    }
+  }
+
+  /* ---- meta column ---- */
+  .xp__meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .xp__dates {
+    color: var(--fg-muted);
+    text-transform: none;
+    letter-spacing: 0.03em;
+  }
+
+  /* A logo plate keeps every employer mark the same optical size regardless of
+     whether the source file is square or a wide wordmark. */
+  .xp__logo {
+    display: grid;
+    place-items: center;
+    width: 6rem;
+    height: 3.25rem;
+    padding: 0.45rem 0.6rem;
+    border: var(--hairline) solid var(--border);
+    border-radius: var(--r-xs);
+    background-color: var(--surface-2);
+    /* Safety net: a logo can never paint outside its plate. */
+    overflow: hidden;
+  }
+
+  /*
+    max-* rather than width/height:100%. A percentage height does not resolve
+    inside a centred grid item (the item's height is content-sized), so a square
+    logo would overflow the plate and collide with the text below it. max-width
+    and max-height constrain against the plate's definite content box instead.
+  */
+  .xp__logo img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+  }
+
+  .xp__logo--empty {
+    color: var(--fg-faint);
+    font-size: 1rem;
+  }
+
+  .xp__loc {
+    color: var(--fg-faint);
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
+
+  /* ---- body ---- */
+  .xp__role {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.6rem;
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 500;
+    line-height: 1.12;
+    letter-spacing: -0.018em;
+    color: var(--fg-strong);
+  }
+
+  .xp__badge {
+    padding: 0.18rem 0.5rem;
+    border: var(--hairline) solid var(--accent-line);
+    border-radius: var(--r-full);
+    color: var(--accent);
+    font-size: 0.6rem;
+  }
+
+  .xp__company {
+    margin-top: 0.4rem;
+    font-size: var(--text-base);
+    color: var(--accent);
+  }
+
+  .xp__full {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--fg-faint);
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
+
+  .xp__summary {
+    margin-top: 1rem;
+    max-width: 72ch;
+    color: var(--fg-muted);
+  }
+
+  .xp__points {
+    margin: 1.1rem 0 0;
+    padding: 0;
+    list-style: none;
+    max-width: 72ch;
+  }
+
+  .xp__points li {
+    position: relative;
+    padding-inline-start: 1.35rem;
+    font-size: var(--text-sm);
+    color: var(--fg-muted);
+  }
+
+  .xp__points li + li {
+    margin-top: 0.55rem;
+  }
+
+  /* A small accent tick rather than a bullet. */
+  .xp__points li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.62em;
+    width: 0.6rem;
+    height: 1px;
+    background-color: var(--accent);
+  }
+
+  .xp__tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.5rem;
+    margin: 1.25rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .xp__tool {
+    padding: 0.24rem 0.6rem;
+    border: var(--hairline) solid var(--border-strong);
+    border-radius: var(--r-full);
+    color: var(--fg-subtle);
+    text-transform: none;
+    letter-spacing: 0.03em;
+  }
+
+  .xp__todo {
+    margin-top: 1.25rem;
+    max-width: 72ch;
+    padding: 0.6rem 0.75rem;
+    border-inline-start: 2px solid var(--accent-line);
+    background-color: var(--accent-soft);
+    color: var(--fg-subtle);
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
+
+  .xp__todo-tag {
+    display: inline-block;
+    margin-inline-end: 0.5rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.6rem;
+  }
+
+  /* ---- media column ---- */
+  .xp__media {
+    /* On wide screens the collage sits under the body text rather than beside
+       it, which keeps the description readable at full width. */
+    grid-column: 1 / -1;
+  }
+
+  @media (min-width: 900px) {
+    .xp__media {
+      grid-column: 2 / -1;
+      margin-top: 1.75rem;
+      max-width: 56rem;
+    }
+  }
+
+  /* ==========================================================================
+     organisations
+     ========================================================================== */
+  .xp-org {
+    padding-block: var(--section-y);
+    border-top: var(--hairline) solid var(--border);
+  }
+
+  .xp-org__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    padding-bottom: 1rem;
+    border-bottom: var(--hairline) solid var(--border);
+  }
+
+  .xp-org__count {
+    color: var(--fg-faint);
+  }
+
+  .xp-org__lede {
+    margin-top: 1.25rem;
+    max-width: 62ch;
+    color: var(--fg-muted);
+  }
+
+  .xp-org__group {
+    margin-top: clamp(1.75rem, 3.5vw, 2.5rem);
+  }
+
+  .xp-org__name {
+    padding-bottom: 0.6rem;
+    border-bottom: var(--hairline) solid var(--border-faint);
+    color: var(--accent);
+  }
+
+  .xp-org__list {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .xp-org__row {
+    display: grid;
+    gap: 0.25rem 1.5rem;
+    grid-template-columns: 1fr;
+    padding: 0.95rem 0;
+    border-bottom: var(--hairline) solid var(--border-faint);
+  }
+
+  @media (min-width: 760px) {
+    .xp-org__row {
+      grid-template-columns: minmax(0, 13rem) minmax(0, 1fr);
+      align-items: baseline;
+    }
+  }
+
+  .xp-org__when {
+    color: var(--fg-faint);
+    text-transform: none;
+    letter-spacing: 0.03em;
+  }
+
+  .xp-org__role {
+    font-size: var(--text-sm);
+    color: var(--fg);
+  }
+
+  .xp-org__sum {
+    margin-top: 0.3rem;
+    max-width: 68ch;
+    font-size: var(--text-sm);
+    color: var(--fg-muted);
+  }
+
+  .xp-org__tools {
+    margin-top: 0.4rem;
+    color: var(--fg-faint);
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
+</style>

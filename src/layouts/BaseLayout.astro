@@ -1,52 +1,46 @@
 ---
+/**
+ * BASE LAYOUT — the HTML shell used by every page.
+ *
+ * Owns: <head> metadata, the pre-paint theme bootstrap, skip link, navbar,
+ * footer, the shared lightbox, and the scroll-reveal observer.
+ */
 import '@/styles/global.css';
-// Self-hosted fonts (no external requests, no layout shift, works offline).
+
+// Self-hosted fonts — no external requests, no layout shift, works offline.
 import '@fontsource-variable/inter';
 import '@fontsource-variable/jetbrains-mono';
-import ThemeScript from '@/components/layout/ThemeScript.astro';
-import SiteHeader from '@/components/layout/SiteHeader.astro';
-import SiteFooter from '@/components/layout/SiteFooter.astro';
-import { site } from '@/lib/site';
+import '@fontsource-variable/playfair-display';
+
+import Navbar from '@/components/layout/Navbar.astro';
+import Footer from '@/components/layout/Footer.astro';
+import Lightbox from '@/components/ui/Lightbox.astro';
+import { site } from '@/utils/site';
 
 interface Props {
-  /** Full <title>. */
   title: string;
-  /** Meta description — keep under ~160 characters. */
   description: string;
-  /** Optional per-page social preview image (relative to /public). */
   ogImage?: string;
-  /** Set on the home page so JSON-LD Person markup is emitted. */
   isHome?: boolean;
 }
 
-const {
-  title,
-  description,
-  ogImage = site.defaultOgImage,
-  isHome = false,
-} = Astro.props;
+const { title, description, ogImage = site.defaultOgImage, isHome = false } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
 const socialImage = new URL(ogImage, Astro.site ?? site.url).href;
 
 /**
- * JSON-LD Person markup. Built ONLY from facts that exist in the source
- * documents. `sameAs` lists public profiles that were explicitly provided.
- * TODO(you): add a professional headshot URL to `image` once one exists.
+ * JSON-LD Person markup, built ONLY from facts present in the source documents.
+ * TODO: add a photo URL to `image` once a hosted headshot exists.
  */
-const personJsonLd = {
+const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Person',
   name: 'Hamzah Naufal Zuhdi',
   jobTitle: 'Information Technology Administration Staff at AirNav Indonesia',
   description:
-    'Information Systems graduate working in data, technology, business processes and digital solutions.',
-  alumniOf: [
-    {
-      '@type': 'CollegeOrUniversity',
-      name: 'Universitas Negeri Semarang',
-    },
-  ],
+    'Information Systems graduate working across data analytics, information systems, business process improvement and digital solutions.',
+  alumniOf: [{ '@type': 'CollegeOrUniversity', name: 'Universitas Negeri Semarang' }],
   knowsAbout: [
     'Data Analysis',
     'Data Visualization',
@@ -72,7 +66,6 @@ const personJsonLd = {
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
 
-    <!-- Open Graph / social sharing -->
     <meta property="og:type" content={isHome ? 'profile' : 'website'} />
     <meta property="og:site_name" content="Hamzah Naufal Zuhdi" />
     <meta property="og:title" content={title} />
@@ -85,31 +78,84 @@ const personJsonLd = {
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={socialImage} />
 
+    <meta name="theme-color" content="#0b0908" />
+
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/favicon.svg" />
 
-    <!-- Applies the saved/system theme before first paint to avoid a flash. -->
-    <ThemeScript />
+    <!-- Pre-paint theme bootstrap: must run before first paint to avoid a
+         light flash on a dark-first site, so it stays inline and blocking. -->
+    <script is:inline>
+      (function () {
+        try {
+          var s = localStorage.getItem('hnz-theme');
+          var t =
+            s === 'dark' || s === 'light'
+              ? s
+              : window.matchMedia &&
+                  window.matchMedia('(prefers-color-scheme: light)').matches
+                ? 'light'
+                : 'dark';
+          var r = document.documentElement;
+          r.setAttribute('data-theme', t);
+          r.style.colorScheme = t;
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      })();
+    </script>
 
-    {isHome && (
-      <script
-        type="application/ld+json"
-        set:html={JSON.stringify(personJsonLd)}
-      />
-    )}
+    {isHome && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
   </head>
 
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
-    <SiteHeader />
+
+    <Navbar />
+
     <main id="main" tabindex="-1">
       <slot />
     </main>
-    <SiteFooter />
+
+    <Footer />
+
+    <!-- One shared viewer for every image with data-lightbox-src -->
+    <Lightbox />
+
     <script>
-      // Marks that JS is available so scroll-reveal styles only hide content
-      // when they can also un-hide it.
-      document.documentElement.classList.add('js-enabled');
+      /**
+       * Progressive enhancement:
+       *  - marks that JS is available (so reveal styles only hide content when
+       *    they can also un-hide it)
+       *  - reveals [data-reveal] elements as they scroll into view
+       */
+      const root = document.documentElement;
+      root.classList.add('js');
+
+      const targets = document.querySelectorAll('[data-reveal]');
+
+      if (targets.length) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const e of entries) {
+              if (e.isIntersecting) {
+                e.target.classList.add('is-in');
+                io.unobserve(e.target);
+              }
+            }
+          },
+          { rootMargin: '0px 0px -12% 0px', threshold: 0.08 },
+        );
+
+        targets.forEach((t) => io.observe(t));
+      }
+
+      /* Stagger children of a [data-reveal-group] container. */
+      document.querySelectorAll<HTMLElement>('[data-reveal-group]').forEach((group) => {
+        group.querySelectorAll<HTMLElement>('[data-reveal]').forEach((el, i) => {
+          el.style.setProperty('--reveal-delay', `${Math.min(i * 55, 330)}ms`);
+        });
+      });
     </script>
   </body>
 </html>

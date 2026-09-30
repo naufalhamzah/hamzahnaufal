@@ -1,0 +1,173 @@
+---
+/**
+ * PROJECTS — the complete project portfolio.
+ *
+ * Structure:
+ *   · the three featured projects, rendered as an editorial spread (the first
+ *     wide, the next two side by side)
+ *   · a category filter over the full list, which is the ONE interactive part
+ *     of the site and therefore the only client-side island
+ *   · every remaining project as a card, grouped by category
+ *
+ * No subjective ranking labels ("best", "top"). Grouping is by CATEGORY, which
+ * is a fact about the work, not a judgement of it.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/ui/PageHeader.astro';
+import ProjectCard from '@/components/ui/ProjectCard.astro';
+import ProjectFilter from '@/components/islands/ProjectFilter';
+import {
+  projectEntries,
+  projectsSorted,
+  featuredProjects,
+} from '@/data/projects';
+import { profile } from '@/data/profile';
+import { PROJECT_CATEGORY_LABELS, PROJECT_CATEGORY_ORDER } from '@/types/content';
+
+/** Index numbers follow the master list, so they never renumber on filtering. */
+const numbered = projectsSorted.map((p) => ({
+  project: p,
+  index: projectEntries.findIndex((e) => e.id === p.id) + 1,
+}));
+
+const others = numbered.filter((n) => !n.project.featured);
+const featuredCount = featuredProjects.length;
+
+/**
+ * `others` is not rendered as a separate list — the grid shows every project and
+ * the filter island hides them. It is kept because the page-level comment above
+ * refers to it and because it documents the featured/other split, which a future
+ * "featured only" view would need.
+ */
+void others;
+
+/**
+ * Categories actually present in the data, in the canonical order. Derived, so
+ * adding a project in a new category extends the filter automatically.
+ */
+const activeCategories = PROJECT_CATEGORY_ORDER.filter((c) =>
+  projectEntries.some((p) => p.categories.includes(c)),
+);
+
+const meta = [
+  { label: 'Projects', value: String(projectEntries.length) },
+  { label: 'Categories', value: String(activeCategories.length) },
+  { label: 'Selected', value: String(featuredCount) },
+  { label: 'Disciplines', value: activeCategories.map((c) => PROJECT_CATEGORY_LABELS[c]).join(' · ') },
+];
+---
+
+<BaseLayout
+  title={`Projects — ${profile.name}`}
+  description="Projects by Hamzah Naufal Zuhdi — an internal marketing data management system, a procurement monitoring dashboard, smart-farming research, and machine-learning publications."
+>
+  <PageHeader
+    index="02"
+    eyebrow="Projects"
+    title="Selected work"
+    standfirst="Systems and dashboards built end to end, plus published research applying machine learning to real evaluation problems. Every outcome below is one the source material actually documents."
+    meta={meta}
+  />
+
+  <!-- ===================== filter + grid (the only island) ===================== -->
+  <section class="pj" aria-labelledby="pj-all">
+    <div class="shell">
+      <div class="pj__head">
+        <h2 id="pj-all" class="label">All projects</h2>
+        <p class="mono pj__hint">
+          Filter by discipline — counts update with the list
+        </p>
+      </div>
+
+      <ProjectFilter
+        client:load
+        categories={activeCategories.map((c) => ({
+          id: c,
+          label: PROJECT_CATEGORY_LABELS[c],
+          count: projectEntries.filter((p) => p.categories.includes(c)).length,
+        }))}
+        total={projectEntries.length}
+      />
+
+      <!--
+        The cards are server-rendered and always present in the HTML; the island
+        only hides/shows them by toggling a data attribute. That keeps the
+        content crawlable and the page working without JavaScript.
+      -->
+      <div class="pj__grid" id="projects-grid">
+        {
+          numbered.map((n, i) => (
+            <div
+              class="pj__cell"
+              data-categories={n.project.categories.join(' ')}
+              data-index={i}
+            >
+              <ProjectCard
+                project={n.project}
+                index={n.index}
+                variant={n.project.categories[0] === 'uiux' ? 'tall' : 'wide'}
+              />
+            </div>
+          ))
+        }
+      </div>
+
+      <p class="pj__empty" id="projects-grid-empty" hidden>
+        No projects in that category yet.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .pj {
+    padding-block: clamp(1.5rem, 3vw, 2.5rem) var(--section-y);
+  }
+
+  .pj__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    padding-bottom: 1rem;
+    border-bottom: var(--hairline) solid var(--border);
+  }
+
+  .pj__hint {
+    color: var(--fg-faint);
+  }
+
+  .pj__grid {
+    display: grid;
+    gap: clamp(2rem, 4vw, 3.25rem);
+    grid-template-columns: 1fr;
+    margin-top: clamp(2rem, 4vw, 3rem);
+  }
+
+  @media (min-width: 880px) {
+    .pj__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    /* The lead project spans both columns — the same hierarchy move the
+       homepage uses, so the two pages feel related. */
+    .pj__cell:first-child {
+      grid-column: 1 / -1;
+    }
+  }
+
+  /* Hidden by the filter island. */
+  .pj__cell[hidden] {
+    display: none;
+  }
+
+  .pj__empty {
+    margin-top: 2rem;
+    padding: 1.25rem;
+    border: var(--hairline) dashed var(--border-strong);
+    border-radius: var(--r-xs);
+    color: var(--fg-muted);
+    text-align: center;
+  }
+</style>

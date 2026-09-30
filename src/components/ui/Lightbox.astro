@@ -1,0 +1,380 @@
+---
+/**
+ * LIGHTBOX — an accessible modal viewer for certificates, project shots and
+ * gallery photographs.
+ *
+ * One instance per page. Any element carrying `data-lightbox-src` opens it, so
+ * new content needs no wiring at all.
+ *
+ * FEATURES
+ *   · next / previous across the items in the same set
+ *   · keyboard: ← → to browse, Z to zoom, Esc to close (native to <dialog>)
+ *   · zoom toggle (click the image or use the toolbar button)
+ *   · a counter so the viewer knows where they are in a set
+ *
+ * Accessibility: built on <dialog>, which gives focus trapping, Escape-to-close
+ * and inert background behaviour from the browser rather than hand-written JS.
+ */
+---
+
+<dialog id="lightbox" class="lb" aria-labelledby="lb-title">
+  <div class="lb__inner">
+    <header class="lb__bar">
+      <div class="lb__meta">
+        <p id="lb-title" class="lb__title">Viewer</p>
+        <p class="lb__sub mono" id="lb-sub"></p>
+      </div>
+
+      <div class="lb__tools">
+        <span class="lb__count mono" id="lb-count" aria-live="polite"></span>
+        <button type="button" class="lb__btn" id="lb-zoom" aria-label="Toggle zoom" aria-pressed="false">
+          <span aria-hidden="true">⤢</span>
+        </button>
+        <button type="button" class="lb__btn" id="lb-close" aria-label="Close viewer">
+          <span aria-hidden="true">✕</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="lb__stage" id="lb-stage">
+      <button type="button" class="lb__nav lb__nav--prev" id="lb-prev" aria-label="Previous image">
+        <span aria-hidden="true">‹</span>
+      </button>
+
+      <img id="lb-img" alt="" />
+
+      <button type="button" class="lb__nav lb__nav--next" id="lb-next" aria-label="Next image">
+        <span aria-hidden="true">›</span>
+      </button>
+    </div>
+
+    <footer class="lb__foot">
+      <p class="mono lb__hint">← → to browse · Esc to close · click image to zoom</p>
+    </footer>
+  </div>
+</dialog>
+
+<style>
+  .lb {
+    width: min(96vw, 1200px);
+    max-width: none;
+    padding: 0;
+    border: var(--hairline) solid var(--border-strong);
+    border-radius: var(--r-md);
+    background-color: var(--surface);
+    color: var(--fg);
+  }
+
+  .lb::backdrop {
+    background-color: rgba(5, 4, 3, 0.88);
+    backdrop-filter: blur(6px);
+  }
+
+  .lb__inner {
+    display: flex;
+    flex-direction: column;
+    max-height: 94vh;
+  }
+
+  .lb__bar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 1.1rem;
+    border-bottom: var(--hairline) solid var(--border);
+  }
+
+  .lb__title {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--fg-strong);
+  }
+
+  .lb__sub {
+    margin-top: 0.2rem;
+  }
+
+  .lb__tools {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-shrink: 0;
+  }
+
+  .lb__count {
+    margin-inline-end: 0.35rem;
+    color: var(--fg-faint);
+  }
+
+  .lb__btn {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border: var(--hairline) solid var(--border);
+    border-radius: var(--r-xs);
+    background: none;
+    color: var(--fg-muted);
+    cursor: pointer;
+    transition:
+      color var(--t-fast) var(--ease),
+      border-color var(--t-fast) var(--ease);
+  }
+
+  .lb__btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .lb__btn[aria-pressed='true'] {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  /* ---------------- stage ---------------- */
+  .lb__stage {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    place-items: center;
+    overflow: auto;
+    padding: clamp(0.75rem, 2vw, 1.5rem);
+    background-color: var(--surface-2);
+  }
+
+  .lb__stage img {
+    max-width: 100%;
+    /* contain, not width:100% — tall certificate scans stay readable and low
+       resolution shots are not blown up past their detail */
+    max-height: 74vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: var(--r-xs);
+    cursor: zoom-in;
+  }
+
+  .lb__stage img[data-zoomed='true'] {
+    max-height: none;
+    max-width: none;
+    width: auto;
+    cursor: zoom-out;
+  }
+
+  /* ---------------- prev / next ---------------- */
+  .lb__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 3.4rem;
+    border: var(--hairline) solid var(--border);
+    border-radius: var(--r-xs);
+    background-color: color-mix(in srgb, var(--bg) 78%, transparent);
+    color: var(--fg);
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+    transition:
+      color var(--t-fast) var(--ease),
+      border-color var(--t-fast) var(--ease);
+  }
+
+  .lb__nav:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .lb__nav[hidden] {
+    display: none;
+  }
+
+  .lb__nav--prev {
+    left: 0.6rem;
+  }
+
+  .lb__nav--next {
+    right: 0.6rem;
+  }
+
+  .lb__foot {
+    padding: 0.55rem 1.1rem;
+    border-top: var(--hairline) solid var(--border);
+  }
+
+  .lb__hint {
+    color: var(--fg-faint);
+  }
+
+  /* On narrow screens the arrows drop to the bottom so they never cover the
+     artwork, and the hint is dropped to save room. */
+  @media (max-width: 640px) {
+    .lb__nav {
+      top: auto;
+      bottom: 0.5rem;
+      transform: none;
+      height: 2.5rem;
+    }
+
+    .lb__nav--prev {
+      left: 0.5rem;
+    }
+
+    .lb__nav--next {
+      right: 0.5rem;
+    }
+
+    .lb__stage img {
+      max-height: 62vh;
+    }
+
+    .lb__hint {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  /**
+   * Wires every [data-lightbox-src] element to the dialog.
+   *
+   * Items are grouped by their nearest [data-lightbox-group] ancestor, falling
+   * back to the <section>/<article> they live in. So certificates browse as one
+   * set and each project gallery browses as its own set — with no per-page
+   * configuration.
+   */
+  const dialog = document.getElementById('lightbox') as HTMLDialogElement | null;
+  const stage = document.getElementById('lb-stage');
+  const img = document.getElementById('lb-img') as HTMLImageElement | null;
+  const title = document.getElementById('lb-title');
+  const sub = document.getElementById('lb-sub');
+  const count = document.getElementById('lb-count');
+  const closeBtn = document.getElementById('lb-close');
+  const prevBtn = document.getElementById('lb-prev') as HTMLButtonElement | null;
+  const nextBtn = document.getElementById('lb-next') as HTMLButtonElement | null;
+  const zoomBtn = document.getElementById('lb-zoom') as HTMLButtonElement | null;
+
+  if (dialog && img && typeof dialog.showModal === 'function') {
+    type Item = { src: string; alt: string; title: string; sub: string };
+
+    let group: Item[] = [];
+    let index = 0;
+
+    /** Which set does this opener belong to? */
+    function groupFor(el: HTMLElement): HTMLElement[] {
+      const explicit = el.closest('[data-lightbox-group]');
+      if (explicit) {
+        return Array.from(explicit.querySelectorAll<HTMLElement>('[data-lightbox-src]'));
+      }
+      const section = el.closest('section, article');
+      if (section) {
+        return Array.from(section.querySelectorAll<HTMLElement>('[data-lightbox-src]'));
+      }
+      return Array.from(document.querySelectorAll<HTMLElement>('[data-lightbox-src]'));
+    }
+
+    function read(el: HTMLElement): Item {
+      return {
+        src: el.dataset.lightboxSrc ?? '',
+        alt: el.dataset.lightboxAlt ?? 'Image',
+        title: el.dataset.lightboxTitle ?? el.dataset.lightboxAlt ?? 'Image',
+        sub: el.dataset.lightboxSub ?? '',
+      };
+    }
+
+    document.querySelectorAll<HTMLElement>('[data-lightbox-src]').forEach((el) => {
+      el.addEventListener('click', () => {
+        group = groupFor(el).map(read);
+        index = Math.max(
+          0,
+          group.findIndex((i) => i.src === el.dataset.lightboxSrc),
+        );
+        show();
+        dialog.showModal();
+      });
+    });
+
+    function show() {
+      const item = group[index];
+      if (!item) return;
+
+      img!.src = item.src;
+      img!.alt = item.alt;
+      img!.removeAttribute('data-zoomed');
+      zoomBtn?.setAttribute('aria-pressed', 'false');
+
+      if (title) title.textContent = item.title;
+      if (sub) sub.textContent = item.sub;
+      if (count) count.textContent = group.length > 1 ? `${index + 1} / ${group.length}` : '';
+
+      const many = group.length > 1;
+      if (prevBtn) prevBtn.hidden = !many;
+      if (nextBtn) nextBtn.hidden = !many;
+
+      // Reset scroll, otherwise a zoomed previous image leaves the next one
+      // positioned off-screen.
+      if (stage) stage.scrollTop = 0;
+    }
+
+    function step(delta: number) {
+      if (group.length < 2) return;
+      index = (index + delta + group.length) % group.length;
+      show();
+    }
+
+    prevBtn?.addEventListener('click', () => step(-1));
+    nextBtn?.addEventListener('click', () => step(1));
+
+    /** Zoom just toggles an attribute; the CSS swaps contain → natural size. */
+    function toggleZoom() {
+      const on = img!.getAttribute('data-zoomed') === 'true';
+      if (on) img!.removeAttribute('data-zoomed');
+      else img!.setAttribute('data-zoomed', 'true');
+      zoomBtn?.setAttribute('aria-pressed', String(!on));
+    }
+
+    zoomBtn?.addEventListener('click', toggleZoom);
+    img.addEventListener('click', toggleZoom);
+
+    // Clicking the backdrop (outside .lb__inner) closes it.
+    dialog.addEventListener('click', (e) => {
+      const inner = dialog.querySelector('.lb__inner');
+      if (inner && !inner.contains(e.target as Node)) dialog.close();
+    });
+
+    closeBtn?.addEventListener('click', () => dialog.close());
+
+    /* Arrow keys browse; Z toggles zoom. Bound to the dialog so they only fire
+       while it is open. Escape is handled here too — <dialog> closes on Escape
+       natively, but relying on that alone makes the behaviour hard to test and
+       easy to break, so it is explicit. */
+    dialog.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        step(-1);
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        step(1);
+      } else if (e.key === 'z' || e.key === 'Z') {
+        e.preventDefault();
+        toggleZoom();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        dialog.close();
+      }
+    });
+
+    // Clear the source on close so a stale picture never flashes next time.
+    dialog.addEventListener('close', () => {
+      img.removeAttribute('src');
+      img.removeAttribute('data-zoomed');
+      if (count) count.textContent = '';
+    });
+  }
+</script>

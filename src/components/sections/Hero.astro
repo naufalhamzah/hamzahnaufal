@@ -1,324 +1,398 @@
 ---
 /**
- * HERO
- * Asymmetric two-column layout: identity and CTAs on the left, a portrait slot
- * plus a small "at a glance" data panel on the right. Deliberately not the
- * centred-avatar-and-three-cards template.
+ * HERO — the homepage's opening statement.
+ *
+ * DESIGN INTENT
+ * The brief asks for an editorial composition rather than the common
+ * "[square photo] + [text]" block. So this is built as an asymmetric spread:
+ *
+ *   · an oversized serif name on two lines, the surname in italics with a
+ *     burgundy rule running out of it into the page
+ *   · the portrait as a tall layered panel offset from the type — not boxed
+ *     beside it — with a thin accent frame echoing its top-left corner
+ *   · a mono meta row and hairline rules, which is what makes the block read
+ *     as designed rather than templated
+ *   · a jump row linking into the homepage previews below
+ *
+ * IDENTITY
+ * The headline is "Information Systems Graduate" — deliberately NOT the
+ * current employer. AirNav appears only on the Experience page.
+ *
+ * IMAGE BUDGET: exactly ONE photograph here, per the brief.
  */
-import Button from '@/components/ui/Button.astro';
-import { profile } from '@/content/profile';
-import { featuredProjects } from '@/content/projects';
-import { experienceSorted } from '@/content/experience';
+import { profile } from '@/data/profile';
+import { homeSections } from '@/utils/navigation';
 
-// CV download: there is no CV file yet, so the button renders in a clearly
-// disabled state and is trivially activated later — see the TODO below.
-const CV_AVAILABLE = false;
-const CV_HREF = '/hamzah-naufal-zuhdi-cv.pdf';
-
-const currentRole = experienceSorted.find((e) => e.current);
+/** Split the name so the surname can be set in italic. */
+const parts = profile.name.trim().split(/\s+/);
+const first = parts.slice(0, -1).join(' ');
+const last = parts[parts.length - 1] ?? '';
 ---
 
-<section class="hero grid-texture" aria-labelledby="hero-title">
-  <div class="container-page hero__grid">
-    <!-- ---------------- Left: identity ---------------- -->
-    <div class="hero__main">
-      <p class="eyebrow">Portfolio</p>
+<section class="hero" id="top">
+  <div class="shell hero__shell">
+    <div class="hero__grid">
+      <!-- ---------------- left: type ---------------- -->
+      <div class="hero__type">
+        <p class="hero__eyebrow label">
+          <span class="hero__dot" aria-hidden="true"></span>
+          Portfolio
+        </p>
 
-      <h1 id="hero-title" class="hero__title">{profile.name}</h1>
+        <h1 class="hero__name">
+          <span class="hero__name-line">{first}</span>
+          <span class="hero__name-line hero__name-line--last"><em>{last}</em></span>
+        </h1>
 
-      <p class="hero__headline">{profile.headline}</p>
+        <p class="hero__role">{profile.headline}</p>
 
-      <ul class="hero__positioning">
-        {
-          profile.positioning.map((line) => (
-            <li class="meta">{line}</li>
-          ))
-        }
-      </ul>
+        <ul class="hero__positioning" aria-label="Focus areas">
+          {profile.positioning.map((p) => <li class="hero__pill mono">{p}</li>)}
+        </ul>
 
-      <p class="hero__status">
-        <span class="hero__status-dot" aria-hidden="true"></span>
-        <span class="meta">{profile.currentStatus}</span>
-      </p>
+        <p class="hero__lede">{profile.summary[0]}</p>
 
-      <p class="hero__summary">{profile.summary[0]}</p>
-
-      <div class="hero__ctas">
-        <Button href="#featured-work" variant="primary" arrow>View work</Button>
-        <Button href="#contact">Contact me</Button>
-
-        {
-          CV_AVAILABLE ? (
-            <Button href={CV_HREF} external>
-              Download CV
-            </Button>
-          ) : (
-            /* TODO: drop a PDF at public/hamzah-naufal-zuhdi-cv.pdf and set
-               CV_AVAILABLE = true above to activate this button. */
-            <Button disabled data-testid="cv-disabled">
-              Download CV (soon)
-            </Button>
-          )
-        }
+        <div class="hero__acts">
+          <a href="/projects" class="hero__btn hero__btn--solid">
+            View selected work
+            <span aria-hidden="true">→</span>
+          </a>
+          <a href="/about" class="hero__btn hero__btn--ghost">About me</a>
+        </div>
       </div>
 
-      <ul class="hero__focus" aria-label="Areas of focus">
+      <!-- ---------------- right: portrait ---------------- -->
+      <figure class="hero__figure">
+        <span class="hero__frame" aria-hidden="true"></span>
+
+        <img
+          class="hero__img"
+          src={profile.portrait.src}
+          alt={profile.portrait.alt}
+          width={profile.portrait.width}
+          height={profile.portrait.height}
+          fetchpriority="high"
+          decoding="async"
+        />
+
+        <figcaption class="hero__cap">
+          <span class="mono">{profile.location}</span>
+          <span class="hero__cap-rule" aria-hidden="true"></span>
+          <span class="mono hero__cap-status">{profile.currentStatus}</span>
+        </figcaption>
+      </figure>
+    </div>
+
+    <!-- ---------------- jump row ---------------- -->
+    <nav class="hero__jump" aria-label="Sections on this page">
+      <span class="mono hero__jump-label">On this page</span>
+      <ul class="hero__jump-list">
         {
-          profile.focusAreas.map((area) => (
-            <li>{area}</li>
+          homeSections.map((s) => (
+            <li>
+              <a href={`#${s.id}`} class="hero__jump-link mono">
+                {s.label}
+              </a>
+            </li>
           ))
         }
       </ul>
-    </div>
-
-    <!-- ---------------- Right: portrait + facts ---------------- -->
-    <aside class="hero__aside" aria-label="At a glance">
-      <figure class="hero__portrait">
-        <img
-          src="/images/placeholders/portrait.svg"
-          alt="Placeholder for a professional photograph of Hamzah Naufal Zuhdi"
-          width="800"
-          height="1067"
-          loading="eager"
-          decoding="async"
-        />
-        <figcaption class="hero__portrait-badge meta">
-          <span class="hero__portrait-dot" aria-hidden="true"></span>
-          Photo placeholder
-        </figcaption>
-      </figure>
-
-      <dl class="hero__facts">
-        <div>
-          <dt class="meta">Current role</dt>
-          <dd>{currentRole?.role ?? profile.currentRole}</dd>
-        </div>
-        <div>
-          <dt class="meta">Location</dt>
-          <dd>{profile.location}</dd>
-        </div>
-        <div>
-          <dt class="meta">Focus</dt>
-          <dd>Data · Systems · Business Process</dd>
-        </div>
-        <div>
-          <dt class="meta">Featured projects</dt>
-          <dd>{featuredProjects.length} case studies</dd>
-        </div>
-      </dl>
-    </aside>
+    </nav>
   </div>
 </section>
 
 <style>
   .hero {
-    padding-block: clamp(3rem, 8vw, 6rem) clamp(3rem, 7vw, 5rem);
-    border-bottom: 1px solid var(--border);
+    position: relative;
+    padding-top: clamp(2.5rem, 6vw, 5rem);
+    padding-bottom: clamp(2rem, 4vw, 3rem);
+    overflow: hidden;
+  }
+
+  /* The hero needs more horizontal room than the default shell, so the
+     composition can push the portrait toward the right edge. */
+  .hero__shell {
+    max-width: 1440px;
   }
 
   .hero__grid {
     display: grid;
-    gap: clamp(2rem, 5vw, 4rem);
+    gap: clamp(2rem, 4vw, 3.5rem);
     grid-template-columns: 1fr;
-    align-items: start;
+    align-items: center;
   }
 
+  /* From 900px the type and the portrait share a row, the portrait weighted a
+     little narrower so the name remains the dominant element. */
   @media (min-width: 900px) {
     .hero__grid {
-      grid-template-columns: minmax(0, 1.65fr) minmax(260px, 0.85fr);
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      gap: clamp(2rem, 5vw, 4.5rem);
+      align-items: start;
     }
   }
 
-  .hero__main {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    min-width: 0;
+  /* ---------------- type ---------------- */
+  .hero__type {
+    max-width: 34ch;
   }
 
-  .hero__title {
-    font-size: var(--text-5xl);
-    font-weight: 600;
-    line-height: 1.02;
-    letter-spacing: -0.038em;
+  @media (min-width: 900px) {
+    .hero__type {
+      padding-top: clamp(1rem, 3vw, 2.5rem);
+    }
   }
 
-  .hero__headline {
-    font-size: var(--text-xl);
-    color: var(--foreground);
-    max-width: 40ch;
+  .hero__eyebrow {
+    margin-bottom: clamp(1.1rem, 2.5vw, 1.6rem);
+  }
+
+  .hero__eyebrow::before {
+    display: none;
+  }
+
+  .hero__dot {
+    display: inline-block;
+    width: 0.4rem;
+    height: 0.4rem;
+    margin-inline-end: 0.5rem;
+    border-radius: var(--r-full);
+    background-color: var(--accent);
+    vertical-align: middle;
+  }
+
+  .hero__name {
+    font-family: var(--font-display);
+    /* The largest type on the site — this is the hierarchy anchor. */
+    font-size: clamp(2.6rem, 1rem + 7.4vw, 6.2rem);
     font-weight: 500;
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+    color: var(--fg-strong);
+  }
+
+  .hero__name-line {
+    display: block;
+  }
+
+  /* The surname is italic: an editorial contrast move that stops the two words
+     reading as one long grey block. */
+  .hero__name-line--last em {
+    font-style: italic;
+    position: relative;
+    padding-inline-end: 0.15em;
+  }
+
+  /* Burgundy rule running out from the surname into the page. */
+  .hero__name-line--last em::after {
+    content: '';
+    position: absolute;
+    left: calc(100% + 0.28em);
+    top: 0.58em;
+    width: clamp(2rem, 9vw, 8rem);
+    height: 2px;
+    background-color: var(--accent);
+  }
+
+  .hero__role {
+    margin-top: clamp(1.1rem, 2.4vw, 1.6rem);
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-style: italic;
+    color: var(--accent);
+    letter-spacing: -0.005em;
   }
 
   .hero__positioning {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.35rem 1.25rem;
-    margin: 0;
+    gap: 0.4rem 0.5rem;
+    margin: clamp(0.9rem, 2vw, 1.3rem) 0 0;
     padding: 0;
     list-style: none;
   }
 
-  .hero__positioning li {
-    position: relative;
-    padding-inline-start: 1.05rem;
+  .hero__pill {
+    padding: 0.28rem 0.6rem;
+    border: var(--hairline) solid var(--border-strong);
+    border-radius: var(--r-full);
+    color: var(--fg-muted);
+    text-transform: none;
+    letter-spacing: 0.04em;
   }
 
-  .hero__positioning li::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0.58em;
-    width: 0.42rem;
-    height: 1px;
-    background-color: var(--accent);
+  .hero__lede {
+    margin-top: clamp(1.1rem, 2.4vw, 1.6rem);
+    max-width: 46ch;
+    font-size: var(--text-base);
+    color: var(--fg-muted);
   }
 
-  .hero__status {
+  .hero__acts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-top: clamp(1.5rem, 3vw, 2.1rem);
+  }
+
+  .hero__btn {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    margin-top: 0.25rem;
-    padding: 0.32rem 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-full);
-    width: fit-content;
-    background-color: var(--surface-raised);
-  }
-
-  .hero__status-dot {
-    position: relative;
-    width: 0.45rem;
-    height: 0.45rem;
-    border-radius: var(--radius-full);
-    background-color: var(--accent);
-  }
-
-  /* Soft pulse to signal "currently active" — suppressed for reduced motion. */
-  @media (prefers-reduced-motion: no-preference) {
-    .hero__status-dot::after {
-      content: '';
-      position: absolute;
-      inset: -4px;
-      border-radius: var(--radius-full);
-      border: 1px solid var(--accent);
-      opacity: 0;
-      animation: pulse 2.6s var(--ease-out-soft) infinite;
-    }
-  }
-
-  @keyframes pulse {
-    0% {
-      opacity: 0.55;
-      transform: scale(0.7);
-    }
-    70%,
-    100% {
-      opacity: 0;
-      transform: scale(1.9);
-    }
-  }
-
-  .hero__summary {
-    max-width: 58ch;
-    color: var(--muted-foreground);
-    font-size: var(--text-sm);
-    line-height: 1.7;
-  }
-
-  .hero__ctas {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.6rem;
-    margin-top: 0.4rem;
-  }
-
-  .hero__focus {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem;
-    margin: 1.1rem 0 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .hero__focus li {
-    padding: 0.2rem 0.6rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-full);
+    gap: 0.55rem;
+    padding: 0.78rem 1.3rem;
+    border: var(--hairline) solid transparent;
+    border-radius: var(--r-xs);
     font-family: var(--font-mono);
-    font-size: 0.68rem;
-    color: var(--subtle-foreground);
-    background-color: var(--surface-raised);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition:
+      background-color var(--t-base) var(--ease),
+      border-color var(--t-base) var(--ease),
+      color var(--t-base) var(--ease),
+      transform var(--t-base) var(--ease);
   }
 
-  .hero__aside {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
+  .hero__btn--solid {
+    background-color: var(--solid-bg);
+    color: var(--on-solid);
   }
 
-  .hero__portrait {
+  .hero__btn--solid:hover {
+    background-color: var(--solid-bg-hover);
+    transform: translateY(-1px);
+  }
+
+  .hero__btn--ghost {
+    border-color: var(--border-strong);
+    color: var(--fg);
+  }
+
+  .hero__btn--ghost:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background-color: var(--accent-soft);
+  }
+
+  /* ---------------- portrait ---------------- */
+  .hero__figure {
     position: relative;
     margin: 0;
-    overflow: hidden;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    aspect-ratio: 3 / 4;
-    background-color: var(--surface-sunken);
   }
 
-  .hero__portrait img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .hero__portrait-badge {
+  /* Offset hairline frame: sits up and to the left of the photograph, which is
+     what gives the composition its layered feel. */
+  .hero__frame {
     position: absolute;
-    bottom: 0.6rem;
-    left: 0.6rem;
-    display: inline-flex;
+    inset: -0.75rem 0.75rem auto -0.75rem;
+    height: 55%;
+    border-top: 1px solid var(--accent-line);
+    border-left: 1px solid var(--accent-line);
+    pointer-events: none;
+  }
+
+  .hero__img {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: auto;
+    /* Native portrait ratio — nothing cropped. */
+    object-fit: cover;
+    border-radius: var(--r-xs);
+    /* A deep shadow lifts the photo off the background without a card wrapper. */
+    box-shadow: var(--shadow-lg);
+    filter: saturate(0.96) contrast(1.02);
+  }
+
+  .hero__cap {
+    display: flex;
     align-items: center;
-    gap: 0.35rem;
-    padding: 0.22rem 0.55rem;
-    border: 1px dashed var(--border-strong);
-    border-radius: var(--radius-sm);
-    background-color: color-mix(in srgb, var(--surface) 88%, transparent);
-    font-size: 0.66rem;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+    gap: 0.7rem;
+    margin-top: 0.9rem;
   }
 
-  .hero__portrait-dot {
-    width: 0.35rem;
-    height: 0.35rem;
-    border-radius: var(--radius-full);
-    background-color: var(--subtle-foreground);
+  .hero__cap-rule {
+    flex: 1;
+    height: 1px;
+    background-color: var(--border);
   }
 
-  .hero__facts {
-    display: grid;
-    gap: 0.85rem;
+  .hero__cap-status {
+    color: var(--fg-faint);
+  }
+
+  /* ---------------- jump row ---------------- */
+  .hero__jump {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.6rem 1.1rem;
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    padding-top: 1.1rem;
+    border-top: var(--hairline) solid var(--border);
+  }
+
+  .hero__jump-label {
+    color: var(--fg-faint);
+    flex: none;
+  }
+
+  .hero__jump-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.1rem;
     margin: 0;
-    padding: 1rem 1.1rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    background-color: var(--surface-raised);
+    padding: 0;
+    list-style: none;
   }
 
-  .hero__facts dt {
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+  .hero__jump-link {
+    color: var(--fg-muted);
+    text-transform: none;
+    letter-spacing: 0.03em;
+    transition: color var(--t-fast) var(--ease);
   }
 
-  .hero__facts dd {
-    margin: 0.15rem 0 0;
-    font-size: var(--text-sm);
+  .hero__jump-link:hover {
+    color: var(--accent);
   }
 
-  .hero__facts > div + div {
-    padding-top: 0.85rem;
-    border-top: 1px solid var(--border);
+  /* ---------------- mobile ---------------- */
+  @media (max-width: 899px) {
+    /* Portrait leads on narrow screens: the face first, then the type. */
+    .hero__figure {
+      order: -1;
+      /* Deliberately small. A 2:3 portrait at full width would be ~530px tall
+         and push the name off the first screen, so it is capped hard. */
+      max-width: 15rem;
+    }
+
+    /* The offset accent frame reads as a stray line at this size. */
+    .hero__frame {
+      display: none;
+    }
+
+    .hero__type {
+      max-width: none;
+    }
+
+    .hero__name-line--last em::after {
+      width: clamp(1.5rem, 14vw, 4rem);
+    }
+
+    /* Stack the caption so neither item wraps mid-phrase. */
+    .hero__cap {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.2rem;
+    }
+
+    .hero__cap-rule {
+      display: none;
+    }
+
+    .hero__cap-status {
+      order: -1;
+    }
   }
 </style>

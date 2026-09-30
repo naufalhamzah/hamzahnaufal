@@ -1,0 +1,105 @@
+---
+/**
+ * CTALink — the "View More →" affordance that links a homepage preview to its
+ * detail page.
+ *
+ * Two variants:
+ *   inline  a text link with a rule that grows on hover (used inside previews)
+ *   block   a bordered button-like bar (used at the end of a preview section)
+ */
+interface Props {
+  href: string;
+  label: string;
+  variant?: 'inline' | 'block';
+  /** Optional mono note after the label, e.g. "14 credentials". */
+  note?: string;
+  class?: string;
+}
+
+const { href, label, variant = 'inline', note, class: cls } = Astro.props;
+---
+
+<a href={href} class:list={['cta', `cta--${variant}`, cls]}>
+  <span class="cta__label">{label}</span>
+  {note && <span class="cta__note mono">{note}</span>}
+  <span class="cta__arrow" aria-hidden="true">→</span>
+</a>
+
+<style>
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-size: var(--text-sm);
+    color: var(--fg-strong);
+    transition: color var(--t-fast) var(--ease);
+  }
+
+  .cta:hover {
+    color: var(--accent);
+  }
+
+  .cta__note {
+    color: var(--fg-faint);
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
+
+  .cta__arrow {
+    transition: transform var(--t-base) var(--ease);
+  }
+
+  .cta:hover .cta__arrow {
+    transform: translateX(4px);
+  }
+
+  /* ---------- inline: an underline that grows in ---------- */
+  .cta--inline .cta__label {
+    position: relative;
+  }
+
+  .cta--inline .cta__label::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -3px;
+    height: 1px;
+    background-color: currentColor;
+    transform: scaleX(0.999);
+    transform-origin: left;
+    opacity: 0.35;
+    transition: opacity var(--t-base) var(--ease);
+  }
+
+  .cta--inline:hover .cta__label::after {
+    opacity: 1;
+  }
+
+  /* ---------- block: a full-width bar with a hairline ---------- */
+  .cta--block {
+    justify-content: space-between;
+    width: 100%;
+    padding: 1rem 1.15rem;
+    border: var(--hairline) solid var(--border-strong);
+    border-radius: var(--r-xs);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition:
+      border-color var(--t-base) var(--ease),
+      background-color var(--t-base) var(--ease),
+      color var(--t-base) var(--ease);
+  }
+
+  .cta--block:hover {
+    border-color: var(--accent);
+    background-color: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  .cta--block .cta__arrow {
+    font-size: 1rem;
+  }
+</style>

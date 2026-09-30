@@ -1,0 +1,535 @@
+---
+/**
+ * ABOUT — the full professional background.
+ *
+ * Carries everything the homepage preview deliberately omits: the complete
+ * narrative, how I work, education, and the organisational record.
+ *
+ * The organisational section lives here rather than on its own page because it
+ * is background, not a portfolio category — and it keeps the main navigation to
+ * eight destinations, which is what the brief asked for.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/ui/PageHeader.astro';
+import Collage from '@/components/ui/Collage.astro';
+import { profile } from '@/data/profile';
+import { educationSorted } from '@/data/education';
+import { organizationsSorted, organizationGroups } from '@/data/organizations';
+
+/** Education entries carry their own logos. */
+const education = educationSorted;
+
+/**
+ * Organisational roles grouped by parent body, newest first inside each group.
+ * `organizationGroups` is derived from the data, so a new body appears here
+ * automatically.
+ */
+const orgsByGroup = organizationGroups.map((g) => ({
+  group: g,
+  roles: organizationsSorted.filter((o) => o.group === g),
+}));
+
+/** A short strip of the strongest personal photographs. */
+const photos = [
+  {
+    src: '/images/experience/ppk-ormawa.webp',
+    alt: 'PPK Ormawa field programme team photograph',
+    caption: 'PPK Ormawa field programme',
+  },
+  {
+    src: '/images/experience/airnav-onboarding.webp',
+    alt: 'AirNav Indonesia onboarding session',
+    caption: 'Onboarding at AirNav Indonesia',
+  },
+  {
+    src: '/images/about/office.webp',
+    alt: 'Exterior view of the Beauty Innovation Laboratories office building',
+  },
+];
+
+const meta = [
+  { label: 'Based in', value: profile.location },
+  { label: 'Focus', value: profile.focusAreas.slice(0, 3).join(' · ') },
+  { label: 'Field', value: 'Information Systems' },
+  { label: 'Education', value: 'Universitas Negeri Semarang, 2022 – 2026' },
+];
+---
+
+<BaseLayout
+  title={`About — ${profile.name}`}
+  description="Background, focus areas and experience of Hamzah Naufal Zuhdi — Information Systems graduate working across data analytics, information systems and business process improvement."
+>
+  <PageHeader
+    index="01"
+    eyebrow="About"
+    title="Background and focus"
+    standfirst="An Information Systems graduate who works where data, business process and technology meet — analysing how something currently works, then building the system or dashboard that makes it work better."
+    meta={meta}
+  />
+
+  <!-- ===================== narrative ===================== -->
+  <section class="ab" aria-labelledby="ab-story">
+    <div class="shell ab__shell">
+      <div class="ab__main">
+        <h2 id="ab-story" class="sr-only">Background</h2>
+        {
+          profile.summary.map((p, i) => (
+            <p class:list={['ab__p', i === 0 && 'ab__p--lead']}>{p}</p>
+          ))
+        }
+      </div>
+
+      <aside class="ab__side" aria-labelledby="ab-focus">
+        <h3 id="ab-focus" class="label ab__side-h">Focus areas</h3>
+        <ul class="ab__focus">
+          {profile.focusAreas.map((f) => <li class="ab__chip mono">{f}</li>)}
+        </ul>
+
+        <h3 class="label ab__side-h ab__side-h--2">What I work on</h3>
+        <ul class="ab__ways">
+          {
+            [
+              'Mapping a process before changing it',
+              'Turning raw data into a view someone can act on',
+              'Building tools that survive handover, not one-off reports',
+              'Documenting requirements so the result fits how a team works',
+            ].map((w) => <li class="ab__way">{w}</li>)
+          }
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ===================== selected photographs ===================== -->
+  <section class="ab-ph" aria-labelledby="ab-photos">
+    <div class="shell">
+      <h2 id="ab-photos" class="label ab-ph__h">Selected photographs</h2>
+      <Collage images={photos} caption="Working and programme contexts. These are not attributed to a single employer — see the Gallery page for the full set." />
+    </div>
+  </section>
+
+  <!-- ===================== education ===================== -->
+  <section class="ab-ed" aria-labelledby="ab-edu">
+    <div class="shell">
+      <h2 id="ab-edu" class="label ab-ed__h">Education</h2>
+
+      <ol class="ab-ed__list">
+        {
+          education.map((e) => (
+            <li class="ab-ed__row">
+              <div class="ab-ed__logo">
+                {e.logo ? (
+                  <img
+                    src={e.logo.src}
+                    alt={e.logo.alt}
+                    width={e.logo.width ?? 120}
+                    height={e.logo.height ?? 120}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                ) : (
+                  <span class="mono ab-ed__logo-fb">{e.institution.charAt(0)}</span>
+                )}
+              </div>
+
+              <div class="ab-ed__body">
+                <p class="ab-ed__when mono">{e.dateRange}</p>
+                <h3 class="ab-ed__school">{e.institution}</h3>
+                <p class="ab-ed__degree">
+                  {e.degree}
+                  {e.field && ` — ${e.field}`}
+                </p>
+                {e.highlights && e.highlights.length > 0 && (
+                  <ul class="ab-ed__notes">
+                    {e.highlights.map((h) => <li>{h}</li>)}
+                  </ul>
+                )}
+                {e.todo && <p class="ab-ed__todo mono">{e.todo}</p>}
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- ===================== organisations ===================== -->
+  <section class="ab-org" id="organizations" aria-labelledby="ab-orgs">
+    <div class="shell">
+      <div class="ab-org__head">
+        <h2 id="ab-orgs" class="label">Organisations &amp; leadership</h2>
+        <p class="ab-org__count mono">
+          {organizationsSorted.length} roles · {organizationGroups.length} bodies
+        </p>
+      </div>
+
+      <p class="ab-org__lede">
+        Student-body and committee roles held alongside my studies — the part of the
+        record that shaped how I plan, coordinate and communicate across teams.
+      </p>
+
+      {
+        orgsByGroup.map(({ group, roles }) => (
+          <div class="ab-org__group">
+            <h3 class="ab-org__group-name mono">{group}</h3>
+
+            <ol class="ab-org__list">
+              {roles.map((r) => (
+                <li class="ab-org__row">
+                  <p class="ab-org__when mono">{r.dateRange}</p>
+                  <div class="ab-org__body">
+                    <p class="ab-org__role">{r.role}</p>
+                    {r.location && <p class="ab-org__loc mono">{r.location}</p>}
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- ===================== onward ===================== -->
+  <section class="ab-go">
+    <div class="shell ab-go__shell">
+      <a href="/experience" class="ab-go__link">
+        <span class="ab-go__label mono">Next</span>
+        <span class="ab-go__title">Professional experience</span>
+        <span class="ab-go__arrow" aria-hidden="true">→</span>
+      </a>
+      <a href="/projects" class="ab-go__link">
+        <span class="ab-go__label mono">Also</span>
+        <span class="ab-go__title">Selected projects</span>
+        <span class="ab-go__arrow" aria-hidden="true">→</span>
+      </a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* ==========================================================================
+     narrative
+     ========================================================================== */
+  .ab {
+    padding-block: clamp(2rem, 4vw, 3rem) var(--section-y);
+  }
+
+  .ab__shell {
+    display: grid;
+    gap: clamp(2rem, 4.5vw, 4rem);
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 900px) {
+    .ab__shell {
+      grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+      align-items: start;
+    }
+  }
+
+  .ab__p {
+    max-width: 68ch;
+    color: var(--fg-muted);
+  }
+
+  .ab__p + .ab__p {
+    margin-top: 1.15rem;
+  }
+
+  /* The opening paragraph is set larger — the editorial lead-in. */
+  .ab__p--lead {
+    font-size: var(--text-lg);
+    color: var(--fg);
+  }
+
+  .ab__side {
+    padding-top: 0.35rem;
+  }
+
+  .ab__side-h {
+    display: block;
+    color: var(--accent);
+  }
+
+  .ab__side-h--2 {
+    margin-top: 2.25rem;
+  }
+
+  .ab__focus {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem 0.5rem;
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .ab__chip {
+    padding: 0.3rem 0.7rem;
+    border: var(--hairline) solid var(--border-strong);
+    border-radius: var(--r-full);
+    color: var(--fg-subtle);
+    text-transform: none;
+    letter-spacing: 0.03em;
+  }
+
+  .ab__ways {
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .ab__way {
+    padding: 0.7rem 0;
+    border-top: var(--hairline) solid var(--border-faint);
+    font-size: var(--text-sm);
+    color: var(--fg-muted);
+  }
+
+  .ab__way:last-child {
+    border-bottom: var(--hairline) solid var(--border-faint);
+  }
+
+  /* ==========================================================================
+     photographs
+     ========================================================================== */
+  .ab-ph {
+    padding-block: var(--section-y);
+    border-top: var(--hairline) solid var(--border);
+  }
+
+  .ab-ph__h {
+    margin-bottom: clamp(1.25rem, 2.5vw, 1.75rem);
+  }
+
+  /* ==========================================================================
+     education
+     ========================================================================== */
+  .ab-ed {
+    padding-block: var(--section-y);
+    background-color: color-mix(in srgb, var(--surface) 55%, transparent);
+    border-block: var(--hairline) solid var(--border-faint);
+  }
+
+  .ab-ed__h {
+    margin-bottom: clamp(1.5rem, 3vw, 2.25rem);
+  }
+
+  .ab-ed__list {
+    display: grid;
+    gap: clamp(1.5rem, 3vw, 2.25rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .ab-ed__row {
+    display: grid;
+    grid-template-columns: 4.5rem minmax(0, 1fr);
+    gap: clamp(1.25rem, 3vw, 2rem);
+    align-items: start;
+  }
+
+  .ab-ed__logo {
+    display: grid;
+    place-items: center;
+    width: 4.5rem;
+    height: 4.5rem;
+    padding: 0.5rem;
+    border: var(--hairline) solid var(--border);
+    border-radius: var(--r-xs);
+    background-color: var(--surface-2);
+    overflow: hidden;
+  }
+
+  /*
+    max-* not width/height:100% — a percentage height does not resolve inside a
+    centred grid item, so a square crest would overflow the plate. The crests are
+    square (600x600) while the plate is not, which is exactly when this bites.
+  */
+  .ab-ed__logo img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+  }
+
+  .ab-ed__logo-fb {
+    font-size: 1.5rem;
+    color: var(--accent);
+  }
+
+  .ab-ed__when {
+    color: var(--fg-faint);
+  }
+
+  .ab-ed__school {
+    margin-top: 0.35rem;
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 500;
+    color: var(--fg-strong);
+  }
+
+  .ab-ed__degree {
+    margin-top: 0.25rem;
+    color: var(--fg-muted);
+  }
+
+  .ab-ed__notes {
+    margin: 0.9rem 0 0;
+    padding-inline-start: 1.1rem;
+    color: var(--fg-muted);
+    font-size: var(--text-sm);
+  }
+
+  .ab-ed__notes li + li {
+    margin-top: 0.35rem;
+  }
+
+  .ab-ed__todo {
+    margin-top: 0.9rem;
+    padding: 0.55rem 0.7rem;
+    border-inline-start: 2px solid var(--accent-line);
+    background-color: var(--accent-soft);
+    color: var(--fg-subtle);
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
+
+  /* ==========================================================================
+     organisations
+     ========================================================================== */
+  .ab-org {
+    padding-block: var(--section-y);
+  }
+
+  .ab-org__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    padding-bottom: 1rem;
+    border-bottom: var(--hairline) solid var(--border);
+  }
+
+  .ab-org__count {
+    color: var(--fg-faint);
+  }
+
+  .ab-org__lede {
+    margin-top: 1.25rem;
+    max-width: 62ch;
+    color: var(--fg-muted);
+  }
+
+  .ab-org__group {
+    margin-top: clamp(1.75rem, 3.5vw, 2.5rem);
+  }
+
+  .ab-org__group-name {
+    color: var(--accent);
+    padding-bottom: 0.6rem;
+    border-bottom: var(--hairline) solid var(--border-faint);
+  }
+
+  .ab-org__list {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .ab-org__row {
+    display: grid;
+    gap: 0.2rem 1.5rem;
+    grid-template-columns: 1fr;
+    padding: 0.85rem 0;
+    border-bottom: var(--hairline) solid var(--border-faint);
+  }
+
+  @media (min-width: 760px) {
+    .ab-org__row {
+      grid-template-columns: minmax(0, 13rem) minmax(0, 1fr);
+      align-items: baseline;
+    }
+  }
+
+  .ab-org__when {
+    color: var(--fg-faint);
+    text-transform: none;
+    letter-spacing: 0.03em;
+  }
+
+  .ab-org__role {
+    font-size: var(--text-sm);
+    color: var(--fg);
+  }
+
+  .ab-org__loc {
+    margin-top: 0.15rem;
+    color: var(--fg-faint);
+    text-transform: none;
+  }
+
+  /* ==========================================================================
+     onward links
+     ========================================================================== */
+  .ab-go {
+    padding-block: clamp(2.5rem, 5vw, 4rem) var(--section-y);
+    border-top: var(--hairline) solid var(--border);
+  }
+
+  .ab-go__shell {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 700px) {
+    .ab-go__shell {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .ab-go__link {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 0.2rem 1rem;
+    padding: 1.1rem 1.25rem;
+    border: var(--hairline) solid var(--border-strong);
+    border-radius: var(--r-xs);
+    transition:
+      border-color var(--t-base) var(--ease),
+      background-color var(--t-base) var(--ease);
+  }
+
+  .ab-go__link:hover {
+    border-color: var(--accent);
+    background-color: var(--accent-soft);
+  }
+
+  .ab-go__label {
+    grid-column: 1 / -1;
+    color: var(--fg-faint);
+  }
+
+  .ab-go__title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    color: var(--fg-strong);
+  }
+
+  .ab-go__arrow {
+    color: var(--accent);
+    transition: transform var(--t-base) var(--ease);
+  }
+
+  .ab-go__link:hover .ab-go__arrow {
+    transform: translateX(4px);
+  }
+</style>

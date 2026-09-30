@@ -1,24 +1,35 @@
 ---
 /**
- * HOME PAGE
+ * HOME — a professional OVERVIEW.
  *
- * Composition only: this file assembles the section components and owns no
- * content. Every fact the page renders comes from `src/content/*`.
+ * This page is deliberately short. It carries the strongest visual material and
+ * hands off to real pages for the detail:
+ *
+ *   HERO            identity + the single strongest photograph
+ *   ABOUT           one paragraph + focus areas        → /about
+ *   SELECTED WORK   three featured projects            → /projects
+ *   EXPERIENCE      a compact timeline, no images      → /experience
+ *   SKILLS          readable tool logos                → /skills
+ *   CREDENTIALS     certs + papers + awards            → /certifications
+ *   MOMENTS         a composed collage                 → /gallery
+ *   CONTACT         the closing call to action
+ *
+ * IMAGE BUDGET (enforced by what this file imports): 1 portrait, 1 about photo,
+ * 3 project visuals, ~14 skill marks, 2 certificate scans, 6 gallery photos.
+ * Everything else lives on its own page.
+ *
+ * This file owns NO content — it only composes sections.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Hero from '@/components/sections/Hero.astro';
-import About from '@/components/sections/About.astro';
+import AboutPreview from '@/components/sections/AboutPreview.astro';
 import FeaturedWork from '@/components/sections/FeaturedWork.astro';
-import Experience from '@/components/sections/Experience.astro';
-import Leadership from '@/components/sections/Leadership.astro';
-import Projects from '@/components/sections/Projects.astro';
-import Publications from '@/components/sections/Publications.astro';
-import Skills from '@/components/sections/Skills.astro';
-import Certifications from '@/components/sections/Certifications.astro';
-import Achievements from '@/components/sections/Achievements.astro';
-import Education from '@/components/sections/Education.astro';
-import Contact from '@/components/sections/Contact.astro';
-import { profile } from '@/content/profile';
+import ExperiencePreview from '@/components/sections/ExperiencePreview.astro';
+import SkillsPreview from '@/components/sections/SkillsPreview.astro';
+import CredentialsPreview from '@/components/sections/CredentialsPreview.astro';
+import GalleryPreview from '@/components/sections/GalleryPreview.astro';
+import ContactPreview from '@/components/sections/ContactPreview.astro';
+import { profile } from '@/data/profile';
 ---
 
 <BaseLayout
@@ -26,19 +37,12 @@ import { profile } from '@/content/profile';
   description="Portfolio of Hamzah Naufal Zuhdi — Information Systems graduate working across data analytics, information systems, business process improvement and digital solutions."
   isHome
 >
-  <!-- Anchor target for the header brand link -->
-  <span id="top" aria-hidden="true"></span>
-
   <Hero />
-  <About />
+  <AboutPreview />
   <FeaturedWork />
-  <Experience />
-  <Leadership />
-  <Projects />
-  <Publications />
-  <Skills />
-  <Certifications />
-  <Achievements />
-  <Education />
-  <Contact />
+  <ExperiencePreview />
+  <SkillsPreview />
+  <CredentialsPreview />
+  <GalleryPreview />
+  <ContactPreview />
 </BaseLayout>

@@ -1,0 +1,62 @@
+---
+/**
+ * PREVIEW: MOMENTS (gallery)
+ *
+ * A deliberately COMPOSED collage rather than a row of equal thumbnails — the
+ * brief objects to "Image 1, Image 2, Image 3" presentation and asks for the
+ * images to be combined.
+ *
+ * Only six photographs appear here; /gallery carries all of them. The selection
+ * spans both of the gallery's groups so the preview is representative.
+ *
+ * This section contains ONLY personal/activity photographs. Nothing here is
+ * attributed to an employer, because the source photos are not organised that
+ * way — see `src/data/gallery.ts` for the full reasoning.
+ */
+import SectionHead from '@/components/ui/SectionHead.astro';
+import Collage from '@/components/ui/Collage.astro';
+import { galleryEntries } from '@/data/gallery';
+
+/**
+ * Pick a spread across the groups rather than the first N, so the preview is
+ * not all committee photos.
+ */
+const byGroup = new Map<string, typeof galleryEntries>();
+for (const g of galleryEntries) {
+  if (!byGroup.has(g.group)) byGroup.set(g.group, []);
+  byGroup.get(g.group)!.push(g);
+}
+
+const picked: typeof galleryEntries = [];
+const groups = [...byGroup.values()];
+for (let i = 0; picked.length < 6 && i < 12; i++) {
+  for (const list of groups) {
+    const item = list[i];
+    if (item && picked.length < 6) picked.push(item);
+  }
+}
+
+const images = picked.map((g) => g.visual);
+---
+
+<section class="gp" id="gallery-preview">
+  <div class="shell">
+    <SectionHead
+      index="06"
+      eyebrow="Moments"
+      title="Selected moments"
+      lede="Photographs from committees, field programmes and campus activities — collected here rather than filed under a particular job, because these images are not tied to one employer."
+      href="/gallery"
+      linkLabel="View gallery"
+      note={`${galleryEntries.length} photos`}
+    />
+
+    <Collage images={images} />
+  </div>
+</section>
+
+<style>
+  .gp {
+    padding-block: var(--section-y);
+  }
+</style>

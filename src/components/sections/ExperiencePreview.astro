@@ -1,0 +1,145 @@
+---
+/**
+ * PREVIEW: EXPERIENCE
+ *
+ * A compact editorial timeline. Per the brief this section carries NO images:
+ * the homepage's image budget is spent on the hero, the featured work and the
+ * gallery, and an experience preview is stronger as a typographic list.
+ *
+ * AirNav appears here as one row among several — it is experience, not identity.
+ */
+import SectionHead from '@/components/ui/SectionHead.astro';
+import { experienceSorted } from '@/data/experience';
+
+/** A short preview: the four most recent roles. */
+const preview = experienceSorted.slice(0, 4);
+---
+
+<section class="ep" id="experience-preview">
+  <div class="shell">
+    <SectionHead
+      index="03"
+      eyebrow="Experience"
+      title="Where I have worked"
+      lede="Professional roles across aviation IT, manufacturing, and beauty-industry data — plus the editorial and freelance work alongside them."
+      href="/experience"
+      linkLabel="Full experience"
+      note={`${experienceSorted.length} roles`}
+    />
+
+    <ol class="ep__list">
+      {
+        preview.map((job) => (
+          <li class="ep__row">
+            <p class="ep__when mono">{job.dateRange}</p>
+
+            <div class="ep__body">
+              <h3 class="ep__role">
+                {job.role}
+                {job.current && <span class="ep__now mono">Current</span>}
+              </h3>
+              <p class="ep__org">
+                <span class="ep__company">{job.company}</span>
+                {job.location && (
+                  <>
+                    <span class="ep__sep" aria-hidden="true">·</span>
+                    <span class="ep__loc">{job.location.split(',')[0]}</span>
+                  </>
+                )}
+              </p>
+            </div>
+
+            {
+              job.tools && job.tools.length > 0 && (
+                <p class="ep__tools mono">{job.tools.slice(0, 2).join(' · ')}</p>
+              )
+            }
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .ep {
+    padding-block: var(--section-y);
+  }
+
+  .ep__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: var(--hairline) solid var(--border);
+  }
+
+  .ep__row {
+    display: grid;
+    gap: 0.35rem 1.5rem;
+    grid-template-columns: 1fr;
+    padding: clamp(1.1rem, 2.2vw, 1.5rem) 0;
+    border-bottom: var(--hairline) solid var(--border-faint);
+    transition: background-color var(--t-base) var(--ease);
+  }
+
+  /* Three-column rhythm on wide screens: date | role | tools */
+  @media (min-width: 860px) {
+    .ep__row {
+      grid-template-columns: minmax(0, 11rem) minmax(0, 1fr) minmax(0, 12rem);
+      align-items: baseline;
+    }
+  }
+
+  .ep__when {
+    color: var(--fg-faint);
+    text-transform: none;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+  }
+
+  .ep__role {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: 500;
+    color: var(--fg-strong);
+  }
+
+  .ep__now {
+    padding: 0.15rem 0.45rem;
+    border: var(--hairline) solid var(--accent-line);
+    border-radius: var(--r-full);
+    color: var(--accent);
+    font-size: 0.6rem;
+  }
+
+  .ep__org {
+    margin-top: 0.2rem;
+    font-size: var(--text-sm);
+    color: var(--fg-muted);
+  }
+
+  .ep__sep {
+    margin-inline: 0.4rem;
+    color: var(--fg-faint);
+  }
+
+  .ep__loc {
+    color: var(--fg-faint);
+  }
+
+  .ep__tools {
+    color: var(--fg-faint);
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
+
+  @media (min-width: 860px) {
+    .ep__tools {
+      text-align: right;
+    }
+  }
+</style>

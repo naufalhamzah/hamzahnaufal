@@ -1,151 +1,258 @@
 /* ==========================================================================
-   DESIGN TOKENS
+   DESIGN TOKENS — "Editorial Dark Luxury"
    --------------------------------------------------------------------------
-   These are the raw values for the whole visual system. Nothing in the site
-   should hardcode a colour or font — it should reference a token defined here.
+   Palette direction: near-black base, warm ivory typography, muted burgundy
+   accent. Inspired by the reference composition, but tuned for real
+   readability (the reference is a mockup; its raw contrast would fail AA).
 
-   How theming works:
-   - Every semantic variable (e.g. --surface, --foreground) is defined twice:
-     once for light mode, once inside `.dark`.
-   - Tailwind utilities read those variables through the `@theme inline` block
-     at the bottom, so `bg-surface` always resolves to the *current* theme.
+   Everything visual is defined HERE. Components reference var(--x) and never a
+   raw hex value, so the whole site re-skins from this one file.
+
+   Themes:
+     :root              -> dark  (the primary art direction)
+     [data-theme=light] -> light (opt-in via the toggle)
    ========================================================================== */
 
 :root {
-  /* --- Base palette: neutral, slightly cool (slate/zinc register) --------- */
-  --slate-50: #f8fafc;
-  --slate-100: #f1f5f9;
-  --slate-200: #e2e8f0;
-  --slate-300: #cbd5e1;
-  --slate-400: #94a3b8;
-  --slate-500: #64748b;
-  --slate-600: #475569;
-  --slate-700: #334155;
-  --slate-800: #1e293b;
-  --slate-900: #0f172a;
-  --slate-950: #060b16;
+  /* ---------- Warm neutral ramp (near-black -> ivory) -------------------- */
+  --ivory-050: #faf7f1;
+  --ivory-100: #f2ece1;
+  --ivory-200: #e3dacb;
+  --ivory-300: #cdc2ae;
+  --warm-400: #a89c88;
+  --warm-500: #857a68;
+  --warm-600: #635b4e;
+  --warm-700: #46403a;
+  --warm-800: #2c2825;
+  --warm-900: #1a1715;
+  --ink-950: #14110f;
+  --ink-1000: #0b0908;
 
-  /* --- Accent: one restrained teal/cyan. Used sparingly. ------------------ */
-  --teal-300: #5eead4;
-  --teal-400: #2dd4bf;
-  --teal-500: #14b8a6;
-  --teal-600: #0d9488;
-  --teal-700: #0f766e;
+  /* ---------- Burgundy accent ramp --------------------------------------- */
+  --wine-300: #d98a93;
+  --wine-400: #c26874;
+  --wine-500: #a83e4c; /* core accent */
+  --wine-600: #8e3140;
+  --wine-700: #6d2531;
 
-  /* --- Typography -------------------------------------------------------- */
+  /* ---------- Typography ------------------------------------------------- */
+  --font-display: 'Playfair Display Variable', 'Playfair Display', Georgia,
+    'Times New Roman', serif;
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system,
     'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono',
     Menlo, Consolas, 'Liberation Mono', monospace;
 
-  /* --- Fluid type scale (clamp = min, preferred, max) --------------------- */
+  /* ---------- Fluid type scale ------------------------------------------- */
+  /* Editorial hierarchy: a very large display size, then calmer steps down. */
+  --text-2xs: 0.6875rem;
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
   --text-lg: 1.125rem;
-  --text-xl: clamp(1.25rem, 1.15rem + 0.4vw, 1.4rem);
-  --text-2xl: clamp(1.5rem, 1.3rem + 0.85vw, 1.875rem);
-  --text-3xl: clamp(1.875rem, 1.5rem + 1.6vw, 2.5rem);
-  --text-4xl: clamp(2.25rem, 1.6rem + 2.8vw, 3.5rem);
-  --text-5xl: clamp(2.75rem, 1.7rem + 4.4vw, 4.75rem);
+  --text-xl: clamp(1.25rem, 1.15rem + 0.4vw, 1.45rem);
+  --text-2xl: clamp(1.5rem, 1.3rem + 0.9vw, 2rem);
+  --text-3xl: clamp(1.9rem, 1.5rem + 1.7vw, 2.75rem);
+  --text-4xl: clamp(2.4rem, 1.7rem + 3vw, 4rem);
+  --text-display: clamp(3rem, 1.6rem + 6.2vw, 7.5rem);
+  --text-mega: clamp(3.4rem, 0.5rem + 11.5vw, 12.5rem);
 
-  /* --- Layout ------------------------------------------------------------ */
-  --content-width: 1200px;
-  --content-narrow: 760px;
-  --gutter: clamp(1.25rem, 4vw, 3rem);
-  --section-gap: clamp(4rem, 9vw, 8rem);
+  /* ---------- Layout ----------------------------------------------------- */
+  --page-max: 1320px;
+  --content-max: 1200px;
+  --prose-max: 70ch;
+  --gutter: clamp(1.15rem, 4vw, 3.5rem);
+  --section-y: clamp(3.5rem, 8vw, 7rem);
+  --band-y: clamp(2.5rem, 5vw, 4.5rem);
 
-  /* --- Radii ------------------------------------------------------------- */
-  --radius-sm: 0.375rem;
-  --radius-md: 0.625rem;
-  --radius-lg: 1rem;
-  --radius-full: 9999px;
+  /* Shared 12-column grid so every section aligns to the same rhythm. */
+  --grid-gap: clamp(1rem, 2.2vw, 1.75rem);
 
-  /* --- Motion ------------------------------------------------------------ */
-  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
-  --duration-fast: 140ms;
-  --duration-base: 240ms;
-  --duration-slow: 480ms;
+  /* ---------- Radii — intentionally restrained --------------------------- */
+  /* The reference uses near-square corners; these stay very small. */
+  --r-xs: 2px;
+  --r-sm: 3px;
+  --r-md: 4px;
+  --r-lg: 6px;
+  --r-full: 999px;
+
+  /* ---------- Motion ----------------------------------------------------- */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+  --t-fast: 130ms;
+  --t-base: 240ms;
+  --t-slow: 460ms;
+  --t-reveal: 720ms;
 }
 
 /* ==========================================================================
-   LIGHT THEME (default when the OS prefers light, and when .dark is absent)
+   DARK THEME (primary)
    ========================================================================== */
-:root {
-  --surface: var(--slate-50);
-  --surface-raised: #ffffff;
-  --surface-sunken: var(--slate-100);
+:root,
+:root[data-theme='dark'],
+:root[data-theme='dark']:root {
+  --bg: var(--ink-1000);
+  --bg-alt: var(--ink-950);
+  --surface: #17130f;
+  --surface-2: #1e1915;
+  --surface-3: #262019;
 
-  --border: var(--slate-200);
-  --border-strong: var(--slate-300);
+  --fg: var(--ivory-100);
+  --fg-strong: var(--ivory-050);
+  --fg-muted: #b3a796;
+  --fg-subtle: #938877;
+  /* --fg-faint carries small monospace labels (10-11px). Verified by
+     scripts/contrast.mjs to clear WCAG AA 4.5:1 against EVERY dark surface,
+     including the lightest one (--surface-3). */
+  --fg-faint: #948a7c;
 
-  --foreground: var(--slate-900);
-  --muted-foreground: var(--slate-600);
-  --subtle-foreground: var(--slate-500);
+  --border: rgba(227, 218, 203, 0.14);
+  --border-strong: rgba(227, 218, 203, 0.28);
+  --border-faint: rgba(227, 218, 203, 0.07);
 
-  --accent: var(--teal-700);
-  --accent-hover: var(--teal-600);
-  --accent-soft: rgba(13, 148, 136, 0.1);
-  --on-accent: #ffffff;
+  --accent: var(--wine-400);
+  --accent-strong: var(--wine-500);
+  /* Soft tints are kept very low-alpha: they sit under accent-coloured TEXT,
+     so a stronger tint would drop that text below AA on the tinted surface. */
+  --accent-soft: rgba(168, 62, 76, 0.08);
+  --accent-line: rgba(168, 62, 76, 0.42);
+  /* A solid accent FILL and the colour that sits on it. Kept as their own
+     tokens (separate from --accent, which colours text on the page background)
+     so both uses can clear AA independently. Wine-700 is dark enough for ivory
+     text; the brighter --accent is not. */
+  --solid-bg: var(--wine-700);
+  --solid-bg-hover: var(--wine-600);
+  --on-solid: #fff6f2;
+  --on-accent: #fff6f2;
 
-  /* Subtle graph-paper texture tint */
-  --grid-line: rgba(15, 23, 42, 0.055);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 28px -12px rgba(0, 0, 0, 0.7);
+  --shadow-lg: 0 24px 60px -24px rgba(0, 0, 0, 0.85);
 
-  color-scheme: light;
-}
+  --img-overlay: linear-gradient(
+    180deg,
+    rgba(11, 9, 8, 0) 35%,
+    rgba(11, 9, 8, 0.72) 100%
+  );
 
-/* ==========================================================================
-   DARK THEME — the primary art direction.
-   Applied explicitly via the toggle, or automatically when the OS asks for it.
-   ========================================================================== */
-.dark {
-  --surface: var(--slate-950);
-  --surface-raised: #0d1526;
-  --surface-sunken: #04080f;
-
-  --border: rgba(148, 163, 184, 0.16);
-  --border-strong: rgba(148, 163, 184, 0.3);
-
-  --foreground: #e8edf5;
-  --muted-foreground: #9aa8bd;
-  --subtle-foreground: #6b7a91;
-
-  --accent: var(--teal-400);
-  --accent-hover: var(--teal-300);
-  --accent-soft: rgba(45, 212, 191, 0.12);
-  --on-accent: var(--slate-950);
-
-  --grid-line: rgba(226, 232, 240, 0.045);
+  /* --------------------------------------------------------------------------
+     PAGE BACKGROUND
+     Two wide radial washes over the near-black base, then a vignette. Kept as
+     one composed value so the whole background is a single declaration.
+       · burgundy wash, top-left of centre  — the warm anchor
+       · charcoal wash, lower right         — cools the opposite corner
+       · vignette                           — edges fall away, centre reads lit
+     -------------------------------------------------------------------------- */
+  --bg-layers:
+    radial-gradient(
+      118% 78% at 14% 6%,
+      rgba(109, 37, 49, 0.17) 0%,
+      rgba(109, 37, 49, 0) 58%
+    ),
+    radial-gradient(
+      96% 70% at 88% 92%,
+      rgba(70, 64, 58, 0.2) 0%,
+      rgba(70, 64, 58, 0) 62%
+    ),
+    radial-gradient(
+      140% 120% at 50% 42%,
+      rgba(11, 9, 8, 0) 42%,
+      rgba(6, 5, 4, 0.55) 100%
+    );
 
   color-scheme: dark;
 }
 
 /* ==========================================================================
-   EXPOSE TOKENS TO TAILWIND
-   `@theme inline` means utilities emit `var(--surface)` rather than a frozen
-   copy, so a class like `bg-surface` re-resolves when the theme switches.
+   LIGHT THEME — warm paper, same structure
+   ========================================================================== */
+:root[data-theme='light'],
+:root[data-theme='light']:root {
+  --bg: #f6f2ea;
+  --bg-alt: #efe9de;
+  --surface: #fbf8f2;
+  --surface-2: #f2ece1;
+  --surface-3: #e8e0d2;
+
+  --fg: #221d18;
+  --fg-strong: #14110f;
+  --fg-muted: #5f5647;
+  --fg-subtle: #6f6555;
+  /* Small mono labels need AA against the warm paper background too. */
+  --fg-faint: #6f6555;
+
+  --border: rgba(34, 29, 24, 0.16);
+  --border-strong: rgba(34, 29, 24, 0.32);
+  --border-faint: rgba(34, 29, 24, 0.08);
+
+  --accent: var(--wine-600);
+  --accent-strong: var(--wine-700);
+  --accent-soft: rgba(142, 49, 64, 0.07);
+  --accent-line: rgba(142, 49, 64, 0.38);
+  --solid-bg: var(--wine-700);
+  --solid-bg-hover: var(--wine-600);
+  --on-solid: #fff6f2;
+  --on-accent: #fff6f2;
+
+  --shadow-sm: 0 1px 2px rgba(60, 45, 30, 0.08);
+  --shadow-md: 0 8px 28px -14px rgba(60, 45, 30, 0.22);
+  --shadow-lg: 0 24px 60px -26px rgba(60, 45, 30, 0.3);
+
+  --img-overlay: linear-gradient(
+    180deg,
+    rgba(246, 242, 234, 0) 40%,
+    rgba(246, 242, 234, 0.6) 100%
+  );
+
+  /* Light counterpart: paper does not want a vignette, so this is just two
+     faint warm washes that keep the page from reading as flat white. */
+  --bg-layers:
+    radial-gradient(
+      110% 74% at 12% 4%,
+      rgba(142, 49, 64, 0.055) 0%,
+      rgba(142, 49, 64, 0) 60%
+    ),
+    radial-gradient(
+      92% 68% at 90% 94%,
+      rgba(120, 104, 84, 0.07) 0%,
+      rgba(120, 104, 84, 0) 64%
+    );
+
+  color-scheme: light;
+}
+
+/* ==========================================================================
+   EXPOSE TO TAILWIND (v4)
+   `@theme inline` keeps utilities pointing at the live variables, so
+   bg-surface / text-fg re-resolve when the theme changes.
    ========================================================================== */
 @theme inline {
+  --font-display: var(--font-display);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
 
+  --color-bg: var(--bg);
+  --color-bg-alt: var(--bg-alt);
   --color-surface: var(--surface);
-  --color-surface-raised: var(--surface-raised);
-  --color-surface-sunken: var(--surface-sunken);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+
+  --color-fg: var(--fg);
+  --color-fg-strong: var(--fg-strong);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-fg-faint: var(--fg-faint);
 
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
-
-  --color-foreground: var(--foreground);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-subtle-foreground: var(--subtle-foreground);
+  --color-border-faint: var(--border-faint);
 
   --color-accent: var(--accent);
-  --color-accent-hover: var(--accent-hover);
+  --color-accent-strong: var(--accent-strong);
   --color-accent-soft: var(--accent-soft);
-  --color-on-accent: var(--on-accent);
 
-  --radius-sm: var(--radius-sm);
-  --radius-md: var(--radius-md);
-  --radius-lg: var(--radius-lg);
+  --radius-xs: var(--r-xs);
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
 }

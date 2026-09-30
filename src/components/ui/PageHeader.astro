@@ -1,0 +1,132 @@
+---
+/**
+ * PAGE HEADER — the masthead used by every detail page.
+ *
+ * Keeps all detail pages visually consistent: eyebrow (with an index number),
+ * an oversized serif title, an optional standfirst, and an optional meta strip
+ * on the right. Nothing about the content is hardcoded here.
+ */
+interface Props {
+  /** Small uppercase label above the title. */
+  eyebrow: string;
+  /** The page title — set large in the display serif. */
+  title: string;
+  /** Optional lead paragraph under the title. */
+  standfirst?: string;
+  /** Optional short facts shown as a right-hand column (mono, hairline rules). */
+  meta?: { label: string; value: string }[];
+  /** Two-digit index shown before the eyebrow, e.g. "02". */
+  index?: string;
+}
+
+const { eyebrow, title, standfirst, meta = [], index } = Astro.props;
+---
+
+<header class="ph">
+  <div class="shell">
+    <p class="ph__eyebrow label">
+      {index && <span class="ph__idx" aria-hidden="true">{index}</span>}
+      {eyebrow}
+    </p>
+
+    <div class="ph__grid" class:list={[meta.length > 0 && 'ph__grid--split']}>
+      <div class="ph__lead">
+        <h1 class="ph__title">{title}</h1>
+        {standfirst && <p class="ph__stand">{standfirst}</p>}
+      </div>
+
+      {
+        meta.length > 0 && (
+          <dl class="ph__meta">
+            {meta.map((m) => (
+              <div class="ph__meta-row">
+                <dt class="mono">{m.label}</dt>
+                <dd>{m.value}</dd>
+              </div>
+            ))}
+          </dl>
+        )
+      }
+    </div>
+
+    <hr class="rule rule--strong ph__rule" />
+  </div>
+</header>
+
+<style>
+  .ph {
+    padding-top: clamp(3rem, 7vw, 5.5rem);
+    padding-bottom: clamp(1.75rem, 3vw, 2.5rem);
+  }
+
+  .ph__eyebrow {
+    margin-bottom: clamp(1.1rem, 2.5vw, 1.75rem);
+  }
+
+  .ph__idx {
+    color: var(--fg-faint);
+    margin-inline-end: 0.7rem;
+  }
+
+  .ph__grid {
+    display: grid;
+    gap: clamp(1.5rem, 3vw, 3rem);
+    grid-template-columns: 1fr;
+  }
+
+  /* Title takes the larger share; meta sits in a narrow right column. */
+  @media (min-width: 900px) {
+    .ph__grid--split {
+      grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+      align-items: end;
+    }
+  }
+
+  .ph__title {
+    font-family: var(--font-display);
+    font-size: var(--text-4xl);
+    font-weight: 500;
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    color: var(--fg-strong);
+    /* Editorial optical sizing: the serif needs a touch of positive tracking
+       at display size to stop the letters colliding. */
+    max-width: 20ch;
+  }
+
+  .ph__stand {
+    margin-top: clamp(1rem, 2vw, 1.5rem);
+    max-width: 58ch;
+    font-size: var(--text-lg);
+    color: var(--fg-muted);
+  }
+
+  .ph__meta {
+    display: grid;
+    gap: 0;
+    margin: 0;
+  }
+
+  .ph__meta-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.6rem 0;
+    border-top: var(--hairline) solid var(--border-faint);
+  }
+
+  .ph__meta-row:last-child {
+    border-bottom: var(--hairline) solid var(--border-faint);
+  }
+
+  .ph__meta dd {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--fg);
+    text-align: right;
+  }
+
+  .ph__rule {
+    margin-top: clamp(2rem, 4vw, 3rem);
+  }
+</style>

@@ -1,148 +1,92 @@
 /* ==========================================================================
-   Project filter island
-   Co-located with ProjectFilter.tsx and imported by it, because a .tsx file
-   cannot use Astro's scoped <style> blocks.
-   Uses the same design tokens as the rest of the site.
+   PROJECT FILTER
+   Styling for the filter bar. Kept in the island's own stylesheet so the whole
+   component is self-contained and the page CSS stays a single readable file.
+   Only design tokens from tokens.css are used, so both themes work without any
+   conditional rules here.
    ========================================================================== */
 
 .pf {
-  margin-bottom: clamp(1.5rem, 3vw, 2.25rem);
+  margin-top: 1.5rem;
 }
 
 .pf__bar {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem 1.25rem;
-  justify-content: space-between;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border);
+  gap: 0.5rem;
 }
 
-.pf__chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-
-.pf__chip {
+.pf__btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.36rem 0.75rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-full);
-  background-color: var(--surface-raised);
-  color: var(--muted-foreground);
+  gap: 0.5rem;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: none;
+  color: var(--fg-subtle);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: var(--text-2xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   cursor: pointer;
   transition:
-    color var(--duration-fast) var(--ease-out-soft),
-    border-color var(--duration-fast) var(--ease-out-soft),
-    background-color var(--duration-fast) var(--ease-out-soft);
+    border-color 130ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 130ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 130ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.pf__chip:hover {
-  color: var(--foreground);
-  border-color: var(--border-strong);
+.pf__btn:hover {
+  border-color: var(--accent);
+  color: var(--fg-strong);
 }
 
-.pf__chip--on {
-  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+.pf__btn.is-on {
+  border-color: var(--accent);
   background-color: var(--accent-soft);
   color: var(--accent);
 }
 
-.pf__n {
-  font-size: 0.62rem;
-  opacity: 0.7;
-}
-
-/* --------------------------- search --------------------------- */
-.pf__search {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.pf__search-label {
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  letter-spacing: 0.04em;
-  color: var(--subtle-foreground);
-}
-
-.pf__input {
-  width: 15rem;
-  max-width: 55vw;
-  padding: 0.36rem 1.9rem 0.36rem 0.7rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background-color: var(--surface-raised);
-  color: var(--foreground);
-  font-size: var(--text-xs);
-  font-family: inherit;
-}
-
-.pf__input::placeholder {
-  color: var(--subtle-foreground);
-}
-
-.pf__input:focus-visible {
+.pf__btn:focus-visible {
   outline: 2px solid var(--accent);
-  outline-offset: 1px;
+  outline-offset: 3px;
 }
 
-.pf__clear {
-  position: absolute;
-  right: 0.4rem;
-  display: grid;
+/* The count sits in a small pill so a changing total never reflows the button. */
+.pf__count {
+  display: inline-grid;
   place-items: center;
-  width: 1.25rem;
-  height: 1.25rem;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  padding-inline: 0.3rem;
+  border-radius: 999px;
+  background-color: var(--surface-3);
+  color: var(--fg-muted);
+  font-size: 0.62rem;
+  letter-spacing: 0;
+}
+
+.pf__btn.is-on .pf__count {
+  background-color: var(--accent);
+  color: var(--on-accent);
+}
+
+/* Visually hidden but announced. */
+.pf__live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
   padding: 0;
-  border: none;
-  border-radius: var(--radius-full);
-  background-color: transparent;
-  color: var(--subtle-foreground);
-  font-size: 1rem;
-  line-height: 1;
-  cursor: pointer;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 
-.pf__clear:hover {
-  color: var(--foreground);
-}
-
-.pf__result {
-  margin-top: 0.75rem;
-}
-
-/* --------------------- no-results state --------------------- */
-.pf__empty {
-  display: none;
-  padding: 2.5rem 1rem;
-  border: 1px dashed var(--border-strong);
-  border-radius: var(--radius-lg);
-  text-align: center;
-  color: var(--muted-foreground);
-  font-size: var(--text-sm);
-}
-
-@media (max-width: 560px) {
-  .pf__bar {
-    align-items: flex-start;
-  }
-
-  .pf__search {
-    width: 100%;
-  }
-
-  .pf__input {
-    flex: 1;
-    width: auto;
-    max-width: none;
+@media (max-width: 520px) {
+  .pf__btn {
+    padding: 0.5rem 0.7rem;
+    letter-spacing: 0.06em;
   }
 }

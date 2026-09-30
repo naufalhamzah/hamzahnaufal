@@ -1,0 +1,442 @@
+---
+/**
+ * PUBLICATIONS — the complete research record.
+ *
+ * Each paper renders as an editorial entry: the cover alongside the full
+ * citation, with the abstract where the source provides one. Only stated
+ * metrics appear — no impact factors or citation counts are invented.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/ui/PageHeader.astro';
+import { publicationsSorted, firstAuthorPublications } from '@/data/publications';
+import { profile } from '@/data/profile';
+
+const meta = [
+  { label: 'Papers', value: String(publicationsSorted.length) },
+  { label: 'First author', value: String(firstAuthorPublications.length) },
+  { label: 'Fields', value: 'Machine learning · Sentiment analysis · Smart agriculture' },
+  { label: 'Venues', value: 'IJIRSE · AMPOEN' },
+];
+---
+
+<BaseLayout
+  title={`Publications — ${profile.name}`}
+  description="Peer-reviewed publications by Hamzah Naufal Zuhdi — K-Nearest Neighbors creditworthiness evaluation, Naive Bayes sentiment analysis, and smart-farming irrigation research."
+>
+  <PageHeader
+    index="05"
+    eyebrow="Publications"
+    title="Research and publications"
+    standfirst="Peer-reviewed work applying machine learning to evaluation problems — creditworthiness, user sentiment, and smart-agriculture adoption."
+    meta={meta}
+  />
+
+  <section class="pb" aria-label="Publications">
+    <div class="shell">
+      <ol class="pb__list">
+        {
+          publicationsSorted.map((p, i) => (
+            <li class="pb__row">
+              <p class="pb__idx mono" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </p>
+
+              {/* ---- cover ---- */}
+              <figure class="pb__cover">
+                <button
+                  type="button"
+                  class="pb__cover-btn"
+                  data-lightbox-src={p.visual.src}
+                  data-lightbox-alt={p.visual.alt}
+                  data-lightbox-title={p.title}
+                  data-lightbox-caption={`${p.venue} · ${p.year}`}
+                  aria-label={`View cover: ${p.title}`}
+                >
+                  <img
+                    src={p.visual.src}
+                    alt={p.visual.alt}
+                    width={p.visual.width}
+                    height={p.visual.height}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </button>
+              </figure>
+
+              {/* ---- citation + body ---- */}
+              <div class="pb__body">
+                <p class="pb__venue mono">
+                  {p.venue}
+                  <span class="pb__year">{p.year}</span>
+                  {p.authorPosition === 1 && (
+                    <span class="pb__first">First author</span>
+                  )}
+                </p>
+
+                <h2 class="pb__title">{p.title}</h2>
+                {p.titleId && <p class="pb__title-id">{p.titleId}</p>}
+
+                <p class="pb__authors">{p.authors.join(', ')}</p>
+
+                <dl class="pb__facts">
+                  {
+                    [
+                      p.volume && { k: 'Volume', v: p.volume },
+                      p.issue && { k: 'Issue', v: p.issue },
+                      p.pages && { k: 'Pages', v: p.pages },
+                      p.publisher && { k: 'Publisher', v: p.publisher },
+                      p.issn && { k: 'e-ISSN', v: p.issn },
+                      p.issnPrint && { k: 'p-ISSN', v: p.issnPrint },
+                      p.accreditation && { k: 'Accreditation', v: p.accreditation },
+                      p.method && { k: 'Method', v: p.method },
+                      p.metric && { k: 'Reported result', v: p.metric },
+                    ]
+                      .filter(Boolean)
+                      .map((f: any) => (
+                        <div class="pb__fact">
+                          <dt class="mono">{f.k}</dt>
+                          <dd>{f.v}</dd>
+                        </div>
+                      ))
+                  }
+                </dl>
+
+                {p.abstract && (
+                  <details class="pb__abstract">
+                    <summary class="pb__abstract-sum mono">Abstract</summary>
+                    <p class="pb__abstract-text">{p.abstract}</p>
+                  </details>
+                )}
+
+                {p.keywords && p.keywords.length > 0 && (
+                  <ul class="pb__keywords" aria-label="Keywords">
+                    {p.keywords.map((k) => <li class="pb__kw mono">{k}</li>)}
+                  </ul>
+                )}
+
+                {p.link && (
+                  <a
+                    href={p.link.href}
+                    class="pb__link"
+                    rel={p.link.external ? 'noopener noreferrer' : undefined}
+                    target={p.link.external ? '_blank' : undefined}
+                  >
+                    <span>{p.link.label}</span>
+                    <span aria-hidden="true">{p.link.external ? '↗' : '→'}</span>
+                  </a>
+                )}
+
+                {p.todo && (
+                  <p class="pb__todo mono">
+                    <span class="pb__todo-tag">Note</span>
+                    {p.todo}
+                  </p>
+                )}
+
+                {
+                  p.gallery && p.gallery.length > 0 && (
+                    <div class="pb__pages">
+                      <h3 class="mono pb__pages-h">Article pages</h3>
+                      <div class="pb__pages-grid" data-lightbox-group>
+                        {p.gallery.map((g) => (
+                          <button
+                            type="button"
+                            class="pb__page"
+                            data-lightbox-src={g.src}
+                            data-lightbox-alt={g.alt}
+                            data-lightbox-title={p.title}
+                            data-lightbox-caption={g.caption ?? g.alt}
+                            aria-label={`View page: ${g.alt}`}
+                          >
+                            <img
+                              src={g.src}
+                              alt={g.alt}
+                              width={g.width}
+                              height={g.height}
+                              loading="lazy"
+                              decoding="async"
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                }
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .pb {
+    padding-block: clamp(1.5rem, 3vw, 2.5rem) var(--section-y);
+  }
+
+  .pb__list {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    gap: clamp(3rem, 6vw, 5rem);
+  }
+
+  .pb__row {
+    display: grid;
+    gap: clamp(1.25rem, 3vw, 2rem);
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 820px) {
+    .pb__row {
+      grid-template-columns: 2.5rem minmax(0, 12rem) minmax(0, 1fr);
+      align-items: start;
+    }
+  }
+
+  .pb__idx {
+    color: var(--accent);
+    font-size: var(--text-lg);
+    line-height: 1;
+  }
+
+  /* ---- cover ---- */
+  .pb__cover {
+    margin: 0;
+  }
+
+  .pb__cover-btn {
+    display: block;
+    width: 100%;
+    max-width: 16rem;
+    padding: 0;
+    overflow: hidden;
+    border: var(--hairline) solid var(--border);
+    border-radius: var(--r-xs);
+    background-color: var(--surface-2);
+    cursor: zoom-in;
+  }
+
+  .pb__cover-btn img {
+    width: 100%;
+    height: auto;
+    transition: transform var(--t-slow) var(--ease);
+  }
+
+  .pb__cover-btn:hover img {
+    transform: scale(1.03);
+  }
+
+  /* ---- citation ---- */
+  .pb__venue {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--accent);
+  }
+
+  .pb__year,
+  .pb__first {
+    padding-inline-start: 0.6rem;
+    border-inline-start: var(--hairline) solid var(--border);
+    color: var(--fg-faint);
+  }
+
+  .pb__first {
+    color: var(--accent);
+  }
+
+  .pb__title {
+    margin-top: 0.85rem;
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: -0.018em;
+    color: var(--fg-strong);
+    max-width: 40ch;
+  }
+
+  .pb__title-id {
+    margin-top: 0.5rem;
+    font-size: var(--text-sm);
+    font-style: italic;
+    color: var(--fg-subtle);
+  }
+
+  .pb__authors {
+    margin-top: 0.85rem;
+    max-width: 68ch;
+    font-size: var(--text-sm);
+    color: var(--fg-muted);
+  }
+
+  .pb__facts {
+    display: grid;
+    gap: 0;
+    grid-template-columns: 1fr;
+    margin: 1.4rem 0 0;
+    border-top: var(--hairline) solid var(--border-faint);
+  }
+
+  @media (min-width: 640px) {
+    .pb__facts {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: clamp(1rem, 3vw, 2rem);
+    }
+  }
+
+  .pb__fact {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: space-between;
+    padding: 0.6rem 0;
+    border-bottom: var(--hairline) solid var(--border-faint);
+  }
+
+  .pb__fact dd {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--fg);
+    text-align: right;
+  }
+
+  /* ---- abstract ---- */
+  .pb__abstract {
+    margin-top: 1.4rem;
+    border-top: var(--hairline) solid var(--border-faint);
+    border-bottom: var(--hairline) solid var(--border-faint);
+  }
+
+  .pb__abstract-sum {
+    padding: 0.8rem 0;
+    color: var(--accent);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .pb__abstract-sum::-webkit-details-marker {
+    display: none;
+  }
+
+  .pb__abstract-sum::before {
+    content: '+ ';
+    color: var(--fg-faint);
+  }
+
+  .pb__abstract[open] .pb__abstract-sum::before {
+    content: '− ';
+  }
+
+  .pb__abstract-text {
+    padding-bottom: 1rem;
+    max-width: 74ch;
+    font-size: var(--text-sm);
+    color: var(--fg-muted);
+  }
+
+  .pb__keywords {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.5rem;
+    margin: 1.25rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .pb__kw {
+    padding: 0.22rem 0.55rem;
+    border: var(--hairline) solid var(--border);
+    border-radius: var(--r-full);
+    color: var(--fg-faint);
+    text-transform: none;
+    letter-spacing: 0.03em;
+  }
+
+  .pb__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.4rem;
+    padding: 0.7rem 1rem;
+    border: var(--hairline) solid var(--border-strong);
+    border-radius: var(--r-xs);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--fg);
+    transition:
+      border-color var(--t-base) var(--ease),
+      background-color var(--t-base) var(--ease),
+      color var(--t-base) var(--ease);
+  }
+
+  .pb__link:hover {
+    border-color: var(--accent);
+    background-color: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  .pb__todo {
+    margin-top: 1.25rem;
+    max-width: 72ch;
+    padding: 0.6rem 0.75rem;
+    border-inline-start: 2px solid var(--accent-line);
+    background-color: var(--accent-soft);
+    color: var(--fg-subtle);
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
+
+  .pb__todo-tag {
+    display: inline-block;
+    margin-inline-end: 0.5rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.6rem;
+  }
+
+  /* ---- article pages ---- */
+  .pb__pages {
+    margin-top: 1.6rem;
+  }
+
+  .pb__pages-h {
+    color: var(--fg-faint);
+    margin-bottom: 0.7rem;
+  }
+
+  .pb__pages-grid {
+    display: grid;
+    gap: 0.6rem;
+    grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+  }
+
+  .pb__page {
+    padding: 0;
+    overflow: hidden;
+    border: var(--hairline) solid var(--border);
+    border-radius: var(--r-xs);
+    background-color: var(--surface-2);
+    cursor: zoom-in;
+    aspect-ratio: 3 / 4;
+  }
+
+  .pb__page img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    transition: transform var(--t-slow) var(--ease);
+  }
+
+  .pb__page:hover img {
+    transform: scale(1.04);
+  }
+</style>

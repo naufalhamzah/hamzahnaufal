@@ -1,0 +1,112 @@
+---
+/**
+ * SECTION HEAD — the shared masthead for a homepage preview section.
+ *
+ * Every preview needs the same three things: an indexed eyebrow, a title, and a
+ * link through to the full page. Centralising it here is what keeps the seven
+ * previews looking like one design instead of seven.
+ *
+ * The `index` is decorative ("01", "02"…) and gives the homepage its editorial
+ * numbering rhythm.
+ */
+import CTALink from './CTALink.astro';
+
+interface Props {
+  index: string;
+  eyebrow: string;
+  title: string;
+  /** Optional one-line description under the title. */
+  lede?: string;
+  /** Where the "see all" link goes. */
+  href?: string;
+  /** Label for that link. */
+  linkLabel?: string;
+  /** Optional mono note beside the link, e.g. "8 projects". */
+  note?: string;
+  /** Renders the title larger — used for the most important sections. */
+  emphasis?: boolean;
+}
+
+const {
+  index,
+  eyebrow,
+  title,
+  lede,
+  href,
+  linkLabel = 'See all',
+  note,
+  emphasis = false,
+} = Astro.props;
+---
+
+<header class:list={['sh', emphasis && 'sh--emphasis']}>
+  <div class="sh__main">
+    <p class="sh__eyebrow label">
+      <span class="sh__idx" aria-hidden="true">{index}</span>
+      {eyebrow}
+    </p>
+    <h2 class="sh__title">{title}</h2>
+    {lede && <p class="sh__lede">{lede}</p>}
+  </div>
+
+  {
+    href && (
+      <div class="sh__act">
+        <CTALink href={href} label={linkLabel} note={note} />
+      </div>
+    )
+  }
+</header>
+
+<style>
+  .sh {
+    display: grid;
+    gap: 1.25rem;
+    padding-bottom: clamp(1.5rem, 3vw, 2.25rem);
+    margin-bottom: clamp(1.75rem, 3.5vw, 2.75rem);
+    border-bottom: var(--hairline) solid var(--border);
+  }
+
+  @media (min-width: 800px) {
+    .sh {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+      gap: 2rem;
+    }
+  }
+
+  .sh__eyebrow {
+    margin-bottom: 0.8rem;
+  }
+
+  .sh__idx {
+    color: var(--fg-faint);
+    margin-inline-end: 0.6rem;
+  }
+
+  .sh__title {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: 500;
+    line-height: 1.06;
+    letter-spacing: -0.022em;
+    color: var(--fg-strong);
+  }
+
+  /* The two most important previews get a larger title, which is how the
+     homepage builds hierarchy without changing the layout. */
+  .sh--emphasis .sh__title {
+    font-size: var(--text-4xl);
+  }
+
+  .sh__lede {
+    margin-top: 0.8rem;
+    max-width: 56ch;
+    font-size: var(--text-base);
+    color: var(--fg-muted);
+  }
+
+  .sh__act {
+    flex: none;
+  }
+</style>

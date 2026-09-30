@@ -1,0 +1,382 @@
+---
+/**
+ * NAVBAR — sticky, page-based navigation.
+ *
+ * The site moved from one long scrolling page to a homepage plus real detail
+ * pages, so this bar links to ROUTES rather than anchors. Every entry comes from
+ * `src/utils/navigation.ts`, so adding a page updates the bar, the mobile panel
+ * and the footer at once.
+ *
+ * Active state is computed from the current pathname on the SERVER, so it is
+ * correct before any JavaScript runs.
+ */
+import { navPages, activePageFor } from '@/utils/navigation';
+import { profile } from '@/data/profile';
+import ThemeToggle from './ThemeToggle.astro';
+
+const path = Astro.url.pathname;
+const active = activePageFor(path);
+const isHome = path === '/' || path === '';
+---
+
+<header class="nav" id="site-nav">
+  <div class="shell nav__inner">
+    <!-- Identity -->
+    <a href="/" class="nav__brand" aria-label={`${profile.name} — home`}>
+      <span class="nav__mark" aria-hidden="true">{profile.initials}</span>
+      <span class="nav__name">{profile.shortName}</span>
+    </a>
+
+    <!-- Desktop routes -->
+    <nav class="nav__desk" aria-label="Main">
+      <ul class="nav__list">
+        <li>
+          <a href="/" class="nav__link" aria-current={isHome ? 'page' : undefined}>Home</a>
+        </li>
+        {
+          navPages.map((page) => (
+            <li>
+              <a
+                href={page.href}
+                class="nav__link"
+                aria-current={active?.href === page.href ? 'page' : undefined}
+              >
+                {page.short ?? page.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="nav__acts">
+      <ThemeToggle />
+
+      <a href="/contact" class="nav__cta mono">Get in touch</a>
+
+      <button
+        type="button"
+        id="nav-open"
+        class="nav__burger"
+        aria-expanded="false"
+        aria-controls="nav-panel"
+        aria-label="Open menu"
+      >
+        <span class="nav__bar" aria-hidden="true"></span>
+        <span class="nav__bar" aria-hidden="true"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile / full-screen panel: numbered, with one-line blurbs -->
+  <div id="nav-panel" class="panel" hidden>
+    <nav class="panel__nav" aria-label="Main (mobile)">
+      <ol class="panel__list">
+        <li>
+          <a href="/" class="panel__link">
+            <span class="panel__num mono" aria-hidden="true">00</span>
+            <span class="panel__body">
+              <span class="panel__label">Home</span>
+              <span class="panel__blurb mono">Professional overview</span>
+            </span>
+          </a>
+        </li>
+        {
+          navPages.map((page, i) => (
+            <li>
+              <a
+                href={page.href}
+                class="panel__link"
+                aria-current={active?.href === page.href ? 'page' : undefined}
+              >
+                <span class="panel__num mono" aria-hidden="true">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <span class="panel__body">
+                  <span class="panel__label">{page.label}</span>
+                  {page.blurb && <span class="panel__blurb mono">{page.blurb}</span>}
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 60;
+    background-color: color-mix(in srgb, var(--bg) 90%, transparent);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: var(--hairline) solid transparent;
+    transition: border-color var(--t-base) var(--ease);
+  }
+
+  .nav[data-scrolled='true'] {
+    border-bottom-color: var(--border);
+  }
+
+  .nav__inner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: 4.25rem;
+  }
+
+  /* ---------- brand ---------- */
+  .nav__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-inline-end: auto;
+  }
+
+  .nav__mark {
+    display: grid;
+    place-items: center;
+    width: 1.95rem;
+    height: 1.95rem;
+    border: var(--hairline) solid var(--border-strong);
+    border-radius: var(--r-xs);
+    background-color: var(--accent-soft);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .nav__name {
+    font-family: var(--font-display);
+    font-size: var(--text-base);
+    font-weight: 500;
+    letter-spacing: -0.012em;
+    white-space: nowrap;
+  }
+
+  /* ---------- desktop links ---------- */
+  .nav__desk {
+    display: none;
+  }
+
+  /* Nine entries (Home + 8 pages) need real room; the bar switches at 1080px. */
+  @media (min-width: 1080px) {
+    .nav__desk {
+      display: block;
+    }
+  }
+
+  .nav__list {
+    display: flex;
+    align-items: center;
+    gap: 0.05rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .nav__link {
+    position: relative;
+    display: inline-block;
+    padding: 0.45rem 0.5rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--fg-subtle);
+    white-space: nowrap;
+    transition: color var(--t-fast) var(--ease);
+  }
+
+  .nav__link:hover {
+    color: var(--fg-strong);
+  }
+
+  /* Active marker: a short accent rule under the label. */
+  .nav__link[aria-current='page'] {
+    color: var(--accent);
+  }
+
+  .nav__link[aria-current='page']::after {
+    content: '';
+    position: absolute;
+    left: 0.5rem;
+    right: 0.5rem;
+    bottom: 0.1rem;
+    height: 1px;
+    background-color: var(--accent);
+  }
+
+  /* ---------- actions ---------- */
+  .nav__acts {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .nav__cta {
+    display: none;
+    padding: 0.5rem 0.9rem;
+    border: var(--hairline) solid var(--border-strong);
+    border-radius: var(--r-xs);
+    color: var(--fg);
+    transition:
+      border-color var(--t-fast) var(--ease),
+      color var(--t-fast) var(--ease),
+      background-color var(--t-fast) var(--ease);
+  }
+
+  .nav__cta:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background-color: var(--accent-soft);
+  }
+
+  /* The full bar only appears from 1080px, so the CTA can too. */
+  @media (min-width: 1080px) {
+    .nav__cta {
+      display: inline-block;
+    }
+  }
+
+  .nav__burger {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 2.3rem;
+    height: 2.3rem;
+    padding: 0 0.6rem;
+    border: var(--hairline) solid var(--border);
+    border-radius: var(--r-xs);
+    background: none;
+    cursor: pointer;
+  }
+
+  .nav__bar {
+    display: block;
+    height: 1.5px;
+    width: 100%;
+    background-color: var(--fg-muted);
+    transition: transform var(--t-base) var(--ease);
+  }
+
+  .nav__burger[aria-expanded='true'] .nav__bar:first-child {
+    transform: translateY(3.25px) rotate(45deg);
+  }
+
+  .nav__burger[aria-expanded='true'] .nav__bar:last-child {
+    transform: translateY(-3.25px) rotate(-45deg);
+  }
+
+  @media (min-width: 1080px) {
+    .nav__burger {
+      display: none;
+    }
+  }
+
+  /* ---------- mobile panel ---------- */
+  .panel {
+    border-top: var(--hairline) solid var(--border);
+    background-color: var(--bg);
+    max-height: calc(100dvh - 4.25rem);
+    overflow-y: auto;
+  }
+
+  .panel__list {
+    display: grid;
+    margin: 0;
+    padding: 0.4rem var(--gutter) 1.75rem;
+    list-style: none;
+  }
+
+  .panel__link {
+    display: flex;
+    align-items: baseline;
+    gap: 0.9rem;
+    padding: 0.7rem 0;
+    border-bottom: var(--hairline) solid var(--border-faint);
+  }
+
+  .panel__num {
+    color: var(--fg-faint);
+    flex: none;
+  }
+
+  .panel__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+
+  .panel__label {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    color: var(--fg-muted);
+    transition: color var(--t-fast) var(--ease);
+  }
+
+  .panel__blurb {
+    color: var(--fg-faint);
+    font-size: 0.64rem;
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
+
+  .panel__link:hover .panel__label,
+  .panel__link[aria-current='page'] .panel__label {
+    color: var(--accent);
+  }
+</style>
+
+<script>
+  /**
+   * Navbar behaviour:
+   *   1. hairline appears once scrolled
+   *   2. mobile panel open/close with Escape + outside-click + focus return
+   */
+  const nav = document.getElementById('site-nav');
+  const burger = document.getElementById('nav-open');
+  const panel = document.getElementById('nav-panel');
+
+  /* --- 1. scrolled --- */
+  const onScroll = () => {
+    if (nav) nav.dataset.scrolled = String(window.scrollY > 6);
+  };
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  /* --- 2. mobile panel --- */
+  function setPanel(open: boolean) {
+    if (!burger || !panel) return;
+    burger.setAttribute('aria-expanded', String(open));
+    burger.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    panel.hidden = !open;
+  }
+
+  burger?.addEventListener('click', () => {
+    setPanel(burger.getAttribute('aria-expanded') !== 'true');
+  });
+
+  panel?.querySelectorAll('a').forEach((a) =>
+    a.addEventListener('click', () => setPanel(false)),
+  );
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && burger?.getAttribute('aria-expanded') === 'true') {
+      setPanel(false);
+      burger.focus();
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!panel || panel.hidden) return;
+    const t = e.target as Node;
+    if (!panel.contains(t) && !burger?.contains(t)) setPanel(false);
+  });
+</script>

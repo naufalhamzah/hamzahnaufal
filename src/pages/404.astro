@@ -1,59 +1,119 @@
 ---
 /**
- * 404 page. Astro emits this as /404.html automatically for static hosts.
+ * 404 — keeps the site's voice instead of a default browser error.
+ * Offers the most likely destinations rather than a single "go home" button.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import Button from '@/components/ui/Button.astro';
+import { navPages } from '@/utils/navigation';
+import { profile } from '@/data/profile';
 ---
 
 <BaseLayout
-  title="Page not found — Hamzah Naufal Zuhdi"
-  description="The page you were looking for doesn't exist."
+  title={`Page not found — ${profile.name}`}
+  description="The page you were looking for does not exist."
 >
-  <section class="nf grid-texture">
-    <div class="container-narrow nf__inner">
-      <p class="eyebrow">Error 404</p>
-      <h1 class="nf__title">That page doesn’t exist</h1>
-      <p class="nf__lead">
-        The link may be out of date, or the address may have a typo. The
-        portfolio itself is all on one page.
+  <section class="nf">
+    <div class="shell">
+      <p class="label nf__eyebrow">Error 404</p>
+
+      <h1 class="nf__title">Page not found</h1>
+
+      <p class="nf__lede">
+        That address does not exist on this site. The links below cover everything
+        available here.
       </p>
-      <div class="nf__ctas">
-        <Button href="/" variant="primary" arrow>Back to the portfolio</Button>
-        <Button href="/#projects">Browse projects</Button>
-      </div>
+
+      <ul class="nf__list">
+        <li>
+          <a href="/" class="nf__link">
+            <span class="mono nf__num" aria-hidden="true">00</span>
+            <span class="nf__label">Home</span>
+            <span class="nf__note mono">Professional overview</span>
+          </a>
+        </li>
+        {
+          navPages.map((page, i) => (
+            <li>
+              <a href={page.href} class="nf__link">
+                <span class="mono nf__num" aria-hidden="true">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <span class="nf__label">{page.label}</span>
+                {page.blurb && <span class="nf__note mono">{page.blurb}</span>}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </section>
 </BaseLayout>
 
 <style>
   .nf {
-    padding-block: clamp(3rem, 10vw, 7rem);
+    padding-block: clamp(4rem, 10vw, 8rem);
   }
 
-  .nf__inner {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    align-items: flex-start;
+  .nf__eyebrow {
+    margin-bottom: 1.25rem;
   }
 
   .nf__title {
+    font-family: var(--font-display);
     font-size: var(--text-4xl);
-    letter-spacing: -0.032em;
+    color: var(--fg-strong);
   }
 
-  .nf__lead {
+  .nf__lede {
+    margin-top: 1.1rem;
     max-width: 52ch;
-    color: var(--muted-foreground);
     font-size: var(--text-lg);
-    line-height: 1.7;
+    color: var(--fg-muted);
   }
 
-  .nf__ctas {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.6rem;
-    margin-top: 0.75rem;
+  .nf__list {
+    display: grid;
+    margin: clamp(2.5rem, 5vw, 3.5rem) 0 0;
+    padding: 0;
+    list-style: none;
+    border-top: var(--hairline) solid var(--border);
+  }
+
+  .nf__link {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    gap: 0.15rem 1rem;
+    align-items: baseline;
+    padding: 0.85rem 0;
+    border-bottom: var(--hairline) solid var(--border-faint);
+    transition: color var(--t-fast) var(--ease);
+  }
+
+  @media (min-width: 700px) {
+    .nf__link {
+      grid-template-columns: 2.5rem minmax(0, 12rem) 1fr;
+    }
+  }
+
+  .nf__num {
+    color: var(--fg-faint);
+  }
+
+  .nf__label {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    color: var(--fg);
+    transition: color var(--t-fast) var(--ease);
+  }
+
+  .nf__note {
+    color: var(--fg-faint);
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
+
+  .nf__link:hover .nf__label,
+  .nf__link:focus-visible .nf__label {
+    color: var(--accent);
   }
 </style>

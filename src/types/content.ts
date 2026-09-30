@@ -74,6 +74,10 @@ export interface ExperienceEntry {
   summary: string;
   highlights: string[];
   tools?: string[];
+  /** Employer logo. */
+  logo?: MediaAsset;
+  /** Supporting photographs for the role. */
+  photos?: MediaAsset[];
   source: SourceRef;
   /** Notes about unresolved or provisional content. Rendered as a TODO badge. */
   todo?: string;
@@ -98,6 +102,10 @@ export interface OrganizationEntry {
   durationMonths?: number;
   /** Parent body this role belongs to, used to group the timeline. */
   group: string;
+  /** Small logo shown beside the role. */
+  logo?: MediaAsset;
+  /** Supporting photographs shown in the role's gallery. */
+  photos?: MediaAsset[];
   source: SourceRef;
 }
 
@@ -106,13 +114,26 @@ export interface OrganizationEntry {
 /* -------------------------------------------------------------------------- */
 
 /** A labelled placeholder slot for an image that does not exist yet. */
-export interface ProjectVisual {
-  /** Path under /public. Placeholders live in /images/placeholders/. */
+export interface MediaAsset {
+  /** Path under /public. */
   src: string;
+  /** Meaningful alt text — required, never empty. */
   alt: string;
-  /** True when this is a stand-in, so the UI can label it honestly. */
-  isPlaceholder: boolean;
-  aspect?: '16/9' | '4/3' | '1/1' | '3/4';
+  /** Native pixel width, so layouts can reserve space and avoid shift. */
+  width?: number;
+  height?: number;
+  /** Optional caption shown in galleries / lightboxes. */
+  caption?: string;
+  /**
+   * True when this is a generated stand-in rather than a real asset.
+   * The UI labels these honestly; real assets never carry this flag.
+   */
+  isPlaceholder?: boolean;
+}
+
+/** Visual for a project / publication / certification card. */
+export interface ProjectVisual extends MediaAsset {
+  aspect?: '16/9' | '3/2' | '4/3' | '1/1' | '3/4' | '9/16';
 }
 
 export interface ProjectEntry {
@@ -123,6 +144,8 @@ export interface ProjectEntry {
   role: string;
   /** Display date. Omitted where the source gives no usable period. */
   dateRange?: string;
+  /** Four-digit year, used for filtering and the card corner label. */
+  year?: string;
   sortKey: string;
   organisation?: string;
   /** One-line summary for cards. */
@@ -133,8 +156,13 @@ export interface ProjectEntry {
   /** Only documented outcomes. Empty array means "none documented". */
   outcomes: string[];
   tools: string[];
+  /** Card / hero visual for the project. */
   visual: ProjectVisual;
+  /** Additional images shown in the project gallery. May be empty. */
+  gallery?: MediaAsset[];
   link?: ContentLink;
+  /** Extra links (e.g. a second platform variant of the same design). */
+  links?: ContentLink[];
   featured: boolean;
   source: SourceRef;
   todo?: string;
@@ -164,10 +192,14 @@ export interface PublicationEntry {
   accreditation?: string;
   /** Only stated results. Never inferred. */
   metric?: string;
+  /** Method / approach, as described in the paper itself. */
+  method?: string;
   abstract?: string;
   keywords?: string[];
   link?: ContentLink;
   visual: ProjectVisual;
+  /** Article pages shown alongside the cover. */
+  gallery?: MediaAsset[];
   source: SourceRef;
   todo?: string;
 }
@@ -176,8 +208,13 @@ export interface PublicationEntry {
 /* Certifications                                                             */
 /* -------------------------------------------------------------------------- */
 
+/** How a certificate is framed on the Certifications page. */
+export type CertificationKind = 'credential' | 'programme' | 'organisation';
+
 export interface CertificationEntry {
   id: string;
+  /** Which group the certificate belongs in. */
+  kind: CertificationKind;
   issuer: string;
   title: string;
   /** Optional learning path / specialisation shown on the certificate. */
@@ -185,11 +222,16 @@ export interface CertificationEntry {
   date?: string;
   sortKey: string;
   credentialId?: string;
-  /** Placeholder scan slot — real scans can be dropped in later. */
+  /** One-line description of what the certificate evidences. */
+  detail?: string;
+  /** Certificate scan. Real scans replace placeholders with no code change. */
   visual: ProjectVisual;
+  /** Issuer logo where one is available. */
+  issuerLogo?: MediaAsset;
   source: SourceRef;
   todo?: string;
 }
+
 
 /* -------------------------------------------------------------------------- */
 /* Achievements                                                               */
@@ -203,8 +245,11 @@ export interface AchievementEntry {
   /** Rendered as a small marker: 'award' | 'funding' | 'competition'. */
   kind: 'award' | 'funding' | 'competition';
   context?: string;
+  /** The piagam / certificate scan evidencing the award, where one exists. */
+  visual?: MediaAsset;
   source: SourceRef;
 }
+
 
 /* -------------------------------------------------------------------------- */
 /* Education                                                                  */
@@ -219,6 +264,8 @@ export interface EducationEntry {
   sortKey: string;
   location?: string;
   highlights?: string[];
+  /** Institution crest. */
+  logo?: MediaAsset;
   source: SourceRef;
   todo?: string;
 }
@@ -227,11 +274,44 @@ export interface EducationEntry {
 /* Skills                                                                     */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * A single skill. `icon` names a key in `src/data/skill-icons.ts`; null means
+ * the skill has no logo and renders as text only.
+ */
+export interface SkillItem {
+  name: string;
+  icon: string | null;
+}
+
 export interface SkillGroup {
   id: string;
   title: string;
   /** One-line explanation of what the group covers. */
   description?: string;
-  items: string[];
+  items: SkillItem[];
   source: SourceRef;
 }
+
+/* -------------------------------------------------------------------------- */
+/* Gallery / Moments                                                          */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * A personal or activity photograph.
+ *
+ * IMPORTANT: these are deliberately NOT attached to any employer or role. The
+ * source photos are not organised by activity, so attributing one to AirNav,
+ * PLN or Beauty Innovation Laboratories would be an assumption. They live in
+ * their own Gallery section instead. Anything that IS unambiguous about an
+ * employer (recognisable signage, branding) may also appear in that
+ * experience's own `photos`.
+ */
+export interface GalleryEntry {
+  id: string;
+  visual: MediaAsset;
+  /** Factual description of what is visible. Never asserts an event name. */
+  caption: string;
+  /** Grouping label, e.g. 'Campus & committee', used to cluster the grid. */
+  group: string;
+}
+

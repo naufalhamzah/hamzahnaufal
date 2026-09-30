@@ -1,0 +1,245 @@
+---
+/**
+ * COLLAGE — an asymmetric image composition that adapts to how many images it
+ * is given.
+ *
+ * WHY THIS EXISTS
+ * The brief repeatedly asks that images be COMBINED rather than stacked:
+ * "if there are 2–4 related images, combine them", "don't stack images
+ * vertically", "use a layout that still works if the number of images changes
+ * later". A plain grid cannot do that, so this component switches composition
+ * based on the count and the natural aspect ratio of each image.
+ *
+ * LAYOUTS (chosen automatically from the item count):
+ *   1 image   full-bleed single frame
+ *   2 images  large left + tall right (or two halves if one is portrait)
+ *   3 images  large feature + two stacked beside it
+ *   4+ images  feature + a 2-up column, then a balanced row for the rest
+ *
+ * Every image keeps its NATURAL aspect ratio via object-fit: cover inside a
+ * fixed frame, so nothing is squashed; the first item is treated as the hero.
+ */
+import type { MediaAsset } from '@/types/content';
+
+interface Props {
+  images: MediaAsset[];
+  /** Optional caption rendered under the whole collage. */
+  caption?: string;
+  /** Tighter gaps for use inside a card. */
+  dense?: boolean;
+}
+
+const { images, caption, dense = false } = Astro.props;
+
+const n = images.length;
+/** Pick the composition from the count. */
+const layout = n <= 1 ? 'single' : n === 2 ? 'duo' : n === 3 ? 'trio' : 'many';
+/** Everything after the first three goes into the trailing row. */
+const rest = layout === 'many' ? images.slice(3) : [];
+---
+
+{
+  n > 0 && (
+    <figure class:list={['collage', `collage--${layout}`, dense && 'collage--dense']}>
+      <div class="collage__grid">
+        {images.slice(0, layout === 'many' ? 3 : n).map((img, i) => (
+          <button
+            type="button"
+            class:list={['collage__cell', i === 0 && 'collage__cell--lead']}
+            data-lightbox-src={img.src}
+            data-lightbox-alt={img.alt}
+            data-lightbox-caption={img.caption ?? img.alt}
+            aria-label={`View larger: ${img.alt}`}
+          >
+            <img
+              src={img.src}
+              alt={img.alt}
+              width={img.width}
+              height={img.height}
+              loading="lazy"
+              decoding="async"
+            />
+            {img.caption && <span class="collage__cap">{img.caption}</span>}
+          </button>
+        ))}
+      </div>
+
+      {rest.length > 0 && (
+        <div class="collage__rest" data-count={rest.length}>
+          {rest.map((img) => (
+            <button
+              type="button"
+              class="collage__cell collage__cell--small"
+              data-lightbox-src={img.src}
+              data-lightbox-alt={img.alt}
+              data-lightbox-caption={img.caption ?? img.alt}
+              aria-label={`View larger: ${img.alt}`}
+            >
+              <img
+                src={img.src}
+                alt={img.alt}
+                width={img.width}
+                height={img.height}
+                loading="lazy"
+                decoding="async"
+              />
+            </button>
+          ))}
+        </div>
+      )}
+
+      {caption && <figcaption class="collage__note mono">{caption}</figcaption>}
+    </figure>
+  )
+}
+
+<style>
+  .collage {
+    margin: 0;
+  }
+
+  .collage__grid {
+    display: grid;
+    gap: var(--collage-gap, clamp(0.5rem, 1.2vw, 0.9rem));
+  }
+
+  .collage--dense {
+    --collage-gap: 0.5rem;
+  }
+
+  .collage__cell {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    padding: 0;
+    border: var(--hairline) solid var(--border);
+    border-radius: var(--r-xs);
+    background-color: var(--surface-2);
+    cursor: zoom-in;
+  }
+
+  .collage__cell img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    /* cover keeps the frame tidy without distorting the photo */
+    object-fit: cover;
+    transition: transform var(--t-slow) var(--ease);
+  }
+
+  .collage__cell:hover img {
+    transform: scale(1.03);
+  }
+
+  .collage__cell:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .collage__cap {
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: 0.45rem 0.6rem;
+    background: linear-gradient(
+      180deg,
+      rgba(11, 9, 8, 0) 0%,
+      rgba(11, 9, 8, 0.82) 100%
+    );
+    color: #f7f3ec;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.03em;
+    text-align: left;
+  }
+
+  /* ---------------- 1 image ---------------- */
+  .collage--single .collage__grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* ---------------- 2 images: 2:1 split ---------------- */
+  .collage--duo .collage__grid {
+    grid-template-columns: 1.35fr 1fr;
+  }
+
+  .collage--duo .collage__cell {
+    aspect-ratio: 4 / 3;
+  }
+
+  /* ---------------- 3 images: lead + 2 stacked ---------------- */
+  .collage--trio .collage__grid {
+    grid-template-columns: 1.6fr 1fr;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+  }
+
+  .collage--trio .collage__cell--lead {
+    grid-row: span 2;
+  }
+
+  .collage--trio .collage__cell {
+    min-height: 0;
+  }
+
+  .collage--trio .collage__cell:not(.collage__cell--lead) {
+    aspect-ratio: 16 / 11;
+  }
+
+  .collage--trio .collage__cell--lead {
+    aspect-ratio: auto;
+  }
+
+  /* ---------------- 4+ : lead + 2 stacked, then a row ---------------- */
+  .collage--many .collage__grid {
+    grid-template-columns: 1.7fr 1fr;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+  }
+
+  .collage--many .collage__cell--lead {
+    grid-row: span 2;
+  }
+
+  .collage--many .collage__cell:not(.collage__cell--lead) {
+    aspect-ratio: 16 / 10;
+  }
+
+  .collage__rest {
+    display: grid;
+    gap: var(--collage-gap, clamp(0.5rem, 1.2vw, 0.9rem));
+    margin-top: var(--collage-gap, clamp(0.5rem, 1.2vw, 0.9rem));
+    /* auto-fit keeps 1–6 trailing images balanced without a media query */
+    grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr));
+  }
+
+  .collage__cell--small {
+    aspect-ratio: 3 / 2;
+  }
+
+  .collage__note {
+    margin-top: 0.7rem;
+    color: var(--fg-faint);
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
+
+  /* ---------------- mobile: collapse to a single column ---------------- */
+  @media (max-width: 640px) {
+    .collage--duo .collage__grid,
+    .collage--trio .collage__grid,
+    .collage--many .collage__grid {
+      grid-template-columns: 1fr;
+      grid-template-rows: none;
+    }
+
+    .collage--trio .collage__cell--lead,
+    .collage--many .collage__cell--lead {
+      grid-row: auto;
+    }
+
+    /* Portrait lead images get an honest frame on narrow screens rather than
+       being cropped into a letterbox. */
+    .collage--trio .collage__cell,
+    .collage--many .collage__cell {
+      aspect-ratio: 4 / 3;
+    }
+  }
+</style>

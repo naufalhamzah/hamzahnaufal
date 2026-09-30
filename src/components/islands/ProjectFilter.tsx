@@ -1,155 +1,109 @@
 /**
- * ProjectGrid — the site's one genuinely interactive island.
+ * PROJECT FILTER — the site's only interactive control.
  *
- * Why React here and nowhere else: category filtering needs real client state
- * (which filter is active) and re-rendering of a list from that state. That is
- * exactly what React is good at. Everything else on the site is static content
- * that Astro renders to HTML, so React would only add weight there.
+ * WHY REACT HERE AND NOWHERE ELSE
+ * Every other interaction on the site is a display toggle (theme, menu,
+ * lightbox) and is handled with a few lines of vanilla JS, which keeps the rest
+ * of the site at ZERO client JavaScript. Filtering needs real state, so it is the
+ * one place a framework earns its bytes.
  *
- * The data arrives as props from the Astro content layer — this component holds
- * no facts of its own. Filtering happens over already-rendered DOM: we hide
- * cards rather than re-render them, so the markup stays identical whether or not
- * JavaScript runs.
+ * IMPORTANT — THE CARDS ARE NOT RENDERED HERE
+ * Astro server-renders every project card into #projects-grid. This component
+ * only toggles the `hidden` attribute on those existing cells. That means:
+ *   · the content is in the HTML, so it is crawlable and indexable
+ *   · the page works perfectly with JavaScript disabled
+ *   · no card markup is duplicated in the bundle
  */
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import './ProjectFilter.css';
 
-export interface FilterableProject {
+export interface FilterCategory {
   id: string;
-  title: string;
-  categories: string[];
-  /** Pre-rendered searchable text, so filtering needs no extra data. */
-  searchText: string;
+  label: string;
+  count: number;
 }
 
 interface Props {
-  projects: FilterableProject[];
-  /** Category ids in display order, with their human labels. */
-  categories: { id: string; label: string }[];
-  /** Element id of the container holding the server-rendered cards. */
-  gridId?: string;
+  categories: FilterCategory[];
+  total: number;
 }
 
-export default function ProjectFilter({
-  projects,
-  categories,
-  gridId = 'projects-grid',
-}: Props) {
-  const [active, setActive] = useState<string>('all');
-  const [query, setQuery] = useState('');
+export default function ProjectFilter({ categories, total }: Props) {
+  /** null = show everything. */
+  const [active, setActive] = useState<string | null>(null);
 
-  /* ---------------------------------------------------------------------- */
-  /* Filtering is applied to the DOM, not by re-rendering the cards.         */
-  /* This keeps the server-rendered markup authoritative and means the page   */
-  /* works identically with JavaScript disabled.                             */
-  /* ---------------------------------------------------------------------- */
-  const visibleIds = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return new Set(
-      projects
-        .filter((p) => active === 'all' || p.categories.includes(active))
-        .filter((p) => (q ? p.searchText.includes(q) : true))
-        .map((p) => p.id),
-    );
-  }, [projects, active, query]);
+  const options = useMemo(
+    () => [{ id: '__all', label: 'All', count: total }, ...categories],
+    [categories, total],
+  );
 
-  useEffect(() => {
-    const grid = document.getElementById(gridId);
+  function apply(id: string | null) {
+    setActive(id);
+
+    const grid = document.getElementById('projects-grid');
+    const empty = document.getElementById('projects-grid-empty');
     if (!grid) return;
 
-    const cards = grid.querySelectorAll<HTMLElement>('[data-project-id]');
+    const cells = Array.from(
+      grid.querySelectorAll<HTMLElement>('.pj__cell'),
+    );
+
     let shown = 0;
+    for (const cell of cells) {
+      const cats = (cell.dataset.categories ?? '').split(/\s+/).filter(Boolean);
+      const match = id === null || cats.includes(id);
+      cell.hidden = !match;
+      if (match) shown++;
+    }
 
-    cards.forEach((card) => {
-      const id = card.dataset.projectId ?? '';
-      const isVisible = visibleIds.has(id);
-      card.hidden = !isVisible;
-      if (isVisible) shown += 1;
-    });
+    // The empty state only appears when a filter genuinely matches nothing,
+    // which cannot happen with the current data but would with a new category.
+    if (empty) empty.hidden = shown > 0;
 
-    // Reveal the "nothing matches" message instead of leaving a blank gap.
-    const emptyEl = document.getElementById(`${gridId}-empty`);
-    if (emptyEl) emptyEl.hidden = shown > 0;
+    /* Announce the result for screen readers. */
+    const live = document.getElementById('projects-filter-status');
+    if (live) {
+      live.textContent =
+        id === null
+          ? `Showing all ${shown} projects`
+          : `Showing ${shown} project${shown === 1 ? '' : 's'} in ${labelFor(id)}`;
+    }
+  }
 
-    // Reflect the count for screen readers and the visible "showing" label.
-    const countEl = document.getElementById(`${gridId}-count`);
-    if (countEl) countEl.textContent = String(shown);
-  }, [visibleIds, gridId]);
-
-  /* Total count for the result line. */
-  const total = projects.length;
+  function labelFor(id: string) {
+    return categories.find((c) => c.id === id)?.label ?? id;
+  }
 
   return (
     <div className="pf">
-      <div className="pf__bar">
-        {/* ---------------- Category chips ---------------- */}
-        <div className="pf__chips" role="group" aria-label="Filter projects by category">
-          <button
-            type="button"
-            className={`pf__chip${active === 'all' ? ' pf__chip--on' : ''}`}
-            aria-pressed={active === 'all'}
-            onClick={() => setActive('all')}
-          >
-            All
-            <span className="pf__n">{total}</span>
-          </button>
-
-          {categories.map((c) => {
-            const n = projects.filter((p) => p.categories.includes(c.id)).length;
-            return (
-              <button
-                key={c.id}
-                type="button"
-                className={`pf__chip${active === c.id ? ' pf__chip--on' : ''}`}
-                aria-pressed={active === c.id}
-                onClick={() => setActive(c.id)}
-              >
-                {c.label}
-                <span className="pf__n">{n}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* ---------------- Text search ---------------- */}
-        <div className="pf__search">
-          <label className="pf__search-label" htmlFor="project-search">
-            Search
-          </label>
-          <input
-            id="project-search"
-            type="search"
-            className="pf__input"
-            placeholder="Filter by name or tool…"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-          {query && (
+      <div
+        className="pf__bar"
+        role="group"
+        aria-label="Filter projects by discipline"
+      >
+        {options.map((opt) => {
+          const isAll = opt.id === '__all';
+          const isOn = isAll ? active === null : active === opt.id;
+          return (
             <button
+              key={opt.id}
               type="button"
-              className="pf__clear"
-              onClick={() => setQuery('')}
-              aria-label="Clear search"
+              className={`pf__btn${isOn ? ' is-on' : ''}`}
+              aria-pressed={isOn}
+              onClick={() => apply(isAll ? null : opt.id)}
             >
-              ×
+              <span className="pf__label">{opt.label}</span>
+              <span className="pf__count" aria-hidden="true">
+                {opt.count}
+              </span>
             </button>
-          )}
-        </div>
+          );
+        })}
       </div>
 
-      {/* Live region: announces how many projects match. */}
-      <p className="pf__result meta" aria-live="polite">
-        Showing <span id={`${gridId}-count`}>{visibleIds.size}</span> of {total}{' '}
-        projects
-        {active !== 'all' && (
-          <>
-            {' '}
-            in{' '}
-            {categories.find((c) => c.id === active)?.label ?? active}
-          </>
-        )}
-      </p>
+      {/* Screen-reader-only live region; visible hint lives in the page. */}
+      <p id="projects-filter-status" className="pf__live" role="status" aria-live="polite" />
     </div>
   );
 }

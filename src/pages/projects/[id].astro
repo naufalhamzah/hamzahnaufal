@@ -1,445 +1,636 @@
 ---
 /**
- * PROJECT CASE-STUDY PAGE
- * One route per project, generated from the content layer. Structure follows the
- * agreed case-study shape: Context -> Approach -> Role -> Tools -> Outcome.
+ * PROJECT DETAIL — the full case study.
+ *
+ * Deliberately more complete than anything on the homepage. Structure follows
+ * the brief:
+ *
+ *   header → overview → context → approach → tools → gallery → outcomes →
+ *   links → related projects
+ *
+ * WHAT IS NEVER INVENTED
+ *   · no client names beyond what the documents state
+ *   · no revenue, user counts, percentages or KPIs
+ *   · `outcomes` comes straight from the data file and is only rendered when
+ *     non-empty; a project with no documented outcome simply has no such
+ *     section rather than a padded one
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import ImageFrame from '@/components/ui/ImageFrame.astro';
-import Tag from '@/components/ui/Tag.astro';
-import Button from '@/components/ui/Button.astro';
-import TodoBadge from '@/components/ui/TodoBadge.astro';
+import Collage from '@/components/ui/Collage.astro';
 import ProjectCard from '@/components/ui/ProjectCard.astro';
-import { projectEntries } from '@/content/projects';
+import { getProject, projectEntries, relatedProjects } from '@/data/projects';
+import { getImageDims } from '@/data/image-dims';
 import { PROJECT_CATEGORY_LABELS } from '@/types/content';
 
 export function getStaticPaths() {
-  return projectEntries.map((project) => ({
-    params: { id: project.id },
-    props: { project },
-  }));
+  return projectEntries.map((p) => ({ params: { id: p.id } }));
 }
 
-const { project } = Astro.props;
+const { id } = Astro.params;
+const project = getProject(id ?? '');
 
-// Up to two other projects that share a category — a small, honest "more work"
-// strip rather than an unrelated recommendation widget.
-const related = projectEntries
-  .filter((p) => p.id !== project.id)
-  .filter((p) => p.categories.some((c) => project.categories.includes(c)))
-  .slice(0, 2);
+if (!project) {
+  return Astro.redirect('/404');
+}
+
+/** Hero visual dimensions, so the frame reserves correct space. */
+const heroDims =
+  getImageDims(project.visual.src) ??
+  (project.visual.width && project.visual.height
+    ? ([project.visual.width, project.visual.height] as [number, number])
+    : null);
+
+const heroStyle = `--ar: ${heroDims ? (heroDims[1] / heroDims[0]).toFixed(4) : 0.6667}`;
+
+const related = relatedProjects(project.id, 2);
+const relatedNumbered = related.map((r) => ({
+  project: r,
+  index: projectEntries.findIndex((e) => e.id === r.id) + 1,
+}));
+
+/** All images this project owns: the hero plus the gallery. */
+const gallery = project.gallery ?? [];
+
+const meta = [
+  { label: 'Role', value: project.role },
+  ...(project.dateRange ? [{ label: 'Period', value: project.dateRange }] : []),
+  ...(project.organisation ? [{ label: 'Organisation', value: project.organisation }] : []),
+  {
+    label: 'Discipline',
+    value: project.categories.map((c) => PROJECT_CATEGORY_LABELS[c]).join(' · '),
+  },
+];
+
+const links = [
+  ...(project.link ? [project.link] : []),
+  ...(project.links ?? []),
+];
 ---
 
 <BaseLayout
-  title={`${project.title} — Hamzah Naufal Zuhdi`}
+  title={`${project.title} — ${project.role}`}
   description={project.tagline}
+  ogImage={project.visual.src}
 >
-  <article class="cs">
-    <!-- ================= Header ================= -->
-    <header class="cs__hero grid-texture">
-      <div class="container-page">
-        <nav class="cs__crumbs" aria-label="Breadcrumb">
-          <ol>
-            <li><a href="/">Home</a></li>
-            <li><a href="/#projects">Projects</a></li>
-            <li aria-current="page">{project.title}</li>
-          </ol>
-        </nav>
+  <!-- ===================== header ===================== -->
+  <header class="pd-head">
+    <div class="shell">
+      <nav class="pd-crumbs" aria-label="Breadcrumb">
+        <a href="/" class="pd-crumb">Home</a>
+        <span class="pd-crumb-sep" aria-hidden="true">/</span>
+        <a href="/projects" class="pd-crumb">Projects</a>
+        <span class="pd-crumb-sep" aria-hidden="true">/</span>
+        <span class="pd-crumb pd-crumb--current" aria-current="page">{project.title}</span>
+      </nav>
 
-        <div class="cs__head">
-          <div class="cs__head-main">
-            <ul class="cs__cats" aria-label="Categories">
-              {
-                project.categories.map((c) => (
-                  <li>
-                    <Tag label={PROJECT_CATEGORY_LABELS[c]} accent />
-                  </li>
-                ))
-              }
-              {project.featured && (
-                <li>
-                  <Tag label="Featured" />
-                </li>
-              )}
-            </ul>
+      <p class="pd-cat mono">
+        {
+          project.categories.map((c) => (
+            <span class="pd-cat-item">{PROJECT_CATEGORY_LABELS[c]}</span>
+          ))
+        }
+        {project.year && <span class="pd-cat-year">{project.year}</span>}
+      </p>
 
-            <h1 class="cs__title">{project.title}</h1>
-            {project.subtitle && <p class="cs__subtitle">{project.subtitle}</p>}
-            <p class="cs__tagline">{project.tagline}</p>
-          </div>
+      <h1 class="pd-title">{project.title}</h1>
+      {project.subtitle && <p class="pd-sub">{project.subtitle}</p>}
+      <p class="pd-tag">{project.tagline}</p>
 
-          <dl class="cs__specs">
-            <div>
-              <dt class="meta">Role</dt>
-              <dd>{project.role}</dd>
+      <dl class="pd-meta">
+        {
+          meta.map((m) => (
+            <div class="pd-meta-row">
+              <dt class="mono">{m.label}</dt>
+              <dd>{m.value}</dd>
             </div>
-            {
-              project.dateRange && (
-                <div>
-                  <dt class="meta">Period</dt>
-                  <dd>{project.dateRange}</dd>
-                </div>
-              )
-            }
-            {
-              project.organisation && (
-                <div>
-                  <dt class="meta">Organisation</dt>
-                  <dd>{project.organisation}</dd>
-                </div>
-              )
-            }
-            <div>
-              <dt class="meta">Tools</dt>
-              <dd>{project.tools.join(' · ')}</dd>
-            </div>
-            {
-              project.link && (
-                <div>
-                  <dt class="meta">Live link</dt>
-                  <dd>
-                    <a
-                      href={project.link.href}
-                      class="link-underline"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      {project.link.label} ↗
-                    </a>
-                  </dd>
-                </div>
-              )
-            }
-          </dl>
-        </div>
-      </div>
-    </header>
+          ))
+        }
+      </dl>
+    </div>
+  </header>
 
-    <!-- ================= Body ================= -->
-    <div class="container-page cs__body">
-      <div class="cs__visual">
-        <ImageFrame visual={project.visual} />
-        <p class="meta cs__visual-note">
-          Visual is a labelled placeholder — no real screenshot is available yet.
-        </p>
-      </div>
+  <!-- ===================== hero visual ===================== -->
+  <section class="pd-hero" aria-label="Project visual">
+    <div class="shell">
+      <figure class="pd-figure" style={heroStyle}>
+        <img
+          src={project.visual.src}
+          alt={project.visual.alt}
+          width={heroDims?.[0] ?? project.visual.width}
+          height={heroDims?.[1] ?? project.visual.height}
+          loading="eager"
+          decoding="async"
+        />
+      </figure>
+    </div>
+  </section>
 
-      <div class="cs__content">
+  <!-- ===================== body ===================== -->
+  <section class="pd-body" aria-label="Case study">
+    <div class="shell pd-body__shell">
+      <div class="pd-body__main">
         {
           project.context && (
-            <section class="cs__section" aria-labelledby="ctx">
-              <h2 id="ctx" class="cs__h2">Context</h2>
-              <p>{project.context}</p>
-            </section>
+            <div class="pd-block">
+              <h2 class="pd-h label">Context</h2>
+              <p class="pd-text pd-text--lead">{project.context}</p>
+            </div>
           )
         }
 
         {
           project.approach && project.approach.length > 0 && (
-            <section class="cs__section" aria-labelledby="app">
-              <h2 id="app" class="cs__h2">Approach</h2>
-              <ul class="cs__list">
+            <div class="pd-block">
+              <h2 class="pd-h label">What I did</h2>
+              <ul class="pd-points">
                 {project.approach.map((a) => (
                   <li>{a}</li>
                 ))}
               </ul>
-            </section>
+            </div>
           )
         }
 
-        <section class="cs__section" aria-labelledby="out">
-          <h2 id="out" class="cs__h2">Documented outcomes</h2>
-          {
-            project.outcomes.length > 0 ? (
-              <ul class="cs__list cs__list--outcome">
+        {
+          /* Only rendered when the documents actually state an outcome. */
+          project.outcomes.length > 0 && (
+            <div class="pd-block">
+              <h2 class="pd-h label">Documented outcomes</h2>
+              <ul class="pd-outcomes">
                 {project.outcomes.map((o) => (
                   <li>{o}</li>
                 ))}
               </ul>
-            ) : (
-              <p class="cs__empty meta">
-                No quantified outcome is documented for this project. Nothing
-                has been added to fill the gap.
+            </div>
+          )
+        }
+
+        {
+          project.outcomes.length === 0 && (
+            <div class="pd-block">
+              <h2 class="pd-h label">Documented outcomes</h2>
+              <p class="pd-none">
+                No outcome figures are documented for this project, so none are
+                shown. What the work consisted of is above.
               </p>
-            )
-          }
-        </section>
-
-        <section class="cs__section" aria-labelledby="stack">
-          <h2 id="stack" class="cs__h2">Role & tools</h2>
-          <dl class="cs__role">
-            <div>
-              <dt class="meta">My role</dt>
-              <dd>{project.role}</dd>
             </div>
-            <div>
-              <dt class="meta">Tools / technologies</dt>
-              <dd>
-                <ul class="cs__tools">
-                  {project.tools.map((t) => (
-                    <li>
-                      <Tag label={t} small />
-                    </li>
-                  ))}
-                </ul>
-              </dd>
-            </div>
-          </dl>
-        </section>
+          )
+        }
 
-        {project.todo && <TodoBadge note={project.todo} />}
+        {
+          gallery.length > 0 && (
+            <div class="pd-block">
+              <h2 class="pd-h label">Screens &amp; gallery</h2>
+              <Collage images={gallery} />
+            </div>
+          )
+        }
+
+        {
+          project.todo && (
+            <div class="pd-block">
+              <p class="pd-todo mono">
+                <span class="pd-todo-tag">Note</span>
+                {project.todo}
+              </p>
+            </div>
+          )
+        }
       </div>
-    </div>
 
-    <!-- ================= Related ================= -->
-    {
-      related.length > 0 && (
-        <aside class="container-page cs__related" aria-labelledby="rel">
-          <h2 id="rel" class="cs__h2">Related work</h2>
-          <div class="cs__related-grid">
-            {related.map((r) => (
-              <ProjectCard project={r} />
+      <!-- ---- side rail ---- -->
+      <aside class="pd-side" aria-label="Project details">
+        <div class="pd-side-block">
+          <h2 class="label pd-side-h">Tools</h2>
+          <ul class="pd-tools">
+            {project.tools.map((t) => <li class="pd-tool mono">{t}</li>)}
+          </ul>
+        </div>
+
+        {
+          links.length > 0 && (
+            <div class="pd-side-block">
+              <h2 class="label pd-side-h">Links</h2>
+              <ul class="pd-links">
+                {links.map((l) => (
+                  <li>
+                    <a
+                      href={l.href}
+                      class="pd-link"
+                      rel={l.external ? 'noopener noreferrer' : undefined}
+                      target={l.external ? '_blank' : undefined}
+                    >
+                      <span>{l.label}</span>
+                      <span aria-hidden="true">{l.external ? '↗' : '→'}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )
+        }
+
+        <div class="pd-side-block">
+          <h2 class="label pd-side-h">Back</h2>
+          <a href="/projects" class="pd-back">
+            <span class="pd-back-arrow" aria-hidden="true">←</span>
+            <span>All projects</span>
+          </a>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ===================== related ===================== -->
+  {
+    relatedNumbered.length > 0 && (
+      <section class="pd-related" aria-labelledby="pd-rel">
+        <div class="shell">
+          <h2 id="pd-rel" class="label pd-related-h">Related projects</h2>
+          <div class="pd-related-grid">
+            {relatedNumbered.map((r) => (
+              <ProjectCard project={r.project} index={r.index} variant="wide" />
             ))}
           </div>
-        </aside>
-      )
-    }
-
-    <!-- ================= Back link ================= -->
-    <div class="container-page cs__back">
-      <Button href="/#projects" variant="ghost">← All projects</Button>
-    </div>
-  </article>
+        </div>
+      </section>
+    )
+  }
 </BaseLayout>
 
 <style>
-  .cs__hero {
-    padding-block: clamp(2rem, 5vw, 3.5rem);
-    border-bottom: 1px solid var(--border);
+  /* ==========================================================================
+     header
+     ========================================================================== */
+  .pd-head {
+    padding-top: clamp(2.5rem, 5vw, 4rem);
   }
 
-  .cs__crumbs ol {
+  .pd-crumbs {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: 0.45rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
+    margin-bottom: clamp(1.5rem, 3vw, 2.25rem);
     font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    color: var(--subtle-foreground);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
 
-  .cs__crumbs li + li::before {
-    content: '/ ';
-    opacity: 0.5;
+  .pd-crumb {
+    color: var(--fg-faint);
+    transition: color var(--t-fast) var(--ease);
   }
 
-  .cs__crumbs a:hover {
+  .pd-crumb:hover {
     color: var(--accent);
   }
 
-  .cs__head {
-    display: grid;
-    gap: clamp(1.5rem, 4vw, 3rem);
-    grid-template-columns: 1fr;
-    margin-top: 1.5rem;
+  .pd-crumb--current {
+    color: var(--fg-muted);
+    /* Long titles must not push the breadcrumb off-screen. */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 20ch;
   }
 
-  @media (min-width: 940px) {
-    .cs__head {
-      grid-template-columns: minmax(0, 1.55fr) minmax(260px, 0.8fr);
+  .pd-crumb-sep {
+    color: var(--border-strong);
+  }
+
+  .pd-cat {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--accent);
+  }
+
+  .pd-cat-item::after {
+    content: '·';
+    margin-inline-start: 0.5rem;
+    color: var(--fg-faint);
+  }
+
+  .pd-cat-item:last-of-type::after {
+    content: none;
+  }
+
+  .pd-cat-year {
+    padding-inline-start: 0.5rem;
+    border-inline-start: var(--hairline) solid var(--border);
+    color: var(--fg-faint);
+  }
+
+  .pd-title {
+    margin-top: clamp(1rem, 2vw, 1.5rem);
+    font-family: var(--font-display);
+    font-size: var(--text-4xl);
+    font-weight: 500;
+    line-height: 1.04;
+    letter-spacing: -0.024em;
+    color: var(--fg-strong);
+    max-width: 24ch;
+  }
+
+  .pd-sub {
+    margin-top: 0.7rem;
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .pd-tag {
+    margin-top: 1.15rem;
+    max-width: 62ch;
+    font-size: var(--text-lg);
+    color: var(--fg-muted);
+  }
+
+  .pd-meta {
+    display: grid;
+    gap: 0;
+    grid-template-columns: 1fr;
+    margin: clamp(2rem, 4vw, 3rem) 0 0;
+    border-top: var(--hairline) solid var(--border);
+  }
+
+  @media (min-width: 700px) {
+    .pd-meta {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: clamp(1.5rem, 4vw, 3rem);
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .pd-meta {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .pd-meta-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 0.85rem 0;
+    border-bottom: var(--hairline) solid var(--border-faint);
+  }
+
+  .pd-meta dd {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--fg);
+  }
+
+  /* ==========================================================================
+     hero visual
+     ========================================================================== */
+  .pd-hero {
+    padding-block: clamp(2rem, 4vw, 3.5rem);
+  }
+
+  .pd-figure {
+    margin: 0;
+    overflow: hidden;
+    border: var(--hairline) solid var(--border);
+    border-radius: var(--r-xs);
+    background-color: var(--surface-2);
+    aspect-ratio: 1 / var(--ar, 0.6667);
+    /*
+      Very tall sources (a portrait journal cover, 2:3) would otherwise become a
+      huge block. Capping the height and switching to `contain` shows the whole
+      document inside the frame instead of cropping the title off the top — the
+      right trade for a written artefact, and harmless for a screenshot.
+    */
+    max-height: 72vh;
+  }
+
+  .pd-figure img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  /* ==========================================================================
+     body
+     ========================================================================== */
+  .pd-body {
+    padding-bottom: var(--section-y);
+  }
+
+  .pd-body__shell {
+    display: grid;
+    gap: clamp(2rem, 4.5vw, 4rem);
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 900px) {
+    .pd-body__shell {
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
       align-items: start;
     }
   }
 
-  .cs__cats {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem;
-    margin: 0 0 0.9rem;
+  .pd-block + .pd-block {
+    margin-top: clamp(2rem, 4vw, 3rem);
+    padding-top: clamp(2rem, 4vw, 3rem);
+    border-top: var(--hairline) solid var(--border-faint);
+  }
+
+  .pd-h {
+    display: block;
+    margin-bottom: 1.1rem;
+  }
+
+  .pd-text {
+    color: var(--fg-muted);
+  }
+
+  .pd-text--lead {
+    max-width: 70ch;
+    font-size: var(--text-lg);
+    color: var(--fg);
+  }
+
+  .pd-points {
+    display: grid;
+    gap: 0.65rem;
+    margin: 0;
     padding: 0;
     list-style: none;
+    max-width: 72ch;
   }
 
-  .cs__title {
-    font-size: var(--text-4xl);
-    letter-spacing: -0.032em;
-    line-height: 1.06;
+  .pd-points li {
+    position: relative;
+    padding-inline-start: 1.5rem;
+    color: var(--fg-muted);
   }
 
-  .cs__subtitle {
-    margin-top: 0.5rem;
-    font-size: var(--text-lg);
-    color: var(--accent);
-    font-weight: 500;
+  /* A small accent tick instead of a bullet — matches the Experience page. */
+  .pd-points li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.68em;
+    width: 0.7rem;
+    height: 1px;
+    background-color: var(--accent);
   }
 
-  .cs__tagline {
-    margin-top: 0.85rem;
-    max-width: 62ch;
-    color: var(--muted-foreground);
-    font-size: var(--text-base);
-    line-height: 1.75;
-  }
-
-  .cs__specs {
+  .pd-outcomes {
     display: grid;
-    gap: 0.8rem;
+    gap: 0.65rem;
     margin: 0;
-    padding: 1.1rem 1.2rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    background-color: var(--surface-raised);
+    padding: 0;
+    list-style: none;
+    max-width: 72ch;
   }
 
-  .cs__specs dt {
-    text-transform: uppercase;
-    letter-spacing: 0.09em;
-    font-size: 0.62rem;
-  }
-
-  .cs__specs dd {
-    margin: 0.18rem 0 0;
+  .pd-outcomes li {
+    padding: 0.7rem 0.85rem;
+    border-inline-start: 2px solid var(--accent-line);
+    background-color: var(--accent-soft);
+    color: var(--fg);
     font-size: var(--text-sm);
   }
 
-  .cs__specs > div + div {
-    padding-top: 0.8rem;
-    border-top: 1px solid var(--border);
+  .pd-none {
+    max-width: 60ch;
+    font-size: var(--text-sm);
+    color: var(--fg-faint);
+    font-style: italic;
   }
 
-  /* ---------------- Body ---------------- */
-  .cs__body {
-    display: grid;
-    gap: clamp(1.75rem, 4vw, 3rem);
-    grid-template-columns: 1fr;
-    padding-block: clamp(2rem, 5vw, 3.5rem);
+  .pd-todo {
+    max-width: 72ch;
+    padding: 0.7rem 0.85rem;
+    border-inline-start: 2px solid var(--accent-line);
+    background-color: var(--accent-soft);
+    color: var(--fg-subtle);
+    text-transform: none;
+    letter-spacing: 0.02em;
   }
 
-  @media (min-width: 940px) {
-    .cs__body {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
-      align-items: start;
-    }
-
-    .cs__visual {
-      position: sticky;
-      top: 5.5rem;
-    }
+  .pd-todo-tag {
+    display: inline-block;
+    margin-inline-end: 0.5rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.6rem;
   }
 
-  .cs__visual-note {
-    margin-top: 0.6rem;
-    line-height: 1.5;
-  }
-
-  .cs__content {
+  /* ==========================================================================
+     side rail
+     ========================================================================== */
+  .pd-side {
     display: flex;
     flex-direction: column;
-    gap: clamp(1.5rem, 3vw, 2.25rem);
+    gap: clamp(1.5rem, 3vw, 2rem);
+    padding-top: 0.25rem;
   }
 
-  .cs__h2 {
-    font-size: var(--text-xl);
-    letter-spacing: -0.02em;
-    margin-bottom: 0.65rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--border);
+  .pd-side-h {
+    display: block;
+    margin-bottom: 0.9rem;
+    color: var(--accent);
   }
 
-  .cs__section p {
-    max-width: 72ch;
-    font-size: var(--text-base);
-    line-height: 1.75;
-    color: var(--muted-foreground);
+  .pd-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
-  .cs__list {
+  .pd-tool {
+    padding: 0.28rem 0.65rem;
+    border: var(--hairline) solid var(--border-strong);
+    border-radius: var(--r-full);
+    color: var(--fg-subtle);
+    text-transform: none;
+    letter-spacing: 0.03em;
+  }
+
+  .pd-links {
     display: grid;
     gap: 0.5rem;
     margin: 0;
     padding: 0;
     list-style: none;
-    max-width: 72ch;
   }
 
-  .cs__list li {
-    position: relative;
-    padding-inline-start: 1.15rem;
-    font-size: var(--text-base);
-    line-height: 1.7;
-    color: var(--muted-foreground);
-  }
-
-  .cs__list li::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0.65em;
-    width: 6px;
-    height: 1px;
-    background-color: var(--border-strong);
-  }
-
-  .cs__list--outcome li::before {
-    background-color: var(--accent);
-  }
-
-  .cs__empty {
-    padding: 1rem;
-    border: 1px dashed var(--border-strong);
-    border-radius: var(--radius-md);
-    max-width: 72ch;
-    line-height: 1.6;
-  }
-
-  .cs__role {
-    display: grid;
-    gap: 1rem;
-    margin: 0;
-  }
-
-  .cs__role dt {
-    text-transform: uppercase;
-    letter-spacing: 0.09em;
-    font-size: 0.62rem;
-  }
-
-  .cs__role dd {
-    margin: 0.25rem 0 0;
-    font-size: var(--text-base);
-  }
-
-  .cs__tools {
+  .pd-link {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.8rem 1rem;
+    border: var(--hairline) solid var(--border-strong);
+    border-radius: var(--r-xs);
+    color: var(--fg);
+    font-size: var(--text-sm);
+    transition:
+      border-color var(--t-base) var(--ease),
+      background-color var(--t-base) var(--ease),
+      color var(--t-base) var(--ease);
   }
 
-  /* ---------------- Related ---------------- */
-  .cs__related {
-    padding-block: clamp(1.5rem, 3vw, 2.5rem);
-    border-top: 1px solid var(--border);
+  .pd-link:hover {
+    border-color: var(--accent);
+    background-color: var(--accent-soft);
+    color: var(--accent);
   }
 
-  .cs__related-grid {
+  .pd-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--text-sm);
+    color: var(--fg-muted);
+    transition: color var(--t-fast) var(--ease);
+  }
+
+  .pd-back:hover {
+    color: var(--accent);
+  }
+
+  .pd-back-arrow {
+    transition: transform var(--t-base) var(--ease);
+  }
+
+  .pd-back:hover .pd-back-arrow {
+    transform: translateX(-4px);
+  }
+
+  /* ==========================================================================
+     related
+     ========================================================================== */
+  .pd-related {
+    padding-block: var(--section-y);
+    border-top: var(--hairline) solid var(--border);
+    background-color: color-mix(in srgb, var(--surface) 45%, transparent);
+  }
+
+  .pd-related-h {
+    margin-bottom: clamp(1.5rem, 3vw, 2.25rem);
+  }
+
+  .pd-related-grid {
     display: grid;
-    gap: 1.25rem;
+    gap: clamp(2rem, 4vw, 3rem);
     grid-template-columns: 1fr;
-    margin-top: 1.25rem;
   }
 
-  @media (min-width: 700px) {
-    .cs__related-grid {
+  @media (min-width: 800px) {
+    .pd-related-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-  }
-
-  .cs__back {
-    padding-bottom: clamp(2rem, 4vw, 3rem);
   }
 </style>

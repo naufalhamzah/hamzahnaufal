@@ -1,212 +1,270 @@
 ---
 /**
- * Project card — the reusable presentation of a project.
+ * PROJECT CARD — one project, in one of three editorial sizes.
  *
- * Used in three places: the Featured Work section, the Projects grid, and the
- * related-projects strip on a case-study page. `variant` adjusts density rather
- * than duplicating markup.
+ * The brief objected that the previous cards were "too plain" and that every
+ * project looked equally important. So this card has variants that differ in
+ * KIND, not just size:
+ *
+ *   hero    a wide 2-column spread: big visual left, indexed text right
+ *   wide    visual on top, generous text below, index + category row
+ *   tall    a narrow portrait card for UI/UX shots
+ *
+ * Shared anatomy (all variants): index number, category, title, description,
+ * tools, and a CTA — plus a hover that lifts the frame rather than the card.
  */
-import ImageFrame from './ImageFrame.astro';
-import Tag from './Tag.astro';
-import { PROJECT_CATEGORY_LABELS } from '@/types/content';
 import type { ProjectEntry } from '@/types/content';
+import { PROJECT_CATEGORY_LABELS } from '@/types/content';
+import { getImageDims } from '@/data/image-dims';
 
 interface Props {
   project: ProjectEntry;
-  /** 'featured' = large two-column card; 'compact' = grid tile. */
-  variant?: 'featured' | 'compact';
-  /** Show the category chips. */
-  showCategories?: boolean;
+  /** 1-based position, rendered as the "01" index. */
+  index: number;
+  variant?: 'hero' | 'wide' | 'tall';
 }
 
-const { project, variant = 'compact', showCategories = true } = Astro.props;
+const { project, index, variant = 'wide' } = Astro.props;
 
-const detailHref = `/projects/${project.id}/`;
-const isFeatured = variant === 'featured';
+const num = String(index).padStart(2, '0');
+const primary = project.categories[0];
+const href = `/projects/${project.id}`;
+
+/**
+ * Real pixel dimensions, so the frame reserves space and nothing shifts.
+ * Prefers the generated map, falling back to whatever the data file declares.
+ */
+const dims =
+  getImageDims(project.visual.src) ??
+  (project.visual.width && project.visual.height
+    ? ([project.visual.width, project.visual.height] as [number, number])
+    : null);
+const ratioStyle = `--ar: ${dims ? (dims[1] / dims[0]).toFixed(4) : 0.6667}`;
 ---
 
-<article class:list={['pcard', { 'pcard--featured': isFeatured }]} data-project-card>
-  <!-- Visual -->
-  <a
-    href={detailHref}
-    class="pcard__media"
-    aria-label={`View the ${project.title} case study`}
-    tabindex="-1"
-  >
-    <ImageFrame visual={project.visual} />
-  </a>
-
-  <!-- Body -->
-  <div class="pcard__body">
-    <div class="pcard__meta">
-      <span class="meta">{project.role}</span>
-      {project.dateRange && <span class="meta pcard__date">{project.dateRange}</span>}
+<article class:list={['pc', `pc--${variant}`]} style={ratioStyle}>
+  <a href={href} class="pc__link" aria-label={`${project.title} — view project`}>
+    <!-- ---------------- visual ---------------- -->
+    <div class="pc__frame">
+      <img
+        src={project.visual.src}
+        alt={project.visual.alt}
+        width={dims?.[0] ?? project.visual.width}
+        height={dims?.[1] ?? project.visual.height}
+        loading="lazy"
+        decoding="async"
+      />
+      <span class="pc__scan" aria-hidden="true"></span>
     </div>
 
-    <h3 class="pcard__title">
-      <a href={detailHref}>{project.title}</a>
-    </h3>
+    <!-- ---------------- text ---------------- -->
+    <div class="pc__body">
+      <p class="pc__meta">
+        <span class="pc__num" aria-hidden="true">{num}</span>
+        <span class="pc__cat mono">{PROJECT_CATEGORY_LABELS[primary]}</span>
+        {project.year && <span class="pc__year mono">{project.year}</span>}
+      </p>
 
-    {project.subtitle && <p class="meta pcard__subtitle">{project.subtitle}</p>}
+      <h3 class="pc__title">{project.title}</h3>
 
-    <p class="pcard__tagline">{project.tagline}</p>
+      <p class="pc__tag">{project.tagline}</p>
 
-    {
-      showCategories && (
-        <ul class="pcard__cats" aria-label="Categories">
-          {project.categories.map((c) => (
-            <li>
-              <Tag label={PROJECT_CATEGORY_LABELS[c]} small accent={isFeatured} />
-            </li>
-          ))}
-        </ul>
-      )
-    }
-
-    <div class="pcard__foot">
-      <a href={detailHref} class="pcard__cta">
-        Case study <span aria-hidden="true">→</span>
-      </a>
       {
-        project.link && (
-          <a
-            href={project.link.href}
-            class="pcard__ext meta"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            {project.link.label} <span aria-hidden="true">↗</span>
-          </a>
+        project.tools.length > 0 && (
+          <ul class="pc__tools" aria-label="Tools">
+            {project.tools.slice(0, 4).map((t) => (
+              <li class="pc__tool mono">{t}</li>
+            ))}
+          </ul>
         )
       }
+
+      <span class="pc__cta">
+        <span>View project</span>
+        <span class="pc__arrow" aria-hidden="true">→</span>
+      </span>
     </div>
-  </div>
+  </a>
 </article>
 
 <style>
-  .pcard {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    height: 100%;
-    padding: 1rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    background-color: var(--surface-raised);
-    transition:
-      border-color var(--duration-base) var(--ease-out-soft),
-      transform var(--duration-base) var(--ease-out-soft);
+  /* ==========================================================================
+     BASE
+     ========================================================================== */
+  .pc {
+    margin: 0;
   }
 
-  .pcard:hover {
-    border-color: var(--border-strong);
-    transform: translateY(-2px);
+  .pc__link {
+    display: grid;
+    gap: clamp(1rem, 2vw, 1.6rem);
+    text-decoration: none;
   }
 
-  .pcard__media {
-    display: block;
-    border-radius: var(--radius-md);
+  /* ---------------- visual frame ---------------- */
+  .pc__frame {
+    position: relative;
     overflow: hidden;
+    border: var(--hairline) solid var(--border);
+    border-radius: var(--r-xs);
+    background-color: var(--surface-2);
+    /* aspect-ratio comes from the real image, so the reserved space matches
+       and there is no layout shift on load */
+    aspect-ratio: 1 / var(--ar, 0.6667);
   }
 
-  .pcard__body {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    flex: 1;
+  .pc__frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--t-slow) var(--ease);
   }
 
-  .pcard__meta {
+  /* A burgundy rule that wipes across the frame on hover — the "subtle hover"
+     the brief asks for, without moving the whole card. */
+  .pc__scan {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background-color: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--t-slow) var(--ease);
+  }
+
+  .pc__link:hover .pc__scan,
+  .pc__link:focus-visible .pc__scan {
+    transform: scaleX(1);
+  }
+
+  .pc__link:hover .pc__frame img {
+    transform: scale(1.035);
+  }
+
+  /* ---------------- text ---------------- */
+  .pc__meta {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem 0.85rem;
     align-items: baseline;
+    gap: 0.7rem;
   }
 
-  .pcard__date::before {
-    content: '· ';
-    opacity: 0.5;
+  .pc__num {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-style: italic;
+    color: var(--accent);
+    line-height: 1;
   }
 
-  .pcard__title {
-    font-size: var(--text-xl);
-    letter-spacing: -0.02em;
+  .pc__cat {
+    color: var(--fg-faint);
   }
 
-  .pcard__title a {
-    transition: color var(--duration-fast) var(--ease-out-soft);
+  .pc__year {
+    margin-inline-start: auto;
+    color: var(--fg-faint);
   }
 
-  .pcard__title a:hover {
+  .pc__title {
+    margin-top: 0.55rem;
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.018em;
+    color: var(--fg-strong);
+    transition: color var(--t-base) var(--ease);
+  }
+
+  .pc__link:hover .pc__title,
+  .pc__link:focus-visible .pc__title {
     color: var(--accent);
   }
 
-  .pcard__subtitle {
-    margin-top: -0.15rem;
-  }
-
-  .pcard__tagline {
-    color: var(--muted-foreground);
+  .pc__tag {
+    margin-top: 0.6rem;
+    max-width: 52ch;
     font-size: var(--text-sm);
-    line-height: 1.6;
+    color: var(--fg-muted);
   }
 
-  .pcard__cats {
+  .pc__tools {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.35rem;
-    margin: 0.35rem 0 0;
+    gap: 0.35rem 0.5rem;
+    margin: 1rem 0 0;
     padding: 0;
     list-style: none;
   }
 
-  .pcard__foot {
-    display: flex;
+  .pc__tool {
+    padding: 0.24rem 0.55rem;
+    border: var(--hairline) solid var(--border);
+    border-radius: var(--r-full);
+    color: var(--fg-subtle);
+    text-transform: none;
+    letter-spacing: 0.03em;
+  }
+
+  .pc__cta {
+    display: inline-flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-    margin-top: auto;
-    padding-top: 0.85rem;
-    border-top: 1px solid var(--border);
+    gap: 0.5rem;
+    margin-top: 1.15rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-strong);
+    transition: color var(--t-fast) var(--ease);
   }
 
-  .pcard__cta {
-    font-size: var(--text-sm);
-    font-weight: 500;
+  .pc__link:hover .pc__cta {
     color: var(--accent);
   }
 
-  .pcard__cta span {
-    display: inline-block;
-    transition: transform var(--duration-base) var(--ease-out-soft);
+  .pc__arrow {
+    transition: transform var(--t-base) var(--ease);
   }
 
-  .pcard__cta:hover span {
-    transform: translateX(3px);
+  .pc__link:hover .pc__arrow {
+    transform: translateX(4px);
   }
 
-  .pcard__ext:hover {
-    color: var(--accent);
-  }
-
-  /* --- featured (two-column) variant --- */
-  @media (min-width: 900px) {
-    .pcard--featured {
-      display: grid;
-      grid-template-columns: 1.05fr 1fr;
-      gap: 1.75rem;
-      padding: 1.5rem;
+  /* ==========================================================================
+     VARIANT: hero — a wide 2-column spread
+     ========================================================================== */
+  @media (min-width: 860px) {
+    .pc--hero .pc__link {
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
       align-items: center;
+      gap: clamp(1.5rem, 3.5vw, 3rem);
     }
+  }
 
-    .pcard--featured .pcard__title {
-      font-size: var(--text-2xl);
-    }
+  /* ==========================================================================
+     VARIANT: wide — stacked, room for a longer description
+     ========================================================================== */
+  .pc--wide .pc__title {
+    font-size: var(--text-xl);
+  }
 
-    /* Alternate the media side for a less repetitive rhythm. */
-    .pcard--featured:nth-child(even) .pcard__media {
-      order: 2;
-    }
+  /* ==========================================================================
+     VARIANT: tall — for portrait phone screens
+     ========================================================================== */
+  .pc--tall .pc__frame {
+    /* Cap the height so a 9:16 phone shot does not become 900px tall. */
+    aspect-ratio: 3 / 4;
+    max-height: 30rem;
+  }
+
+  .pc--tall .pc__title {
+    font-size: var(--text-lg);
+  }
+
+  .pc--tall .pc__tag {
+    font-size: var(--text-sm);
   }
 </style>
