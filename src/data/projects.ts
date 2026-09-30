@@ -459,12 +459,89 @@ const raw: ProjectEntry[] = [
 export const projectEntries: ProjectEntry[] = projectListSchema.parse(raw);
 
 /** Featured first, then newest. */
+/**
+ * Grid order — chosen so the FIRST FEW CARDS ARE NOT ALL THE SAME KIND.
+ *
+ * The previous sort was "featured first, then newest". That put the marketing
+ * data system at the head of the grid and then ran straight into the procurement
+ * dashboard — two data/systems projects back to back — while the three UI/UX
+ * case studies sat at the very bottom, which is the opposite of what a visitor
+ * should meet first: the grid looked like one kind of work repeated.
+ *
+ * The rule now alternates by PRIMARY CATEGORY, so the opening row shows the
+ * RANGE of the work rather than its most recent slice, and no category is buried
+ * at the end. Within a category the newest still comes first, so nothing about
+ * the relative importance of the entries changes — only the interleaving.
+ *
+ * Featured is no longer a leading sort key. It still exists and still drives the
+ * homepage's selection, but in the full grid it is one signal among several and
+ * letting it lead is what produced the clustering.
+ */
 export const projectsSorted = [...projectEntries].sort((a, b) => {
-  if (a.featured !== b.featured) return a.featured ? -1 : 1;
+  // Newest first within a category.
   return b.sortKey.localeCompare(a.sortKey);
 });
 
-export const featuredProjects = projectsSorted.filter((p) => p.featured);
+/**
+ * The same set, re-ordered so consecutive cards differ in primary category.
+ *
+ * Implemented as a round-robin over per-category queues: take the newest
+ * remaining project from the category with the most entries left, then the next
+ * category, and so on. That keeps the output deterministic (no randomness) and
+ * leaves the relative recency ordering intact inside each category.
+ */
+export const projectsInterleaved = (() => {
+  const queues = new Map<string, typeof projectEntries>();
+  for (const p of projectsSorted) {
+    const key = p.categories[0];
+    if (!queues.has(key)) queues.set(key, []);
+    queues.get(key)!.push(p);
+  }
+  /** A stable category order, by how many projects each holds (then name). */
+  const order = [...queues.keys()].sort((a, b) => {
+    const d = queues.get(b)!.length - queues.get(a)!.length;
+    return d !== 0 ? d : a.localeCompare(b);
+  });
+  const out: typeof projectEntries = [];
+  let added = true;
+  while (added) {
+    added = false;
+    for (const key of order) {
+      const q = queues.get(key)!;
+      if (q.length) {
+        out.push(q.shift()!);
+        added = true;
+      }
+    }
+  }
+  return out;
+})();
+
+/**
+ * The homepage's three selected projects.
+ *
+ * NOT simply "the newest three" and not simply every `featured` entry. Both of
+ * those were all systems/data work — the marketing system, the procurement
+ * dashboard and the smart-farming programme — which meant the homepage showed
+ * one kind of project three times while the three UI/UX case studies never
+ * appeared at all.
+ *
+ * The selection below is chosen to show the RANGE of the work: one long-form
+ * data system, one product-design case study, and one published research
+ * project. `featured` still marks which entries have the depth for a large card;
+ * this list decides which of them the homepage actually spends its image budget
+ * on.
+ *
+ * Order is deliberate: the lead spread (largest card) is the systems project
+ * with the most documented depth, followed by the product and research pieces.
+ */
+export const featuredProjects = [
+  'procurement-dashboard',
+  'kedai-nyam',
+  'smart-farming',
+]
+  .map((id) => projectEntries.find((p) => p.id === id))
+  .filter((p): p is (typeof projectEntries)[number] => Boolean(p));
 export const otherProjects = projectsSorted.filter((p) => !p.featured);
 
 /** Look up one project by id (used by the case-study page). */

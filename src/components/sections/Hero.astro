@@ -58,8 +58,6 @@ const last = parts[parts.length - 1] ?? '';
 
       <!-- ---------------- portrait ---------------- -->
       <figure class="hero__figure">
-        <span class="hero__frame" aria-hidden="true"></span>
-
         <img
           class="hero__img"
           src={profile.portrait.src}
@@ -246,14 +244,15 @@ const last = parts[parts.length - 1] ?? '';
     is exactly what makes it read as "pasted on". A box-shadow made it worse: it
     casts a rectangle, so the eye sees a card, not a person.
 
-    So there is no plate, no border and no radius here. Instead:
+    So there is NO border, NO frame and NO radius anywhere on this figure.
+    Instead:
       · `drop-shadow` — which follows the ALPHA SILHOUETTE, so the shadow the
         subject casts is their own shape (shoulders, arm, sash). This is what
         seats them in the page instead of pasting them on it.
       · a soft radial pool behind the figure, so the subject emerges from a lift
         in the background rather than starting at a hard edge.
-      · the offset hairline frame already in the markup, which anchors the
-        composition architecturally.
+      · a FADE-OUT at the bottom (see mask-image below) so the cut does not end
+        in a hard horizontal edge.
   */
   .hero__figure {
     position: relative;
@@ -273,7 +272,7 @@ const last = parts[parts.length - 1] ?? '';
   .hero__figure::before {
     content: '';
     position: absolute;
-    inset: -14% -16% -8% -16%;
+    inset: -14% -16% -4% -16%;
     z-index: -1;
     background: radial-gradient(
       58% 52% at 50% 38%,
@@ -290,16 +289,6 @@ const last = parts[parts.length - 1] ?? '';
          composition feels cropped rather than contained. */
       margin-top: clamp(-5rem, -6vw, -2rem);
     }
-  }
-
-  /* Offset hairline frame — up and to the left of the figure. */
-  .hero__frame {
-    position: absolute;
-    inset: -0.85rem 0.85rem auto -0.85rem;
-    height: 52%;
-    border-top: 1px solid var(--accent-line);
-    border-left: 1px solid var(--accent-line);
-    pointer-events: none;
   }
 
   .hero__img {
@@ -319,6 +308,38 @@ const last = parts[parts.length - 1] ?? '';
     filter: var(--photo-filter) drop-shadow(
         0 2px 3px rgba(0, 0, 0, 0.28)
       ) drop-shadow(0 18px 34px rgba(0, 0, 0, 0.34));
+    /*
+      THE BOTTOM FADE — this is what removes the "patahan".
+
+      The crop has to end somewhere, and a cut-out ending on a straight
+      horizontal line looks like a torn photograph: the eye reads the edge as a
+      FRACTURE because the figure simply stops mid-torso against the page.
+
+      A mask that goes to fully transparent over the last fifth dissolves that
+      edge. The subject now fades out into the page instead of being sliced, so
+      there is no line to see — the portrait ends the way a vignette ends, not
+      the way a cut ends.
+
+      Order matters: filtering happens before masking, so drop-shadow is
+      computed from the full silhouette and then faded along with it. The shadow
+      therefore fades too, and no shadow edge is left floating below the figure.
+    */
+    mask-image: linear-gradient(
+      to bottom,
+      #000 0%,
+      #000 74%,
+      rgba(0, 0, 0, 0.62) 84%,
+      rgba(0, 0, 0, 0.2) 94%,
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      #000 0%,
+      #000 74%,
+      rgba(0, 0, 0, 0.62) 84%,
+      rgba(0, 0, 0, 0.2) 94%,
+      transparent 100%
+    );
   }
 
   /* On paper the shadows have to be softer and warmer — a hard black drop on
@@ -363,11 +384,6 @@ const last = parts[parts.length - 1] ?? '';
     /* The pool scales with the figure; slightly tighter so it does not halo. */
     .hero__figure::before {
       inset: -10% -10% -4% -10%;
-    }
-
-    /* The offset frame reads as a stray line at this size. */
-    .hero__frame {
-      display: none;
     }
 
     .hero__name-line--last em::after {

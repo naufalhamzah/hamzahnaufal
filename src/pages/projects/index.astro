@@ -18,15 +18,27 @@ import ProjectCard from '@/components/ui/ProjectCard.astro';
 import ProjectFilter from '@/components/islands/ProjectFilter';
 import {
   projectEntries,
-  projectsSorted,
   featuredProjects,
+  projectsInterleaved,
 } from '@/data/projects';
 import { profile } from '@/data/profile';
 import { PROJECT_CATEGORY_LABELS, PROJECT_CATEGORY_ORDER } from '@/types/content';
 
 
 /** Index numbers follow the master list, so they never renumber on filtering. */
-const numbered = projectsSorted.map((p) => ({
+/**
+ * The master grid order.
+ *
+ * `projectsInterleaved` rather than `projectsSorted`: the plain recency sort put
+ * the marketing data system first and then ran into the procurement dashboard —
+ * two data/systems projects back to back — while the UI/UX case studies sat at
+ * the bottom. The interleaved order alternates primary category, so the opening
+ * row shows the range of the work and no category is buried.
+ *
+ * `index` still resolves against `projectEntries`, so each card's number is
+ * stable no matter what order the grid displays.
+ */
+const numbered = projectsInterleaved.map((p) => ({
   project: p,
   index: projectEntries.findIndex((e) => e.id === p.id) + 1,
 }));

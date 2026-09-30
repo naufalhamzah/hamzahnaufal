@@ -291,6 +291,9 @@ export const galleryEntrySchema = z.object({
   visual: mediaAssetSchema,
   caption: z.string().min(3),
   group: z.string().min(1),
+  /** Which collection the photograph belongs to. Required, so nothing lands
+   *  in the wrong section by omission. */
+  collection: z.enum(['campus', 'internship']),
 });
 
 export const galleryListSchema = z.array(galleryEntrySchema);

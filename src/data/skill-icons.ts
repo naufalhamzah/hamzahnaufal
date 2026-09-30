@@ -37,6 +37,9 @@ import {
   siLooker,
   siZoom,
   siObsstudio,
+  siEspressif,
+  siCisco,
+  siArduino,
 } from 'simple-icons';
 
 export interface SkillIcon {
@@ -161,6 +164,13 @@ const REGISTRY: Record<string, SkillIcon> = {
   looker: brand(siLooker),
   sheets: brand(siGooglesheets),
   ...LOCAL,
+
+  /* ---- Hardware & IoT ---- */
+  espressif: brand(siEspressif),
+  arduino: brand(siArduino),
+
+  /* ---- Networking & security ---- */
+  cisco: brand(siCisco),
 
   /* ---- Programming ---- */
   python: brand(siPython),

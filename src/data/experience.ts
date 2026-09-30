@@ -96,8 +96,8 @@ const raw: ExperienceEntry[] = [
     logo: {
       src: '/images/logos/jaist.webp',
       alt: 'JAIST journal logo',
-      width: 700,
-      height: 110,
+      width: 1400,
+      height: 221,
     },
     photos: [
       {
@@ -131,8 +131,8 @@ const raw: ExperienceEntry[] = [
     logo: {
       src: '/images/logos/beauty-lab.webp',
       alt: 'Beauty Innovation Laboratories logo',
-      width: 800,
-      height: 161,
+      width: 1200,
+      height: 242,
     },
     photos: [
       {
@@ -176,8 +176,8 @@ const raw: ExperienceEntry[] = [
     logo: {
       src: '/images/logos/pln-pusharlis.webp',
       alt: 'PT PLN (Persero) Pusharlis logo',
-      width: 800,
-      height: 240,
+      width: 1200,
+      height: 361,
     },
     photos: [
       {
@@ -206,8 +206,8 @@ const raw: ExperienceEntry[] = [
     logo: {
       src: '/images/logos/guru-mengajar.webp',
       alt: 'GuruMengajar.id logo',
-      width: 700,
-      height: 329,
+      width: 1000,
+      height: 469,
     },
     source: 'portfolio',
     todo: 'Only month and year are documented; no end date is given.',

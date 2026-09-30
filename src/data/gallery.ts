@@ -23,8 +23,57 @@
 import { galleryListSchema } from './schemas';
 import type { GalleryEntry } from '@/types/content';
 
+/* --------------------------------------------------------------------------
+   COLLECTIONS
+
+   The gallery is split by the SETTING the photographs come from, because that is
+   the split a visitor actually reads by — "what did he do at university" and
+   "what has he done on the job" are different questions, and a single
+   undifferentiated wall answers neither.
+
+   Every photograph currently held is CAMPUS: committees, field programmes and
+   classroom visits. That was verified by looking at each frame, not by trusting
+   the filenames — they are all committee jackets, the FMIPA building, and
+   programme banners. There is no office photograph in the set, so the
+   internship collection is declared but EMPTY rather than padded with campus
+   shots relabelled as work.
+
+   The internship collection is wired up and waiting: dropping office
+   photographs into public/images/gallery/ and tagging them `internship` below
+   makes the section appear. Until then it is not rendered, so the page never
+   shows an empty shell.
+   -------------------------------------------------------------------------- */
+export const GALLERY_COLLECTIONS = [
+  {
+    id: 'campus',
+    label: 'Campus & organisations',
+    blurb:
+      'Committees, student bodies and field programmes from my time at Universitas Negeri Semarang.',
+  },
+  {
+    id: 'internship',
+    label: 'Internships & workplace',
+    blurb:
+      'Photographs from the organisations I have worked with. These are added as the material becomes available.',
+  },
+] as const;
+
+export type GalleryCollectionId = (typeof GALLERY_COLLECTIONS)[number]['id'];
+
 /** Shorthand: real photographs, so never flagged as a placeholder. */
-const shot = (file: string, alt: string, caption: string, group: string): GalleryEntry => ({
+const shot = (
+  file: string,
+  alt: string,
+  caption: string,
+  group: string,
+  /*
+    Defaults to `campus`, which is correct for every photograph currently held —
+    all 18 were individually inspected and every one is university activity
+    (committee jackets, the FMIPA building, programme banners). The default keeps
+    the call sites readable; the internship collection sets it explicitly.
+  */
+  collection: GalleryEntry['collection'] = 'campus',
+): GalleryEntry => ({
   id: file.replace(/\.webp$/, ''),
   visual: {
     src: `/images/gallery/${file}`,
@@ -33,6 +82,7 @@ const shot = (file: string, alt: string, caption: string, group: string): Galler
   },
   caption,
   group,
+  collection,
 });
 
 const raw: GalleryEntry[] = [
@@ -152,3 +202,18 @@ export const galleryEntries: GalleryEntry[] = galleryListSchema.parse(raw);
 export const galleryGroups: string[] = Array.from(
   new Set(galleryEntries.map((g) => g.group)),
 );
+
+/**
+ * The collections that actually have photographs, in declaration order.
+ *
+ * A collection with no entries is dropped here rather than rendered as an empty
+ * section — the page shows what exists. The `group` on each entry is what routes
+ * it into a collection; the campus group names map to the `campus` collection.
+ */
+export const galleryByCollection = GALLERY_COLLECTIONS.map((c) => ({
+  ...c,
+  items: galleryEntries.filter((e) => e.collection === c.id),
+})).filter((c) => c.items.length > 0);
+
+/** Counts for the page header, derived so they cannot drift. */
+export const galleryCampusCount = galleryEntries.length;

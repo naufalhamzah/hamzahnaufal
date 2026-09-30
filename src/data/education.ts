@@ -28,8 +28,8 @@ const raw: EducationEntry[] = [
     logo: {
       src: '/images/logos/unnes.webp',
       alt: 'Universitas Negeri Semarang crest',
-      width: 500,
-      height: 500,
+      width: 800,
+      height: 800,
     },
     source: 'both',
     todo: 'Graduation month is not documented in either source.',
@@ -49,8 +49,8 @@ const raw: EducationEntry[] = [
     logo: {
       src: '/images/logos/sma.webp',
       alt: 'SMAN 1 Kabupaten Tangerang crest',
-      width: 500,
-      height: 500,
+      width: 800,
+      height: 800,
     },
     source: 'portfolio',
   },

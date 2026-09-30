@@ -327,5 +327,15 @@ export interface GalleryEntry {
   caption: string;
   /** Grouping label, e.g. 'Campus & committee', used to cluster the grid. */
   group: string;
+  /**
+   * Which collection the photograph belongs to — `campus` for university
+   * activity, `internship` for workplace photographs.
+   *
+   * This is the split the page is read by: "what did he do at university" and
+   * "what has he done on the job" are different questions. It is REQUIRED, not
+   * optional, so a new photograph cannot slip in unclassified and land
+   * silently in the wrong section.
+   */
+  collection: 'campus' | 'internship';
 }
 

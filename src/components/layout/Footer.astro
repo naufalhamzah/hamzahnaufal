@@ -19,7 +19,18 @@ const active = activePageFor(Astro.url.pathname);
         <div class="ft__logos" aria-label="Organisations">
           {experienceLogos.map((job) =>
             job.logo ? (
-              <span class="ft__logo">
+              /*
+                The shape class is derived from the logo's OWN dimensions rather
+                than being hand-assigned per entry, so adding a new logo to the
+                data cannot forget it. A mark wider than 3:1 is a wordmark and
+                needs the wide treatment; anything squarer is a badge.
+              */
+              <span
+                class:list={[
+                  'ft__logo',
+                  (job.logo.width ?? 1) / (job.logo.height ?? 1) > 3 && 'ft__logo--wide',
+                ]}
+              >
                 <img
                   src={job.logo.src}
                   alt={job.logo.alt}
@@ -113,75 +124,66 @@ const active = activePageFor(Astro.url.pathname);
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: clamp(1.25rem, 3vw, 2.5rem);
+    gap: clamp(1.5rem, 3.5vw, 3rem);
     padding-bottom: clamp(1.75rem, 3vw, 2.5rem);
     margin-bottom: clamp(1.75rem, 3vw, 2.5rem);
     border-bottom: var(--hairline) solid var(--border-faint);
   }
 
   /*
-    DO NOT put max-height:100% on the image here.
+    NO CHIP, NO PLATE — the logos are transparent.
 
-    The plate is a grid item whose row is sized by its content, so a percentage
-    max-height has no definite height to resolve against and the declaration is
-    dropped. The <img> then falls back to its intrinsic size and the source
-    logos — AirNav is 447x447, the wide wordmarks are 900px — painted at full
-    size inside a 32px plate, blowing the footer to 361px tall and overlapping
-    the navigation links.
+    Every mark is now a cut-out (the three that arrived on opaque white plates are
+    flood-filled clean by the asset pipeline), so they sit directly on the band.
+    An earlier version boxed each one in a white chip to paper over the fact that
+    only some had transparent backgrounds — which just drew a SECOND rectangle
+    around the ones that already had one.
 
-    So the chip has a FIXED height and width; `height:100%` on the image then
-    resolves against something definite.
+    SIZING. These marks have wildly different shapes: the content ratios run from
+    1.00 (AirNav, a square badge) to 5.87 (JAIST, a very wide wordmark). Sizing
+    them all to one BOX makes the wide ones tiny, because a wide mark inside a
+    fixed width collapses to a few pixels of height — which is why JAIST was
+    barely legible.
+
+    So the sizing key is OPTICAL, not geometric: each logo is given a height in
+    rem, and the wide wordmarks get a slightly larger one so their lettering
+    reads at the same size as the square badges. `width: auto` lets each keep its
+    own shape. The cap on width stops the widest mark from running away.
   */
   .ft__logo {
-    display: grid;
-    place-items: center;
-    /*
-      A uniform WHITE chip, deliberately.
+    display: block;
+  }
 
-      The supplied marks disagree on almost everything: three are on solid white
-      plates with no alpha (AirNav, SMA, UNNES), four are transparent cut-outs,
-      and the colour schemes run from navy to teal to gold. Dropped straight onto
-      a dark band, the white-plate ones glare as bright rectangles while the
-      dark-ink ones vanish.
-
-      A white chip settles all of it at once: a white-plate mark merges into it
-      seamlessly, and a transparent mark reads cleanly on it. The chip is held
-      slightly back so the band stays quiet rather than shouting in a dark footer,
-      and comes to full strength on hover.
-    */
-    height: 2.6rem;
-    width: 6.5rem;
-    padding: 0.4rem 0.55rem;
-    background-color: #fdfcfa;
-    border: var(--hairline) solid var(--border-faint);
-    border-radius: var(--r-xs);
+  .ft__logo img {
+    display: block;
+    width: auto;
+    /* Default: square-ish badges. */
+    height: 2.1rem;
+    max-width: 10rem;
+    object-fit: contain;
     opacity: 0.72;
     transition:
       opacity var(--t-base) var(--ease),
       transform var(--t-base) var(--ease);
   }
 
-  .ft__logo:hover {
-    opacity: 1;
-    transform: translateY(-2px);
+  /* Wide wordmarks: taller box so their type matches the badges optically. */
+  .ft__logo--wide img {
+    /*
+      Taller AND allowed to be wider.
+
+      JAIST is an extremely wide mark (content ratio ~6.3). At the badge's height
+      it renders only ~25px tall and its lettering is barely legible, so the wide
+      variant gets a larger box — and the width cap has to grow with it, or the
+      cap itself becomes the binding constraint and collapses the height again.
+    */
+    height: 1.9rem;
+    max-width: 13rem;
   }
 
-  .ft__logo img {
-    /*
-      max-height in ABSOLUTE terms, not a percentage.
-
-      `max-height: 100%` on a grid item resolves against its grid area, and with
-      padding on the chip plus an auto-height image that produced an 84px logo
-      inside a 41px chip — the same percentage-resolution trap as before, one
-      level down. A fixed value cannot fail: the chip is 2.6rem tall with 0.4rem
-      of vertical padding, so the content box is 1.8rem and the image is capped
-      just under it.
-    */
-    max-height: 1.7rem;
-    max-width: 100%;
-    width: auto;
-    height: auto;
-    object-fit: contain;
+  .ft__logo:hover img {
+    opacity: 1;
+    transform: translateY(-2px);
   }
 
   /* ---------- grid ---------- */

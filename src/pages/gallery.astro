@@ -2,30 +2,30 @@
 /**
  * GALLERY / MOMENTS — the full set of personal and activity photographs.
  *
+ * SPLIT BY COLLECTION, not by an undifferentiated wall.
+ * The page groups photographs by the SETTING they come from — campus activity
+ * versus workplace — because that is the split a visitor reads by. Every
+ * photograph currently held is campus; the internship collection is declared in
+ * the data layer and will render automatically once workplace photographs are
+ * added, so the section never shows an empty shell in the meantime.
+ *
  * WHY THESE ARE NOT UNDER AN EMPLOYER
  * The photographs are not organised by activity, so attributing any of them to
- * AirNav, PLN or Beauty Innovation Laboratories would be an assumption. They are
- * collected here instead, which is exactly what the brief asks for. The only
+ * AirNav, PLN or Beauty Innovation Laboratories would be an assumption. The only
  * images placed inside an Experience entry are the ones whose employer is
  * unambiguous from the image itself.
  *
- * LAYOUT: a masonry-style column layout rather than a grid of equal tiles, so
- * portrait and landscape photographs keep their natural shape. Cards are grouped
- * by their `group` field, which comes from the data.
+ * LAYOUT: a masonry column layout rather than equal tiles, so portrait and
+ * landscape photographs keep their natural shape.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PageHeader from '@/components/ui/PageHeader.astro';
-import { galleryEntries, galleryGroups } from '@/data/gallery';
+import { galleryEntries, galleryByCollection } from '@/data/gallery';
 import { profile } from '@/data/profile';
-
-const byGroup = galleryGroups.map((g) => ({
-  name: g,
-  items: galleryEntries.filter((e) => e.group === g),
-}));
 
 const meta = [
   { label: 'Photographs', value: String(galleryEntries.length) },
-  { label: 'Collections', value: String(galleryGroups.length) },
+  { label: 'Collections', value: String(galleryByCollection.length) },
   { label: 'Note', value: 'Not attributed to a specific employer' },
 ];
 ---
@@ -38,23 +38,29 @@ const meta = [
     index="07"
     eyebrow="Gallery"
     title="Selected moments"
-    standfirst="Committee work, field programmes and campus activities. These are collected as one body rather than filed under a particular job, because the photographs themselves do not identify which role they belong to."
+    standfirst="Committee work, field programmes and campus activity. These are collected by setting rather than filed under a particular job, because most photographs do not identify which role they belong to on their own."
     meta={meta}
   />
 
   <section class="gl" aria-label="Photographs">
     <div class="shell">
       {
-        byGroup.map((group) => (
-          <section class="gl__group" aria-labelledby={`gl-${group.name.replace(/\W+/g, '-')}`}>
+        galleryByCollection.map((collection) => (
+          <section
+            class="gl__group"
+            aria-labelledby={`gl-${collection.id}`}
+          >
             <header class="gl__head">
-              <h2
-                id={`gl-${group.name.replace(/\W+/g, '-')}`}
-                class="label gl__title"
-              >
-                {group.name}
-              </h2>
-              <p class="mono gl__count">{group.items.length} photos</p>
+              <div class="gl__head-main">
+                <h2 id={`gl-${collection.id}`} class="gl__title">
+                  {collection.label}
+                </h2>
+                <p class="gl__blurb">{collection.blurb}</p>
+              </div>
+              <p class="mono gl__count">
+                {collection.items.length}{' '}
+                {collection.items.length === 1 ? 'photo' : 'photos'}
+              </p>
             </header>
 
             {/*
@@ -63,7 +69,7 @@ const meta = [
               change freely without touching this layout.
             */}
             <div class="gl__masonry" data-lightbox-group>
-              {group.items.map((g, i) => (
+              {collection.items.map((g, i) => (
                 <button
                   type="button"
                   class:list={['gl__item', i === 0 && 'gl__item--feature']}
@@ -97,22 +103,52 @@ const meta = [
   }
 
   .gl__group + .gl__group {
-    margin-top: clamp(2.5rem, 5vw, 4rem);
-    padding-top: clamp(2.5rem, 5vw, 4rem);
+    margin-top: clamp(3rem, 6vw, 4.5rem);
+    padding-top: clamp(3rem, 6vw, 4.5rem);
     border-top: var(--hairline) solid var(--border);
   }
 
+  /*
+    The group header, set as a proper masthead rather than a label row: a large
+    display title with the collection's description beneath it, and the count
+    held to the right. The count is the only mono element, so it reads as a
+    caption to the title rather than competing with it.
+  */
   .gl__head {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 0.5rem 1rem;
-    margin-bottom: clamp(1.25rem, 2.5vw, 1.75rem);
+    display: grid;
+    gap: 0.75rem 2rem;
+    grid-template-columns: 1fr;
+    align-items: end;
+    margin-bottom: clamp(1.5rem, 3vw, 2.25rem);
+    padding-bottom: clamp(1rem, 2vw, 1.5rem);
+    border-bottom: var(--hairline) solid var(--border-faint);
+  }
+
+  @media (min-width: 760px) {
+    .gl__head {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+  }
+
+  .gl__title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--fg-strong);
+  }
+
+  .gl__blurb {
+    margin-top: 0.5rem;
+    max-width: 62ch;
+    font-size: var(--text-sm);
+    color: var(--fg-muted);
   }
 
   .gl__count {
     color: var(--fg-faint);
+    white-space: nowrap;
   }
 
   /* ---- masonry via CSS columns: no JS, natural aspect ratios ---- */
@@ -140,9 +176,16 @@ const meta = [
     margin: 0 0 clamp(0.6rem, 1.5vw, 1rem);
     padding: 0;
     overflow: hidden;
-    border: var(--hairline) solid var(--border);
+    /*
+      No border: the photograph IS the object.
+
+      A hairline around each tile drew a rectangle inside a photograph that
+      already fills its frame, so the edges read as a box drawn on the picture.
+      The scrim-caption and the hover scale are what indicate clickability; the
+      frame is not needed to do that job.
+    */
     border-radius: var(--r-xs);
-    background-color: var(--surface-2);
+    background-color: var(--photo-mat);
     cursor: zoom-in;
     /* Stops a column break splitting the frame in Chromium. */
     break-inside: avoid;

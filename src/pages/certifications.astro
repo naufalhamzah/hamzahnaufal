@@ -252,26 +252,45 @@ const meta = [
   }
 
   /* ---- the scan itself ---- */
+  /*
+    CONTAIN, NOT COVER — a certificate is a DOCUMENT.
+
+    These scans run from 1.29 to 1.78 in aspect ratio, and the frame above them
+    was a fixed 3:2 with `object-fit: cover`. That cropped every one of them: the
+    wide MySkill certificates lost their top and bottom edges, and the squarer
+    Oracle and Hima ones lost their sides — including, on several, the printed
+    name and the signature block, which is exactly the part that makes the scan
+    worth showing.
+
+    A certificate is not a photograph to be composed; it is evidence, and its
+    entire page matters. So the scan is FITTED inside the frame and the matte
+    shows where the shapes disagree. The matte is what makes the letterboxing
+    read as a deliberate plate rather than a mis-sized image, and it also gives
+    the scans a consistent visual weight even though their own backgrounds differ
+    (navy, white, cream, green).
+
+    A slight inset keeps the scan's own border from touching the frame edge, so
+    the two rectangles never look like one confused edge.
+  */
   .ce__frame {
     position: relative;
     display: block;
     overflow: hidden;
-    background-color: var(--surface-3);
-    aspect-ratio: 3 / 2;
+    background-color: var(--photo-mat);
+    aspect-ratio: 16 / 11;
   }
 
   .ce__frame img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    /* Certificates print their owner's name at the top, so anchoring there
-       keeps the identifying part visible in a cropped thumbnail. */
-    object-position: top center;
+    object-fit: contain;
+    object-position: center;
+    padding: 0.7rem;
     transition: transform var(--t-slow) var(--ease);
   }
 
   .ce__card:hover .ce__frame img {
-    transform: scale(1.04);
+    transform: scale(1.03);
   }
 
   .ce__zoom {

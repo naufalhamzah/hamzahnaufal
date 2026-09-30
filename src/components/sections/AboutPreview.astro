@@ -2,35 +2,42 @@
 /**
  * PREVIEW: ABOUT  (homepage)
  *
- * A curated introduction, not the full narrative. One paragraph and the focus
- * areas; /about carries the complete background.
+ * A curated introduction, not the full narrative. /about carries the rest.
  *
- * IMAGE BUDGET: one photograph.
+ * IMAGE BUDGET: NONE — deliberately.
  *
- * On the photograph — this slot previously held `/images/about/office.webp`, a
- * picture of an office building. It has been REPLACED, for two reasons:
+ * This section used to carry a screenshot of the marketing data system. It is
+ * removed, for two reasons the user named directly:
  *
- *   1. The source image is a flattened slide composition: it carries the deck's
- *      own navy and teal decorative strokes and a diagonally-cropped white field
- *      baked into the pixels. It is not a photograph, it is a slide.
- *   2. Its alt text asserted it was "the Beauty Innovation Laboratories office
- *      building", but nothing in the frame shows any signage or name. Attributing
- *      a building to a named employer on that basis is a guess, and a guess is
- *      exactly what this project must not publish.
+ *   1. "gambar pecah" — a dense spreadsheet screenshot carries its meaning in
+ *      its TEXT, and at the column width this section allowed, that text
+ *      rendered about 5px tall. It was not legible, so it proved nothing; it
+ *      read as a broken image rather than a screenshot.
+ *   2. The homepage's image budget belongs to the hero and the selected work.
+ *      A third image here competed with both.
  *
- * What replaces it is a real photograph of the actual work — presenting at a
- * university programme in the UNNES faculty jacket — which supports the About
- * copy instead of decorating it, and needs no attribution it cannot prove.
+ * The screenshot is still used where it CAN be read: on /experience inside the
+ * BeautyLab entry, at full article width.
+ *
+ * So this section is set as pure typography plus a narrow reference rail.
+ * Nothing is invented: every number below is COUNTED from the data files.
  */
 import SectionHead from '@/components/ui/SectionHead.astro';
 import { profile } from '@/data/profile';
+import { projectEntries } from '@/data/projects';
+import { experienceSorted } from '@/data/experience';
+import { publicationEntries } from '@/data/publications';
 
-const photo = {
-  src: '/images/about/beautylab-system.webp',
-  alt: 'The Beauty Innovation Laboratories customer data spreadsheet, listing brand, product, sample value, payment status and PIC columns',
-  width: 1400,
-  height: 788,
-};
+/**
+ * Figures for the rail, counted from the data layer so they cannot drift out of
+ * step with the content. Each is a count of something that exists — no invented
+ * metrics, no percentages.
+ */
+const stats = [
+  { value: String(projectEntries.length), label: 'Projects' },
+  { value: String(experienceSorted.length), label: 'Roles' },
+  { value: String(publicationEntries.length), label: 'Papers' },
+];
 ---
 
 <section class="ab" id="about-preview">
@@ -44,105 +51,138 @@ const photo = {
     />
 
     <div class="ab__grid">
-      <figure class="ab__figure">
-        <img
-          src={photo.src}
-          alt={photo.alt}
-          width={photo.width}
-          height={photo.height}
-          loading="lazy"
-          decoding="async"
-        />
-      </figure>
-
       <div class="ab__body">
+        <p class="ab__lede">{profile.summary[0]}</p>
         <p class="ab__text">{profile.summary[1]}</p>
+      </div>
 
+      <aside class="ab__side" aria-label="At a glance">
+        <p class="label ab__side-h">At a glance</p>
+
+        <dl class="ab__stats">
+          {stats.map((s) => (
+            <div class="ab__stat">
+              <dt class="ab__stat-v">{s.value}</dt>
+              <dd class="ab__stat-l mono">{s.label}</dd>
+            </div>
+          ))}
+        </dl>
+
+        <p class="label ab__side-h ab__side-h--2">Focus areas</p>
         <ul class="ab__focus" aria-label="Focus areas">
           {profile.focusAreas.map((f) => <li class="ab__chip mono">{f}</li>)}
         </ul>
-      </div>
+      </aside>
     </div>
   </div>
 </section>
 
 <style>
+  /*
+    Two columns on desktop: the prose leads on the left, a narrow reference rail
+    on the right carries the counts and the focus chips.
+
+    The asymmetry is deliberate. With the image gone, a plain two-paragraph block
+    would have run the full measure and read as a wall of text, so the rail is
+    what keeps the section structured without a picture — and the prose keeps the
+    wider column because it is the introduction, not the fact panel.
+  */
   .ab__grid {
     display: grid;
-    gap: clamp(1.75rem, 4vw, 3.5rem);
+    gap: clamp(2rem, 4vw, 3.5rem);
     grid-template-columns: 1fr;
     align-items: start;
   }
 
   @media (min-width: 880px) {
     .ab__grid {
-      /*
-        The image column is WIDER here than in the previous version, because the
-        photograph changed from a portrait building shot to a landscape
-        screenshot. A landscape image in a narrow column renders about 180px
-        tall — too small to read, and it looks like an afterthought.
-
-        The text still leads: it keeps the larger share (1.15fr against 1fr) and
-        the image sits on its own row alignment rather than being stretched.
-      */
-      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+      gap: clamp(2.5rem, 5vw, 4.5rem);
     }
   }
 
-  .ab__figure {
-    position: relative;
-    margin: 0;
-    /*
-      Theme-aware matte for the photograph, same treatment as the hero: a
-      screenshot is mostly WHITE, so on paper it needs a visible edge to separate
-      from ivory, and on dark it needs a matte so the bright panel reads as a
-      deliberate plate rather than a hole punched in the page.
-    */
-    padding: 0.5rem;
-    background-color: var(--photo-mat);
-    border: var(--hairline) solid var(--photo-edge);
-    border-radius: var(--r-xs);
-    box-shadow: var(--photo-shadow);
-  }
-
-  .ab__figure img {
-    display: block;
-    width: 100%;
-    height: auto;
-    border-radius: calc(var(--r-xs) - 2px);
-    filter: var(--photo-filter);
-  }
-
-  /* A short accent rule at the top-left, echoing the hero. */
-  .ab__figure::before {
-    content: '';
-    position: absolute;
-    inset: -0.6rem auto auto -0.6rem;
-    width: 2.5rem;
-    height: 2px;
-    background-color: var(--accent);
-  }
-
-  @media (max-width: 879px) {
-    .ab__figure {
-      max-width: 26rem;
-    }
+  .ab__lede {
+    max-width: 58ch;
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    line-height: 1.34;
+    color: var(--fg);
   }
 
   .ab__text {
-    max-width: 56ch;
-    font-size: var(--text-lg);
+    max-width: 58ch;
+    margin-top: clamp(1rem, 2vw, 1.35rem);
     color: var(--fg-muted);
+  }
+
+  /* ---------------- reference rail ---------------- */
+  .ab__side {
+    padding-top: clamp(0.25rem, 1vw, 0.75rem);
+  }
+
+  @media (min-width: 880px) {
+    .ab__side {
+      /* A hairline down the left edge separates the rail from the prose without
+         drawing a box around it. */
+      padding-inline-start: clamp(1.5rem, 3vw, 2.25rem);
+      border-inline-start: var(--hairline) solid var(--border-faint);
+    }
+  }
+
+  .ab__side-h {
+    display: block;
+    margin-bottom: 1rem;
+  }
+
+  .ab__side-h--2 {
+    margin-top: clamp(1.75rem, 3vw, 2.25rem);
+    padding-top: clamp(1.5rem, 2.5vw, 1.75rem);
+    border-top: var(--hairline) solid var(--border-faint);
+  }
+
+  /*
+    The counts, set as editorial figures rather than boxes-with-numbers: three
+    columns, each number large in the display face with its label small beneath.
+    That is the same hierarchy the hero uses for the name and its role, which is
+    what makes this read as part of the same document.
+  */
+  .ab__stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(0.75rem, 2vw, 1.25rem);
+    margin: 0;
+  }
+
+  .ab__stat {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.3rem;
+  }
+
+  .ab__stat-v {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--fg-strong);
+    /* Lining, tabular figures so the numerals sit on the baseline as a set. */
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+
+  .ab__stat-l {
+    color: var(--fg-faint);
+    text-transform: none;
+    letter-spacing: 0.02em;
   }
 
   .ab__focus {
     display: flex;
     flex-wrap: wrap;
     gap: 0.45rem 0.5rem;
-    margin: clamp(1.5rem, 3vw, 2rem) 0 0;
-    padding: clamp(1.25rem, 2.5vw, 1.75rem) 0 0;
+    margin: 0;
+    padding: 0;
     list-style: none;
-    border-top: var(--hairline) solid var(--border-faint);
   }
 
   .ab__chip {

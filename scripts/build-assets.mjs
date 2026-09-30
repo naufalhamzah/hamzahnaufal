@@ -172,13 +172,13 @@ const RECIPES = [
   ['Publikasi Artikel AMPOEN.png', 'publications/ampoen-article.webp', { w: 1200, q: Q.doc }],
 
   /* ---------------------- EMPLOYER LOGOS (from konten) ------------------ */
-  ['Logo AirNav.jfif', 'logos/airnav.webp', { w: 600, q: Q.logo, logo: true }],
-  ['Logo Beauty Lab.png', 'logos/beauty-lab.webp', { w: 900, q: Q.logo, logo: true }],
-  ['Logo PLN Pusharlis.png', 'logos/pln-pusharlis.webp', { w: 900, q: Q.logo, logo: true }],
-  ['Logo Jaist.png', 'logos/jaist.webp', { w: 800, q: Q.logo, logo: true }],
-  ['Logo Guru Mengajar.png', 'logos/guru-mengajar.webp', { w: 800, q: Q.logo, logo: true }],
-  ['Logo UNNES.png', 'logos/unnes.webp', { w: 600, q: Q.logo, logo: true }],
-  ['Logo SMA.png', 'logos/sma.webp', { w: 600, q: Q.logo, logo: true }],
+  ['Logo AirNav.jfif', 'logos/airnav.webp', { w: 800, q: Q.logo, logo: true, knockOutWhite: true }],
+  ['Logo Beauty Lab.png', 'logos/beauty-lab.webp', { w: 1200, q: Q.logo, logo: true }],
+  ['Logo PLN Pusharlis.png', 'logos/pln-pusharlis.webp', { w: 1200, q: Q.logo, logo: true }],
+  ['Logo Jaist.png', 'logos/jaist.webp', { w: 1400, q: Q.logo, logo: true }],
+  ['Logo Guru Mengajar.png', 'logos/guru-mengajar.webp', { w: 1000, q: Q.logo, logo: true }],
+  ['Logo UNNES.png', 'logos/unnes.webp', { w: 800, q: Q.logo, logo: true, knockOutWhite: true }],
+  ['Logo SMA.png', 'logos/sma.webp', { w: 800, q: Q.logo, logo: true, knockOutWhite: true }],
 ];
 
 /* --------------- PERSONAL / ACTIVITY PHOTOS → gallery/ ---------------- */
@@ -281,10 +281,101 @@ async function convert(from, rel, opts) {
       }
     }
 
+    /*
+      knockOutWhite: remove a SOLID WHITE BACKGROUND from a logo.
+
+      Three of the supplied marks (AirNav, SMA, UNNES) are flat PNGs on an opaque
+      white plate; the other four are transparent cut-outs. Dropped onto a dark
+      band, the white-plate ones read as bright rectangles with the logo floating
+      inside them — and boxing each one in a chip to hide that only added a second
+      visible rectangle around the first.
+
+      So the white plate is removed properly, by FLOOD-FILLING FROM THE EDGES
+      rather than by thresholding every white pixel. That distinction matters:
+      these logos contain white INTERNAL detail (UNNES has 27% white pixels in its
+      centre row), and a naive "make every white pixel transparent" pass punches
+      holes straight through the artwork. A flood fill only clears white that is
+      CONNECTED to the border, so enclosed whites survive.
+
+      The alpha ramp at the boundary keeps the edges anti-aliased instead of
+      leaving a jagged cut.
+    */
+    if (opts.knockOutWhite) {
+      const { data, info } = await pipe
+        .ensureAlpha()
+        .raw()
+        .toBuffer({ resolveWithObject: true });
+      const { width: iw, height: ih } = info;
+      const N = iw * ih;
+      // 0 = unvisited, 1 = queued/visited
+      const seen = new Uint8Array(N);
+      const stack = [];
+      const isWhite = (i) => {
+        const o = i * 4;
+        return data[o] > 235 && data[o + 1] > 235 && data[o + 2] > 235;
+      };
+      // Seed the queue with every white pixel on the border.
+      for (let x = 0; x < iw; x++) {
+        for (const y of [0, ih - 1]) {
+          const i = y * iw + x;
+          if (!seen[i] && isWhite(i)) { seen[i] = 1; stack.push(i); }
+        }
+      }
+      for (let y = 0; y < ih; y++) {
+        for (const x of [0, iw - 1]) {
+          const i = y * iw + x;
+          if (!seen[i] && isWhite(i)) { seen[i] = 1; stack.push(i); }
+        }
+      }
+      // Flood fill inward through connected white.
+      while (stack.length) {
+        const i = stack.pop();
+        const x = i % iw;
+        const y = (i - x) / iw;
+        const neighbours = [
+          x > 0 ? i - 1 : -1,
+          x < iw - 1 ? i + 1 : -1,
+          y > 0 ? i - iw : -1,
+          y < ih - 1 ? i + iw : -1,
+        ];
+        for (const n of neighbours) {
+          if (n >= 0 && !seen[n] && isWhite(n)) { seen[n] = 1; stack.push(n); }
+        }
+      }
+      // Make the cleared region transparent, feathering one pixel at the rim.
+      for (let i = 0; i < N; i++) {
+        if (!seen[i]) continue;
+        const x = i % iw;
+        const y = (i - x) / iw;
+        const touchesKept =
+          (x > 0 && !seen[i - 1]) ||
+          (x < iw - 1 && !seen[i + 1]) ||
+          (y > 0 && !seen[i - iw]) ||
+          (y < ih - 1 && !seen[i + iw]);
+        data[i * 4 + 3] = touchesKept ? 90 : 0;
+      }
+      pipe = sharp(data, { raw: { width: iw, height: ih, channels: 4 } });
+    }
+
     pipe = pipe.resize({ width: targetW, withoutEnlargement: true });
 
     if (opts.logo) {
-      if (!meta.hasAlpha) pipe = pipe.flatten({ background: '#ffffff' });
+      /*
+        Flatten ONLY when the output is still genuinely opaque.
+
+        `meta` describes the SOURCE file, so `!meta.hasAlpha` is true for every
+        logo that arrived on a white plate — including the ones knockOutWhite has
+        just made transparent. Flattening them here paints the white plate
+        straight back on, silently undoing the previous step, which is exactly
+        what happened: the flood fill ran, reported success, and the written file
+        was still opaque white.
+
+        A knockOutWhite logo is transparent BY CONSTRUCTION, so it is excluded.
+        The check is on the transformation that ran, not on the source metadata.
+      */
+      if (!meta.hasAlpha && !opts.knockOutWhite) {
+        pipe = pipe.flatten({ background: '#ffffff' });
+      }
       pipe = pipe.webp({ quality: opts.q, effort: 5, alphaQuality: 100 });
     } else {
       pipe = pipe.webp({ quality: opts.q, effort: 5 });

@@ -55,6 +55,30 @@ const raw: SkillGroup[] = [
     source: 'both',
   },
   {
+    id: 'hardware-iot',
+    title: 'Hardware & IoT',
+    description:
+      'Sensors and microcontrollers — from the IoT-based smart-farming irrigation system built for the PPK Ormawa programme.',
+    items: [
+      { name: 'ESP32 / ESP8266', icon: 'espressif' },
+      { name: 'IoT sensor integration', icon: null },
+      { name: 'Microcontroller programming', icon: null },
+    ],
+    source: 'portfolio',
+  },
+  {
+    id: 'networking-security',
+    title: 'Networking & Security',
+    description:
+      'Network and security fundamentals, evidenced by the Cisco Networking Academy Cybersecurity Essentials certificate.',
+    items: [
+      { name: 'Cybersecurity essentials', icon: 'cisco' },
+      { name: 'Networking fundamentals', icon: null },
+      { name: 'Technical documentation', icon: null },
+    ],
+    source: 'portfolio',
+  },
+  {
     id: 'machine-learning',
     title: 'Machine Learning & Modeling',
     description: 'Methods applied in published research and coursework.',
@@ -63,6 +87,8 @@ const raw: SkillGroup[] = [
       { name: 'Naive Bayes', icon: null },
       { name: 'SVM', icon: null },
       { name: 'Transformer model', icon: null },
+      { name: 'Model evaluation', icon: null },
+      { name: 'Confusion matrix analysis', icon: null },
     ],
     source: 'portfolio',
   },
