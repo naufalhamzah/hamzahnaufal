@@ -2,8 +2,9 @@
 /**
  * BASE LAYOUT — the HTML shell used by every page.
  *
- * Owns: <head> metadata, the pre-paint theme bootstrap, skip link, navbar,
- * footer, the shared lightbox, and the scroll-reveal observer.
+ * Owns: <head> metadata, the pre-paint theme bootstrap, the skip link, the
+ * navbar, the footer, the shared lightbox, and two small progressive
+ * enhancements (scroll reveal and the page-in transition).
  */
 import '@/styles/global.css';
 
@@ -31,21 +32,25 @@ const socialImage = new URL(ogImage, Astro.site ?? site.url).href;
 
 /**
  * JSON-LD Person markup, built ONLY from facts present in the source documents.
- * TODO: add a photo URL to `image` once a hosted headshot exists.
+ *
+ * `jobTitle` is deliberately the graduate positioning rather than the current
+ * employer, matching the site's own identity rule. The internship is discoverable
+ * through the Experience page instead.
  */
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Person',
   name: 'Hamzah Naufal Zuhdi',
-  jobTitle: 'Information Technology Administration Staff at AirNav Indonesia',
+  jobTitle: 'Information Systems Graduate',
   description:
     'Information Systems graduate working across data analytics, information systems, business process improvement and digital solutions.',
+  image: new URL('/images/hero/portrait.webp', Astro.site ?? site.url).href,
   alumniOf: [{ '@type': 'CollegeOrUniversity', name: 'Universitas Negeri Semarang' }],
   knowsAbout: [
+    'Information Systems',
     'Data Analysis',
     'Data Visualization',
     'Business Process Improvement',
-    'Information Systems',
     'UI/UX Design',
   ],
   sameAs: [
@@ -78,13 +83,14 @@ const jsonLd = {
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={socialImage} />
 
-    <meta name="theme-color" content="#0b0908" />
+    <meta name="theme-color" content="#0d0c0b" />
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/favicon.svg" />
 
-    <!-- Pre-paint theme bootstrap: must run before first paint to avoid a
-         light flash on a dark-first site, so it stays inline and blocking. -->
+    <!-- Pre-paint theme bootstrap: must run before first paint to avoid a light
+         flash on a dark-first site, so it stays inline and blocking. It sets the
+         theme WITHOUT the transition guard, so first paint is instant. -->
     <script is:inline>
       (function () {
         try {
@@ -113,7 +119,9 @@ const jsonLd = {
 
     <Navbar />
 
-    <main id="main" tabindex="-1">
+    <!-- The page wrapper carries the fade-in transition, so the nav and footer
+         stay put while the content settles. -->
+    <main id="main" tabindex="-1" class="page-in">
       <slot />
     </main>
 
@@ -125,8 +133,8 @@ const jsonLd = {
     <script>
       /**
        * Progressive enhancement:
-       *  - marks that JS is available (so reveal styles only hide content when
-       *    they can also un-hide it)
+       *  - marks that JS is available, so reveal styles only hide content when
+       *    they can also un-hide it
        *  - reveals [data-reveal] elements as they scroll into view
        */
       const root = document.documentElement;

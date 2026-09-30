@@ -2,14 +2,16 @@
 /**
  * SKILL TILE — one skill as a logo tile.
  *
- * The brief was specific: "skills must use logos that are big enough — don't
- * make the icons too small." So the mark here is 2.4rem inside a 4rem optical
- * target, with the label beneath at a readable size. Previously icons were
- * inline chips at ~14px, which read as decoration.
+ * The brief asked twice for marks that are large enough to recognise, so the
+ * mark is 2.5rem inside a generous tile — not a 14px glyph beside text.
  *
- * Sourcing follows `src/data/skill-icons.ts`: official brand marks where they
- * exist, an own-drawn geometric fallback otherwise. A skill with no icon
- * renders as a text tile — never a broken image.
+ * THREE STATES, all handled here so the grid never shows a broken tile:
+ *   brand    an official mark in its brand colour
+ *   mono     an official mark whose brand colour is too dark to read on the
+ *            dark canvas — drawn in `currentColor` instead (see skill-icons.ts)
+ *   text     no mark exists for this skill, so it renders as a text tile only.
+ *            It deliberately does NOT show a monogram: a lone letter reads as a
+ *            logo and invites the question "whose logo is that?".
  *
  * NO PERCENTAGES. No proficiency level is documented anywhere in the source
  * material, so none is shown.
@@ -19,7 +21,7 @@ import { getSkillIcon } from '@/data/skill-icons';
 interface Props {
   name: string;
   icon: string | null;
-  /** Compact variant used inside denser lists. */
+  /** Compact horizontal variant for denser lists. */
   small?: boolean;
 }
 
@@ -27,19 +29,19 @@ const { name, icon, small = false } = Astro.props;
 const mark = getSkillIcon(icon);
 ---
 
-<div class:list={['st', small && 'st--small', !mark && 'st--text']}>
-  <span class="st__mark" aria-hidden="true">
-    {
-      mark ? (
-        <svg viewBox="0 0 24 24" width="100%" height="100%" role="presentation">
+<div
+  class:list={['st', small && 'st--small', !mark && 'st--text']}
+  data-icon={mark ? (mark.hex ? 'brand' : 'mono') : 'text'}
+>
+  {
+    mark && (
+      <span class="st__mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" role="presentation">
           <path d={mark.path} fill={mark.hex ?? 'currentColor'} />
         </svg>
-      ) : (
-        /* Text-only skill: a monogram of its initial keeps the grid aligned. */
-        <span class="st__mono">{name.charAt(0).toUpperCase()}</span>
-      )
-    }
-  </span>
+      </span>
+    )
+  }
 
   <span class="st__name">{name}</span>
 </div>
@@ -49,13 +51,13 @@ const mark = getSkillIcon(icon);
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
-    gap: 0.6rem;
+    justify-content: center;
+    gap: 0.7rem;
     height: 100%;
-    padding: clamp(0.85rem, 2vw, 1.15rem) 0.6rem;
+    padding: clamp(1rem, 2.2vw, 1.35rem) 0.6rem;
     border: var(--hairline) solid var(--border);
     border-radius: var(--r-xs);
-    background-color: color-mix(in srgb, var(--surface) 70%, transparent);
+    background-color: var(--surface);
     text-align: center;
     transition:
       border-color var(--t-base) var(--ease),
@@ -69,43 +71,39 @@ const mark = getSkillIcon(icon);
     transform: translateY(-2px);
   }
 
-  /* ---- the mark: 2.4rem is the point of this component ---- */
+  /* ---- the mark: sized to be recognisable, which is the point ---- */
   .st__mark {
     display: grid;
     place-items: center;
-    width: 2.4rem;
-    height: 2.4rem;
+    width: 2.5rem;
+    height: 2.5rem;
     flex: none;
+    /* Brand marks keep their colour; marks whose brand colour is unreadable on
+       dark inherit this. */
     color: var(--fg);
-    transition: color var(--t-base) var(--ease);
-  }
-
-  .st:hover .st__mark {
-    color: var(--fg-strong);
   }
 
   .st__mark svg {
     display: block;
-  }
-
-  /* Text-only skills: no brand colour, so it inherits the foreground. */
-  .st__mono {
-    font-family: var(--font-display);
-    font-size: 1.35rem;
-    font-style: italic;
-    color: var(--accent);
-    line-height: 1;
+    width: 100%;
+    height: 100%;
   }
 
   .st__name {
     font-size: var(--text-xs);
     line-height: 1.3;
     color: var(--fg-muted);
-    /* Long tool names wrap rather than shrink the mark. */
     text-wrap: balance;
   }
 
+  /* ---- text-only: no mark, so the tile centres on its label ---- */
+  .st--text {
+    gap: 0;
+    min-height: 6.5rem;
+  }
+
   .st--text .st__name {
+    font-size: var(--text-sm);
     color: var(--fg-subtle);
   }
 
@@ -113,17 +111,29 @@ const mark = getSkillIcon(icon);
   .st--small {
     flex-direction: row;
     align-items: center;
-    gap: 0.6rem;
-    padding: 0.5rem 0.7rem;
+    gap: 0.65rem;
+    padding: 0.55rem 0.8rem;
     text-align: left;
+    background-color: transparent;
+    border-color: transparent;
   }
 
   .st--small .st__mark {
-    width: 1.5rem;
-    height: 1.5rem;
+    width: 1.6rem;
+    height: 1.6rem;
   }
 
   .st--small .st__name {
     font-size: var(--text-sm);
+  }
+
+  .st--small.st--text {
+    min-height: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .st:hover {
+      transform: none;
+    }
   }
 </style>

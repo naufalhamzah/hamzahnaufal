@@ -1,24 +1,28 @@
 ---
 /**
- * HOME — a professional OVERVIEW.
+ * HOME — a curated professional introduction.
  *
- * This page is deliberately short. It carries the strongest visual material and
- * hands off to real pages for the detail:
+ * NOT a content dump. Five previews, each earning its place, each handing off
+ * to a real page. The rule for this file: nothing appears here that is not one
+ * of the strongest things the site has.
  *
- *   HERO            identity + the single strongest photograph
- *   ABOUT           one paragraph + focus areas        → /about
- *   SELECTED WORK   three featured projects            → /projects
- *   EXPERIENCE      a compact timeline, no images      → /experience
- *   SKILLS          readable tool logos                → /skills
- *   CREDENTIALS     certs + papers + awards            → /certifications
- *   MOMENTS         a composed collage                 → /gallery
- *   CONTACT         the closing call to action
+ *   HERO              identity + the single strongest photograph
+ *   ABOUT             one paragraph + focus areas        → /about
+ *   SELECTED WORK     3 featured projects, 2 sizes       → /projects
+ *   EXPERIENCE        4 roles, typographic only          → /experience
+ *   SKILLS            12 curated tool marks              → /skills
+ *   CONTACT           the closing call to action         → /contact
  *
- * IMAGE BUDGET (enforced by what this file imports): 1 portrait, 1 about photo,
- * 3 project visuals, ~14 skill marks, 2 certificate scans, 6 gallery photos.
- * Everything else lives on its own page.
+ * WHAT IS DELIBERATELY ABSENT
+ *   · no gallery preview — the photographs are better served complete on
+ *     /gallery than as a teaser that only adds length here
+ *   · no certificate wall, no publication list, no achievement grid — each has
+ *     its own page and each was previously making this page feel like a CV
  *
- * This file owns NO content — it only composes sections.
+ * IMAGE BUDGET: 1 portrait + 1 about photo + 3 project visuals + skill marks.
+ * That is the whole homepage.
+ *
+ * This file owns no content — it only composes sections.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Hero from '@/components/sections/Hero.astro';
@@ -26,8 +30,6 @@ import AboutPreview from '@/components/sections/AboutPreview.astro';
 import FeaturedWork from '@/components/sections/FeaturedWork.astro';
 import ExperiencePreview from '@/components/sections/ExperiencePreview.astro';
 import SkillsPreview from '@/components/sections/SkillsPreview.astro';
-import CredentialsPreview from '@/components/sections/CredentialsPreview.astro';
-import GalleryPreview from '@/components/sections/GalleryPreview.astro';
 import ContactPreview from '@/components/sections/ContactPreview.astro';
 import { profile } from '@/data/profile';
 ---
@@ -42,7 +44,5 @@ import { profile } from '@/data/profile';
   <FeaturedWork />
   <ExperiencePreview />
   <SkillsPreview />
-  <CredentialsPreview />
-  <GalleryPreview />
   <ContactPreview />
 </BaseLayout>

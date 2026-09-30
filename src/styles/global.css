@@ -6,7 +6,7 @@
 @custom-variant light (&:where([data-theme='light'], [data-theme='light'] *));
 
 /* ==========================================================================
-   BASE
+   RESET / BASE
    ========================================================================== */
 
 *,
@@ -16,22 +16,10 @@
 }
 
 html {
-  scroll-behavior: smooth;
-  scroll-padding-top: 5.5rem;
   -webkit-text-size-adjust: 100%;
+  scroll-padding-top: 5.5rem;
 }
 
-/* --------------------------------------------------------------------------
-   BACKGROUND
-   A near-black base lifted by two very soft, very wide radial washes — one
-   warm burgundy, one cool charcoal — plus a fine vignette that darkens the
-   edges so the centre of the page reads as lit. No pattern, no photo, no
-   glow, no particles: the washes sit at 4-7% opacity, which registers as
-   depth rather than decoration and never competes with the content.
-
-   Implemented on a fixed pseudo-element so it costs one paint and does not
-   scroll with the page.
-   -------------------------------------------------------------------------- */
 body {
   margin: 0;
   min-height: 100dvh;
@@ -39,7 +27,7 @@ body {
   color: var(--fg);
   font-family: var(--font-sans);
   font-size: var(--text-base);
-  line-height: 1.68;
+  line-height: var(--lh-body);
   font-synthesis-weight: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -47,6 +35,72 @@ body {
   overflow-x: hidden;
 }
 
+/* --------------------------------------------------------------------------
+   THEME TRANSITION
+   A theme change must read as a crossfade, not a switch. Every surface, border
+   and text colour carries a transition, so panels, rules and type all move
+   together.
+
+   Applied ONLY while the theme is changing: the toggle adds `.theme-switching`
+   for ~340ms and removes it. Without that guard these transitions would also
+   animate the initial paint and every hover, which is both wrong and wasteful.
+
+   `prefers-reduced-motion` removes the fade entirely.
+   -------------------------------------------------------------------------- */
+.theme-switching,
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition:
+    background-color var(--t-theme) var(--ease-inout),
+    border-color var(--t-theme) var(--ease-inout),
+    color var(--t-theme) var(--ease-inout),
+    fill var(--t-theme) var(--ease-inout),
+    box-shadow var(--t-theme) var(--ease-inout) !important;
+  transition-delay: 0ms !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-switching,
+  .theme-switching *,
+  .theme-switching *::before,
+  .theme-switching *::after {
+    transition: none !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   PAGE TRANSITION
+   Pages fade in with a very small rise. No JavaScript and no View Transitions
+   API — one keyframe on the page wrapper, so it costs nothing and cannot fail.
+   Deliberately subtle: 420ms and 8px.
+   -------------------------------------------------------------------------- */
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.page-in {
+  animation: page-in var(--t-slow) var(--ease) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-in {
+    animation: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   BACKGROUND
+   One fixed layer under everything: a single wide warm wash plus a vignette.
+   Content is lifted above it.
+   -------------------------------------------------------------------------- */
 body::before {
   content: '';
   position: fixed;
@@ -56,31 +110,14 @@ body::before {
   background-image: var(--bg-layers);
 }
 
-/* Keeps all real content above the background layer. */
 body > * {
   position: relative;
   z-index: 1;
 }
 
-/* Warm paper gets its own, much weaker treatment — a light page does not want
-   a vignette, so the layers resolve to nearly nothing there. */
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
 /* ==========================================================================
    TYPOGRAPHY
-   Display face for headings, sans for body, mono for metadata.
+   Display serif for large headings, sans for body, mono for metadata.
    ========================================================================== */
 
 h1,
@@ -89,17 +126,18 @@ h3,
 h4,
 h5 {
   margin: 0;
-  font-weight: 500;
-  line-height: 1.12;
+  line-height: var(--lh-heading);
   letter-spacing: -0.015em;
   text-wrap: balance;
 }
 
-/* The serif display face carries the editorial character. */
+/* The serif carries the editorial character — reserved for large type. */
 h1,
 h2 {
   font-family: var(--font-display);
   font-weight: 500;
+  line-height: var(--lh-tight);
+  letter-spacing: -0.022em;
 }
 
 h3,
@@ -139,27 +177,52 @@ video {
 
 /* ==========================================================================
    LAYOUT PRIMITIVES
+   One measure and one gutter, used by every page and every section.
    ========================================================================== */
 
 .shell {
   width: 100%;
-  max-width: var(--page-max);
+  max-width: var(--measure);
   margin-inline: auto;
   padding-inline: var(--gutter);
 }
 
-.shell--narrow {
-  max-width: var(--content-max);
+.shell--wide {
+  max-width: var(--measure-wide);
 }
 
 .prose-width {
-  max-width: var(--prose-max);
+  max-width: var(--prose);
+}
+
+/* A full-width tinted band. This — not a border — is how one homepage section
+   is separated from the next. */
+.band {
+  background-color: var(--band);
+}
+
+.band--inset {
+  border-block: var(--hairline) solid var(--border-faint);
+}
+
+/* ==========================================================================
+   SECTION SPACING
+   Three utilities so every section uses the same vertical rhythm. Sections
+   never invent their own padding.
+   ========================================================================== */
+
+.section {
+  padding-block: var(--space-section);
+}
+
+.section--tight {
+  padding-block: var(--space-band);
 }
 
 /* ==========================================================================
    METADATA TYPOGRAPHY
-   The mono/uppercase treatment is what reads as "technical" and separates
-   labels from prose. Used for dates, locations, tags, section eyebrows.
+   The mono/uppercase treatment reads as "technical" and separates labels from
+   prose: dates, locations, tags, eyebrows.
    ========================================================================== */
 
 .mono {
@@ -172,10 +235,10 @@ video {
 
 .mono--plain {
   text-transform: none;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
 }
 
-/* Section label with a small marker, echoing the reference's "01 — LABEL". */
+/* Section eyebrow: an accent rule, then a label. */
 .label {
   display: inline-flex;
   align-items: center;
@@ -189,15 +252,12 @@ video {
 
 .label::before {
   content: '';
-  width: 1.6rem;
+  width: 1.5rem;
   height: 1px;
   background-color: var(--accent-line);
 }
 
-/* ==========================================================================
-   HAIRLINE RULES — the primary structural device in this design.
-   ========================================================================== */
-
+/* Hairline rules — the primary structural device. */
 .rule {
   height: 1px;
   border: 0;
@@ -232,13 +292,13 @@ video {
 
 /* ==========================================================================
    SCROLL REVEAL
-   Elements start offset and settle in as they enter the viewport.
-   The `.js` guard means nothing is hidden if JavaScript never runs.
+   Elements settle in as they enter the viewport. The `.js` guard means nothing
+   is hidden when JavaScript never runs.
    ========================================================================== */
 
 .js [data-reveal] {
   opacity: 0;
-  transform: translateY(16px);
+  transform: translateY(14px);
   transition:
     opacity var(--t-reveal) var(--ease),
     transform var(--t-reveal) var(--ease);
@@ -250,9 +310,9 @@ video {
   transform: none;
 }
 
-/* Image reveal: the picture scales from slightly enlarged as it appears. */
+/* Image reveal: the picture settles in from slightly enlarged. */
 .js [data-reveal='img'] img {
-  transform: scale(1.06);
+  transform: scale(1.05);
   transition: transform 1.1s var(--ease);
 }
 
@@ -299,7 +359,7 @@ video {
 }
 
 /* ==========================================================================
-   SCREEN-READER ONLY
+   UTILITIES
    ========================================================================== */
 
 .sr-only {
@@ -314,31 +374,24 @@ video {
   border-width: 0;
 }
 
-/* ==========================================================================
-   UTILITIES
-   ========================================================================== */
-
 .stack > * + * {
   margin-top: var(--stack-gap, 1rem);
 }
 
-.clamp-1 {
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
+.clamp-1,
+.clamp-2,
 .clamp-3 {
   display: -webkit-box;
-  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.clamp-1 {
+  -webkit-line-clamp: 1;
+}
+.clamp-2 {
+  -webkit-line-clamp: 2;
+}
+.clamp-3 {
+  -webkit-line-clamp: 3;
 }

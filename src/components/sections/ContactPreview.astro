@@ -1,88 +1,109 @@
 ---
 /**
- * PREVIEW: CONTACT CTA
+ * PREVIEW: CONTACT  (homepage closing band)
  *
- * The closing band. A large serif line, the email as the primary action, and
- * the social links as a quiet row beneath. No form: the site is static, so a
- * form would need a third-party service the brief has not approved.
+ * The closing call to action. A large serif line, the email as the primary
+ * action, and the social links as a quiet row. No form: the site is static, so
+ * a form would need a third-party service that was never approved, and a form
+ * that silently drops messages is worse than no form.
  *
- * The phone number is NOT shown — contact links come from `activeContactLinks`,
- * which filters out anything disabled. The footer uses the same source, so a
- * hidden entry can never leak into rendered HTML.
+ * The phone number is NOT shown. Links come from `activeContactLinks`, which
+ * filters disabled entries, so a hidden number cannot leak into the HTML.
  */
-import { profile, activeContactLinks } from '@/data/profile';
+import { activeContactLinks } from '@/data/profile';
 
-/** Email gets the primary treatment; the rest are secondary. */
 const email = activeContactLinks.find((l) => l.href.startsWith('mailto:'));
 const socials = activeContactLinks.filter((l) => l !== email);
 ---
 
 <section class="ct" id="contact-preview">
   <div class="shell">
-    <div class="ct__inner">
-      <p class="ct__eyebrow label">07 — Contact</p>
+    <div class="ct__grid">
+      <div class="ct__main">
+        <p class="label ct__eyebrow">05 — Contact</p>
 
-      <h2 class="ct__title">
-        Open to work in data,
-        <br />
-        <em>systems and process.</em>
-      </h2>
+        <h2 class="ct__title">
+          Open to work in data,
+          <br />
+          <em>systems and process.</em>
+        </h2>
 
-      <p class="ct__lede">
-        If you would like to talk about a role, a project, or a problem worth
-        solving with data, the fastest way to reach me is email.
-      </p>
+        <p class="ct__lede">
+          If you would like to talk about a role, a project, or a problem worth
+          solving with data, email is the fastest way to reach me.
+        </p>
+      </div>
 
-      {
-        email && (
-          <a href={email.href} class="ct__mail">
-            <span class="ct__mail-label mono">Email</span>
-            <span class="ct__mail-addr">{email.href.replace('mailto:', '')}</span>
-            <span class="ct__mail-arrow" aria-hidden="true">→</span>
-          </a>
-        )
-      }
-
-      <ul class="ct__socials" aria-label="Elsewhere">
+      <div class="ct__side">
         {
-          socials.map((s) => (
-            <li>
-              <a
-                href={s.href}
-                class="ct__social mono"
-                rel={s.external ? 'noopener noreferrer' : undefined}
-                target={s.external ? '_blank' : undefined}
-              >
-                {s.label}
-                {s.external && <span aria-hidden="true"> ↗</span>}
-              </a>
-            </li>
-          ))
+          email && (
+            <a href={email.href} class="ct__mail">
+              <span class="ct__mail-label mono">Email</span>
+              <span class="ct__mail-addr">
+                {email.href.replace('mailto:', '')}
+              </span>
+              <span class="ct__mail-arrow" aria-hidden="true">→</span>
+            </a>
+          )
         }
-      </ul>
+
+        <ul class="ct__socials" aria-label="Elsewhere">
+          {
+            socials.map((s) => (
+              <li>
+                <a
+                  href={s.href}
+                  class="ct__social mono"
+                  rel={s.external ? 'noopener noreferrer' : undefined}
+                  target={s.external ? '_blank' : undefined}
+                >
+                  {s.label}
+                  {s.external && <span aria-hidden="true"> ↗</span>}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+
+        <a href="/contact" class="ct__more mono">
+          Contact page <span aria-hidden="true">→</span>
+        </a>
+      </div>
     </div>
   </div>
 </section>
 
 <style>
   .ct {
-    padding-block: clamp(4rem, 9vw, 7rem);
+    padding-block: var(--space-section);
   }
 
-  .ct__inner {
-    max-width: 62ch;
+  .ct__grid {
+    display: grid;
+    gap: clamp(2rem, 4.5vw, 4rem);
+    grid-template-columns: 1fr;
+    align-items: center;
+  }
+
+  @media (min-width: 900px) {
+    .ct__grid {
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    }
   }
 
   .ct__eyebrow {
     margin-bottom: clamp(1.1rem, 2.5vw, 1.6rem);
   }
 
+  .ct__eyebrow::before {
+    display: none;
+  }
+
   .ct__title {
     font-family: var(--font-display);
     font-size: var(--text-3xl);
     font-weight: 500;
-    line-height: 1.08;
-    letter-spacing: -0.022em;
+    line-height: 1.06;
     color: var(--fg-strong);
   }
 
@@ -92,8 +113,8 @@ const socials = activeContactLinks.filter((l) => l !== email);
   }
 
   .ct__lede {
-    margin-top: clamp(1.1rem, 2.4vw, 1.5rem);
-    max-width: 52ch;
+    margin-top: clamp(1rem, 2.2vw, 1.4rem);
+    max-width: 46ch;
     font-size: var(--text-lg);
     color: var(--fg-muted);
   }
@@ -103,11 +124,10 @@ const socials = activeContactLinks.filter((l) => l !== email);
     display: flex;
     align-items: center;
     gap: 1rem;
-    margin-top: clamp(1.75rem, 3.5vw, 2.5rem);
-    padding: 1.05rem 1.25rem;
+    padding: 1.1rem 1.25rem;
     border: var(--hairline) solid var(--border-strong);
     border-radius: var(--r-xs);
-    background-color: color-mix(in srgb, var(--surface) 60%, transparent);
+    background-color: var(--surface);
     transition:
       border-color var(--t-base) var(--ease),
       background-color var(--t-base) var(--ease);
@@ -127,7 +147,7 @@ const socials = activeContactLinks.filter((l) => l !== email);
     font-family: var(--font-display);
     font-size: var(--text-xl);
     color: var(--fg-strong);
-    /* Long addresses wrap rather than overflowing on a narrow phone. */
+    /* Long addresses wrap rather than overflowing a narrow phone. */
     overflow-wrap: anywhere;
     min-width: 0;
   }
@@ -148,7 +168,7 @@ const socials = activeContactLinks.filter((l) => l !== email);
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem 1.25rem;
-    margin: clamp(1.5rem, 3vw, 2rem) 0 0;
+    margin: clamp(1.25rem, 2.5vw, 1.75rem) 0 0;
     padding: 0;
     list-style: none;
   }
@@ -161,6 +181,21 @@ const socials = activeContactLinks.filter((l) => l !== email);
   }
 
   .ct__social:hover {
+    color: var(--accent);
+  }
+
+  .ct__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: clamp(1.25rem, 2.5vw, 1.75rem);
+    color: var(--fg-subtle);
+    text-transform: none;
+    letter-spacing: 0.03em;
+    transition: color var(--t-fast) var(--ease);
+  }
+
+  .ct__more:hover {
     color: var(--accent);
   }
 

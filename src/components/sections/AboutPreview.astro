@@ -1,28 +1,24 @@
 ---
 /**
- * PREVIEW: ABOUT
+ * PREVIEW: ABOUT  (homepage)
  *
- * HOMEPAGE PREVIEW — deliberately short. It shows one paragraph and the focus
- * areas, then hands off to /about for the full background. The brief is
- * explicit that the homepage is an overview and the pages carry the detail.
+ * A curated introduction, not the full narrative. One paragraph and the focus
+ * areas; /about carries the complete background.
  *
  * IMAGE BUDGET: one photograph.
  */
 import SectionHead from '@/components/ui/SectionHead.astro';
 import { profile } from '@/data/profile';
 
-/** The single strongest About visual. */
 const photo = {
   src: '/images/about/office.webp',
-  alt: 'Exterior view of the Beauty Innovation Laboratories office building',
+  alt: 'The Beauty Innovation Laboratories office building, where I built the marketing data system',
   width: 1200,
   height: 1697,
 };
-
-const previewParagraph = profile.summary[1];
 ---
 
-<section class="pv" id="about-preview">
+<section class="ab" id="about-preview">
   <div class="shell">
     <SectionHead
       index="01"
@@ -32,8 +28,8 @@ const previewParagraph = profile.summary[1];
       linkLabel="Read full background"
     />
 
-    <div class="pv__grid">
-      <figure class="pv__figure">
+    <div class="ab__grid">
+      <figure class="ab__figure">
         <img
           src={photo.src}
           alt={photo.alt}
@@ -44,11 +40,11 @@ const previewParagraph = profile.summary[1];
         />
       </figure>
 
-      <div class="pv__body">
-        <p class="pv__text">{previewParagraph}</p>
+      <div class="ab__body">
+        <p class="ab__text">{profile.summary[1]}</p>
 
-        <ul class="pv__focus" aria-label="Focus areas">
-          {profile.focusAreas.map((f) => <li class="pv__chip mono">{f}</li>)}
+        <ul class="ab__focus" aria-label="Focus areas">
+          {profile.focusAreas.map((f) => <li class="ab__chip mono">{f}</li>)}
         </ul>
       </div>
     </div>
@@ -56,38 +52,34 @@ const previewParagraph = profile.summary[1];
 </section>
 
 <style>
-  .pv {
-    padding-block: var(--section-y);
-  }
-
-  .pv__grid {
+  .ab__grid {
     display: grid;
     gap: clamp(1.75rem, 4vw, 3.5rem);
     grid-template-columns: 1fr;
     align-items: start;
   }
 
-  @media (min-width: 860px) {
-    .pv__grid {
-      /* Image is the smaller column here — the text leads this section. */
-      grid-template-columns: minmax(0, 0.7fr) minmax(0, 1fr);
+  @media (min-width: 880px) {
+    .ab__grid {
+      /* The image is the smaller column — the text leads this section. */
+      grid-template-columns: minmax(0, 0.62fr) minmax(0, 1fr);
     }
   }
 
-  .pv__figure {
-    margin: 0;
+  .ab__figure {
     position: relative;
+    margin: 0;
   }
 
-  .pv__figure img {
+  .ab__figure img {
     width: 100%;
     height: auto;
     border: var(--hairline) solid var(--border);
     border-radius: var(--r-xs);
   }
 
-  /* A short accent rule at the top-left, echoing the hero treatment. */
-  .pv__figure::before {
+  /* A short accent rule at the top-left, echoing the hero. */
+  .ab__figure::before {
     content: '';
     position: absolute;
     inset: -0.6rem auto auto -0.6rem;
@@ -96,23 +88,19 @@ const previewParagraph = profile.summary[1];
     background-color: var(--accent);
   }
 
-  @media (max-width: 859px) {
-    .pv__figure {
-      max-width: 17rem;
+  @media (max-width: 879px) {
+    .ab__figure {
+      max-width: 15rem;
     }
   }
 
-  .pv__body {
-    padding-top: 0.25rem;
-  }
-
-  .pv__text {
-    max-width: 60ch;
+  .ab__text {
+    max-width: 56ch;
     font-size: var(--text-lg);
     color: var(--fg-muted);
   }
 
-  .pv__focus {
+  .ab__focus {
     display: flex;
     flex-wrap: wrap;
     gap: 0.45rem 0.5rem;
@@ -122,7 +110,7 @@ const previewParagraph = profile.summary[1];
     border-top: var(--hairline) solid var(--border-faint);
   }
 
-  .pv__chip {
+  .ab__chip {
     padding: 0.3rem 0.7rem;
     border: var(--hairline) solid var(--border-strong);
     border-radius: var(--r-full);

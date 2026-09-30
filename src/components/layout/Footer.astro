@@ -3,7 +3,7 @@
  * FOOTER — mirrors the navbar's section list and shows the contact links plus
  * the employer logos, which doubles as a quiet credibility band.
  */
-import { navPages, activePageFor } from '@/utils/navigation';
+import { primaryNav, secondaryNav, activePageFor } from '@/utils/navigation';
 import { profile, activeContactLinks } from '@/data/profile';
 import { experienceLogos } from '@/data/experience';
 
@@ -53,7 +53,7 @@ const active = activePageFor(Astro.url.pathname);
             >
           </li>
           {
-            navPages.map((page) => (
+            [...primaryNav, ...secondaryNav].map((page) => (
               <li>
                 <a
                   href={page.href}
@@ -65,6 +65,9 @@ const active = activePageFor(Astro.url.pathname);
               </li>
             ))
           }
+          <li>
+            <a href="/contact" class="ft__link">Contact</a>
+          </li>
         </ul>
       </nav>
 
@@ -102,7 +105,7 @@ const active = activePageFor(Astro.url.pathname);
     z-index: 1;
     border-top: var(--hairline) solid var(--border);
     padding-block: clamp(2.5rem, 5vw, 4rem) 2rem;
-    background-color: var(--bg-alt);
+    background-color: var(--band);
   }
 
   /* ---------- logos ---------- */

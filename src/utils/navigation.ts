@@ -2,18 +2,18 @@
  * NAVIGATION — the single source of truth for the site's information
  * architecture.
  * ============================================================================
- * The site is split deliberately into two levels:
+ * The site is two levels, deliberately:
  *
- *   HOMEPAGE  a short professional OVERVIEW — preview sections plus CTAs.
+ *   HOMEPAGE  a curated professional INTRODUCTION — preview sections + CTAs.
  *   PAGES     the full INFORMATION: about, projects, experience, skills,
- *             publications, certifications, gallery, contact.
+ *             publications, certifications, achievements, gallery, contact.
  *
- * Because navigation is page-based rather than anchor-based, the desktop bar,
- * the mobile panel, the footer and the sitemap all read from ONE list here —
- * adding a page is a one-line change.
- *
- * `homeSections` holds the homepage anchor ids, so the homepage composition and
- * its "jump to" links cannot drift apart.
+ * WHY `primary` EXISTS
+ * The brief asked for navigation that is not cramped. Nine destinations in one
+ * flat row is exactly what makes a bar feel full, so the primary row carries
+ * only the pages a visitor needs first; the rest live under a "More" menu. The
+ * grouping lives HERE, not in the navbar, so the bar, the mobile panel and the
+ * footer all follow the same decision.
  */
 
 export interface NavPage {
@@ -23,9 +23,11 @@ export interface NavPage {
   label: string;
   /** Compact label for the desktop bar where space is tighter. */
   short?: string;
-  /** One-line description, shown in the mobile panel and on home CTA rows. */
+  /** One-line description, shown in the mobile panel and the "More" menu. */
   blurb?: string;
-  /** Kept out of the main navigation but still routable. */
+  /** In the desktop bar's primary row rather than under "More". */
+  primary?: boolean;
+  /** Kept out of navigation entirely but still routable. */
   hidden?: boolean;
 }
 
@@ -37,40 +39,49 @@ export interface HomeSection {
 
 /**
  * Order defines the desktop bar, the mobile panel and the footer.
- * Labels stay short — the site should read as a portfolio, not a CV.
+ *
+ * PRIMARY ROW  About · Projects · Experience · Skills        (+ More + CTA)
+ * MORE MENU    Publications · Certifications · Achievements · Gallery
  */
 const ALL_PAGES: NavPage[] = [
   {
     href: '/about',
     label: 'About',
     blurb: 'Background, focus areas and how I work',
+    primary: true,
   },
   {
     href: '/projects',
     label: 'Projects',
     blurb: 'Systems, dashboards and research work',
+    primary: true,
   },
   {
     href: '/experience',
     label: 'Experience',
     blurb: 'Professional and organisational experience',
+    primary: true,
   },
   {
     href: '/skills',
     label: 'Skills',
     blurb: 'Tools and methods I work with',
+    primary: true,
   },
   {
     href: '/publications',
     label: 'Publications',
-    short: 'Papers',
     blurb: 'Peer-reviewed research and articles',
   },
   {
     href: '/certifications',
     label: 'Certifications',
-    short: 'Certs',
-    blurb: 'Courses, credentials and awards',
+    blurb: 'Courses, credentials and programme certificates',
+  },
+  {
+    href: '/achievements',
+    label: 'Achievements',
+    blurb: 'Awards, competitions and programme funding',
   },
   {
     href: '/gallery',
@@ -81,23 +92,29 @@ const ALL_PAGES: NavPage[] = [
     href: '/contact',
     label: 'Contact',
     blurb: 'Get in touch',
+    hidden: true, // rendered as the navbar CTA instead of a nav link
   },
 ];
 
-/** Visible navigation pages, in order. */
+/** Pages that appear in navigation (every route except /contact). */
 export const navPages: NavPage[] = ALL_PAGES.filter((p) => !p.hidden);
+
+/** The desktop bar's main row. */
+export const primaryNav: NavPage[] = navPages.filter((p) => p.primary);
+
+/** Everything not in the main row — shown under "More" on desktop, and inline
+ *  in the mobile panel and footer. */
+export const secondaryNav: NavPage[] = navPages.filter((p) => !p.primary);
 
 /**
  * Homepage preview sections, in the order they are composed in
- * `src/pages/index.astro`. Used for the hero's jump row and the scroll cue.
+ * `src/pages/index.astro`. Drives the hero's jump row.
  */
 export const homeSections: HomeSection[] = [
   { id: 'about-preview', label: 'About' },
   { id: 'featured', label: 'Selected Work' },
   { id: 'experience-preview', label: 'Experience' },
   { id: 'skills-preview', label: 'Skills' },
-  { id: 'credentials-preview', label: 'Credentials' },
-  { id: 'gallery-preview', label: 'Moments' },
   { id: 'contact-preview', label: 'Contact' },
 ];
 

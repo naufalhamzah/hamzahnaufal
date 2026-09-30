@@ -27,7 +27,6 @@ import {
   CERTIFICATION_KIND_LABELS,
   CERTIFICATION_KIND_ORDER,
 } from '@/data/certifications';
-import { achievementEntries } from '@/data/achievements';
 import { profile } from '@/data/profile';
 
 const byKind = CERTIFICATION_KIND_ORDER.map((kind) => ({
@@ -40,7 +39,6 @@ const meta = [
   { label: 'Certificates', value: String(certificationTotal) },
   { label: 'Course credentials', value: String(credentialCount) },
   { label: 'Issuers', value: String(certificationIssuers.length) },
-  { label: 'Awards', value: String(achievementEntries.length) },
 ];
 ---
 
@@ -141,56 +139,15 @@ const meta = [
     </div>
   </section>
 
-  <!-- ===================== achievements ===================== -->
-  <section class="ce-aw" id="achievements" aria-labelledby="ce-aw-h">
+  <!-- ===================== onward: achievements ===================== -->
+  <section class="ce-go">
     <div class="shell">
-      <header class="ce-aw__head">
-        <h2 id="ce-aw-h" class="label">Awards &amp; achievements</h2>
-        <p class="mono ce-aw__count">{achievementEntries.length} entries</p>
-      </header>
-
-      <ul class="ce-aw__list">
-        {
-          achievementEntries.map((a) => (
-            <li class="ce-aw__row">
-              {
-                /* The piagam is shown where one exists — the claim is then
-                   verifiable on the page rather than asserted. */
-                a.visual && (
-                  <button
-                    type="button"
-                    class="ce-aw__thumb"
-                    data-lightbox-src={a.visual.src}
-                    data-lightbox-alt={a.visual.alt}
-                    data-lightbox-title={a.title}
-                    data-lightbox-caption={a.year ?? ''}
-                    aria-label={`View certificate: ${a.title}`}
-                  >
-                    <img
-                      src={a.visual.src}
-                      alt={a.visual.alt}
-                      width={a.visual.width}
-                      height={a.visual.height}
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </button>
-                )
-              }
-
-              <div class="ce-aw__body">
-                <p class="ce-aw__meta mono">
-                  <span class="ce-aw__kind">{a.kind}</span>
-                  {a.year && <span class="ce-aw__year">{a.year}</span>}
-                </p>
-                <h3 class="ce-aw__title">{a.title}</h3>
-                <p class="ce-aw__detail">{a.detail}</p>
-                {a.context && <p class="ce-aw__ctx mono">{a.context}</p>}
-              </div>
-            </li>
-          ))
-        }
-      </ul>
+      <a href="/achievements" class="ce-go__link">
+        <span class="ce-go__label mono">Also</span>
+        <span class="ce-go__title">Awards and recognition</span>
+        <span class="ce-go__note mono">Medal · competition finalist · programme funding</span>
+        <span class="ce-go__arrow" aria-hidden="true">→</span>
+      </a>
     </div>
   </section>
 </BaseLayout>
@@ -200,7 +157,7 @@ const meta = [
      certificate groups
      ========================================================================== */
   .ce {
-    padding-block: clamp(1.5rem, 3vw, 2.5rem) var(--section-y);
+    padding-block: clamp(1.5rem, 3vw, 2.5rem) var(--space-section);
   }
 
   .ce__group + .ce__group {
@@ -279,7 +236,7 @@ const meta = [
     overflow: hidden;
     border: var(--hairline) solid var(--border);
     border-radius: var(--r-xs);
-    background-color: color-mix(in srgb, var(--surface) 65%, transparent);
+    background-color: var(--surface);
     text-align: left;
     cursor: zoom-in;
     transition:
@@ -394,108 +351,57 @@ const meta = [
     max-width: 18ch;
   }
 
-  /* ==========================================================================
-     achievements
-     ========================================================================== */
-  .ce-aw {
-    padding-block: var(--section-y);
+  /* ---------------- onward link ---------------- */
+  .ce-go {
+    padding-block: var(--space-band) var(--space-section);
     border-top: var(--hairline) solid var(--border);
-    background-color: color-mix(in srgb, var(--surface) 45%, transparent);
   }
 
-  .ce-aw__head {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 0.5rem 1rem;
-    padding-bottom: 1rem;
-    border-bottom: var(--hairline) solid var(--border);
-  }
-
-  .ce-aw__count {
-    color: var(--fg-faint);
-  }
-
-  .ce-aw__list {
+  .ce-go__link {
     display: grid;
-    gap: 0;
-    margin: clamp(1.25rem, 2.5vw, 1.75rem) 0 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .ce-aw__row {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    padding: 1.25rem 0;
-    border-bottom: var(--hairline) solid var(--border-faint);
-  }
-
-  @media (min-width: 700px) {
-    .ce-aw__row {
-      grid-template-columns: 8rem minmax(0, 1fr);
-      gap: clamp(1.25rem, 3vw, 2rem);
-      align-items: start;
-    }
-  }
-
-  .ce-aw__thumb {
-    display: block;
-    width: 100%;
-    max-width: 10rem;
-    padding: 0;
-    overflow: hidden;
-    border: var(--hairline) solid var(--border);
-    border-radius: var(--r-xs);
-    background-color: var(--surface-2);
-    cursor: zoom-in;
-    aspect-ratio: 3 / 2;
-  }
-
-  .ce-aw__thumb img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: top center;
-  }
-
-  .ce-aw__meta {
-    display: flex;
+    gap: 0.2rem 1rem;
+    grid-template-columns: 1fr auto;
     align-items: center;
-    gap: 0.6rem;
+    padding: clamp(1.1rem, 2.5vw, 1.5rem) clamp(1.15rem, 2.5vw, 1.5rem);
+    border: var(--hairline) solid var(--border-strong);
+    border-radius: var(--r-xs);
+    transition:
+      border-color var(--t-base) var(--ease),
+      background-color var(--t-base) var(--ease);
   }
 
-  .ce-aw__kind {
-    color: var(--accent);
+  .ce-go__link:hover {
+    border-color: var(--accent);
+    background-color: var(--accent-soft);
   }
 
-  .ce-aw__year {
-    padding-inline-start: 0.6rem;
-    border-inline-start: var(--hairline) solid var(--border);
+  .ce-go__label {
+    grid-column: 1 / -1;
     color: var(--fg-faint);
   }
 
-  .ce-aw__title {
-    margin-top: 0.5rem;
+  .ce-go__title {
     font-family: var(--font-display);
     font-size: var(--text-xl);
-    font-weight: 500;
     color: var(--fg-strong);
   }
 
-  .ce-aw__detail {
-    margin-top: 0.5rem;
-    max-width: 68ch;
-    font-size: var(--text-sm);
-    color: var(--fg-muted);
-  }
-
-  .ce-aw__ctx {
-    margin-top: 0.5rem;
+  .ce-go__note {
+    grid-column: 1;
     color: var(--fg-faint);
     text-transform: none;
     letter-spacing: 0.02em;
+  }
+
+  .ce-go__arrow {
+    grid-row: 2 / span 2;
+    grid-column: 2;
+    color: var(--accent);
+    font-size: 1.15rem;
+    transition: transform var(--t-base) var(--ease);
+  }
+
+  .ce-go__link:hover .ce-go__arrow {
+    transform: translateX(4px);
   }
 </style>

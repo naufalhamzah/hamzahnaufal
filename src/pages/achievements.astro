@@ -1,0 +1,226 @@
+---
+/**
+ * ACHIEVEMENTS — awards, competitions and programme funding.
+ *
+ * Split out of the Certifications page so each page has one job. The brief's
+ * principle was "certification = credential, achievement = recognition"; mixing
+ * them made the certificate grid compete with award copy.
+ *
+ * Every award piagam is shown where one exists, so each claim is verifiable on
+ * the page rather than merely asserted. Nothing here is inferred: only what the
+ * source material states.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/ui/PageHeader.astro';
+import { achievementEntries } from '@/data/achievements';
+import { profile } from '@/data/profile';
+
+/** Group labels, derived from the data's own `kind` field. */
+const KIND_LABEL: Record<string, string> = {
+  award: 'Award',
+  competition: 'Competition',
+  funding: 'Programme funding',
+};
+
+const meta = [
+  { label: 'Entries', value: String(achievementEntries.length) },
+  {
+    label: 'Years',
+    value: achievementEntries
+      .map((a) => a.year)
+      .filter(Boolean)
+      .sort()
+      .join(' · '),
+  },
+  { label: 'Note', value: 'Each entry shows its certificate where one exists' },
+];
+---
+
+<BaseLayout
+  title={`Achievements — ${profile.name}`}
+  description="Awards and recognition for Hamzah Naufal Zuhdi — a Silver Medal at the Olimpiade Numerasi Nasional, a competition finalist placement, and funded programme work."
+>
+  <PageHeader
+    index="07"
+    eyebrow="Achievements"
+    title="Awards and recognition"
+    standfirst="Recognitions the source material documents, each shown with its certificate or piagam where one exists."
+    meta={meta}
+  />
+
+  <section class="aw" aria-label="Achievements">
+    <div class="shell">
+      <ol class="aw__list">
+        {
+          achievementEntries.map((a, i) => (
+            <li class="aw__row">
+              <p class="aw__idx mono" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </p>
+
+              {/* The piagam, where we hold one — the claim is then checkable. */}
+              {
+                a.visual ? (
+                  <figure class="aw__figure">
+                    <button
+                      type="button"
+                      class="aw__thumb"
+                      data-lightbox-src={a.visual.src}
+                      data-lightbox-alt={a.visual.alt}
+                      data-lightbox-title={a.title}
+                      data-lightbox-caption={[a.year, KIND_LABEL[a.kind]]
+                        .filter(Boolean)
+                        .join(' · ')}
+                      aria-label={`View certificate: ${a.title}`}
+                    >
+                      <img
+                        src={a.visual.src}
+                        alt={a.visual.alt}
+                        width={a.visual.width}
+                        height={a.visual.height}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </button>
+                  </figure>
+                ) : (
+                  <p class="aw__figure aw__figure--empty mono" aria-hidden="true">
+                    No scan held
+                  </p>
+                )
+              }
+
+              <div class="aw__body">
+                <p class="aw__meta mono">
+                  <span class="aw__kind">{KIND_LABEL[a.kind] ?? a.kind}</span>
+                  {a.year && <span class="aw__year">{a.year}</span>}
+                </p>
+
+                <h2 class="aw__title">{a.title}</h2>
+                <p class="aw__detail">{a.detail}</p>
+                {a.context && <p class="aw__ctx mono">{a.context}</p>}
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .aw__list {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    gap: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  .aw__row {
+    display: grid;
+    gap: clamp(1rem, 2.5vw, 1.75rem);
+    grid-template-columns: 1fr;
+    padding-top: clamp(1.75rem, 3.5vw, 2.5rem);
+    border-top: var(--hairline) solid var(--border-faint);
+  }
+
+  .aw__row:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  @media (min-width: 820px) {
+    .aw__row {
+      grid-template-columns: 2.5rem minmax(0, 14rem) minmax(0, 1fr);
+      align-items: start;
+    }
+  }
+
+  .aw__idx {
+    color: var(--accent);
+    font-size: var(--text-lg);
+    line-height: 1;
+  }
+
+  .aw__figure {
+    margin: 0;
+  }
+
+  .aw__thumb {
+    display: block;
+    width: 100%;
+    max-width: 18rem;
+    padding: 0;
+    overflow: hidden;
+    border: var(--hairline) solid var(--border);
+    border-radius: var(--r-xs);
+    background-color: var(--surface-2);
+    cursor: zoom-in;
+    aspect-ratio: 3 / 2;
+  }
+
+  .aw__thumb img {
+    width: 100%;
+    height: 100%;
+    /* The piagam prints the name at the top, so anchoring there keeps the
+       identifying part visible in a cropped thumbnail. */
+    object-fit: cover;
+    object-position: top center;
+    transition: transform var(--t-slow) var(--ease);
+  }
+
+  .aw__thumb:hover img {
+    transform: scale(1.04);
+  }
+
+  .aw__figure--empty {
+    display: grid;
+    place-items: center;
+    max-width: 18rem;
+    padding: 1.25rem;
+    border: var(--hairline) dashed var(--border);
+    border-radius: var(--r-xs);
+    color: var(--fg-faint);
+    text-transform: none;
+  }
+
+  .aw__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .aw__kind {
+    color: var(--accent);
+  }
+
+  .aw__year {
+    padding-inline-start: 0.6rem;
+    border-inline-start: var(--hairline) solid var(--border);
+    color: var(--fg-faint);
+  }
+
+  .aw__title {
+    margin-top: 0.6rem;
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 500;
+    color: var(--fg-strong);
+    max-width: 32ch;
+  }
+
+  .aw__detail {
+    margin-top: 0.7rem;
+    max-width: 64ch;
+    color: var(--fg-muted);
+  }
+
+  .aw__ctx {
+    margin-top: 0.6rem;
+    color: var(--fg-faint);
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
+</style>

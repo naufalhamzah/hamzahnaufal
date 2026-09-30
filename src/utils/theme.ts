@@ -38,12 +38,28 @@ export function resolveTheme(): Theme {
   return 'dark';
 }
 
+/** How long the `.theme-switching` guard stays on. Slightly longer than
+ *  --t-theme so the transition can finish before the rule is removed. */
+const THEME_FADE_MS = 340;
+
 /** Applies a theme to <html> and remembers the choice. */
-export function applyTheme(theme: Theme, persist = true): void {
+export function applyTheme(theme: Theme, persist = true, animate = false): void {
   const root = document.documentElement;
+
+  /*
+    The transition lives on `.theme-switching` rather than on every element, so
+    colours animate only during an actual theme change — never on first paint,
+    and never on every hover. Removed on a timer once the fade has finished.
+  */
+  if (animate) {
+    root.classList.add('theme-switching');
+    window.setTimeout(() => root.classList.remove('theme-switching'), THEME_FADE_MS);
+  }
+
   root.classList.toggle('dark', theme === 'dark');
   root.dataset.theme = theme;
   root.style.colorScheme = theme;
+
   if (persist) {
     try {
       localStorage.setItem(THEME_STORAGE_KEY, theme);

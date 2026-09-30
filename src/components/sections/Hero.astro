@@ -1,27 +1,27 @@
 ---
 /**
- * HERO — the homepage's opening statement.
+ * HERO — the homepage's focal point.
  *
- * DESIGN INTENT
- * The brief asks for an editorial composition rather than the common
- * "[square photo] + [text]" block. So this is built as an asymmetric spread:
+ * COMPOSITION
+ * Not "[photo box] + [text]". The portrait is a tall panel that bleeds past the
+ * top of the section, sits inside an offset hairline frame, and overlaps the
+ * type column slightly on desktop — so the image reads as part of the layout
+ * rather than an illustration dropped next to it.
  *
- *   · an oversized serif name on two lines, the surname in italics with a
- *     burgundy rule running out of it into the page
- *   · the portrait as a tall layered panel offset from the type — not boxed
- *     beside it — with a thin accent frame echoing its top-left corner
- *   · a mono meta row and hairline rules, which is what makes the block read
- *     as designed rather than templated
- *   · a jump row linking into the homepage previews below
+ *   1. eyebrow
+ *   2. the name, set very large, surname in italic with a burgundy rule
+ *   3. the positioning line
+ *   4. a short lead paragraph
+ *   5. two actions
+ *   6. one mono meta rule (location · status)
  *
  * IDENTITY
- * The headline is "Information Systems Graduate" — deliberately NOT the
- * current employer. AirNav appears only on the Experience page.
+ * The headline is the graduate positioning, NOT the employer. AirNav appears
+ * only on the Experience page.
  *
- * IMAGE BUDGET: exactly ONE photograph here, per the brief.
+ * IMAGE BUDGET: exactly ONE photograph.
  */
 import { profile } from '@/data/profile';
-import { homeSections } from '@/utils/navigation';
 
 /** Split the name so the surname can be set in italic. */
 const parts = profile.name.trim().split(/\s+/);
@@ -30,14 +30,11 @@ const last = parts[parts.length - 1] ?? '';
 ---
 
 <section class="hero" id="top">
-  <div class="shell hero__shell">
+  <div class="shell shell--wide hero__shell">
     <div class="hero__grid">
-      <!-- ---------------- left: type ---------------- -->
+      <!-- ---------------- type ---------------- -->
       <div class="hero__type">
-        <p class="hero__eyebrow label">
-          <span class="hero__dot" aria-hidden="true"></span>
-          Portfolio
-        </p>
+        <p class="hero__eyebrow label">Portfolio</p>
 
         <h1 class="hero__name">
           <span class="hero__name-line">{first}</span>
@@ -46,9 +43,7 @@ const last = parts[parts.length - 1] ?? '';
 
         <p class="hero__role">{profile.headline}</p>
 
-        <ul class="hero__positioning" aria-label="Focus areas">
-          {profile.positioning.map((p) => <li class="hero__pill mono">{p}</li>)}
-        </ul>
+        <p class="hero__fields mono">{profile.positioning.join('   ·   ')}</p>
 
         <p class="hero__lede">{profile.summary[0]}</p>
 
@@ -61,7 +56,7 @@ const last = parts[parts.length - 1] ?? '';
         </div>
       </div>
 
-      <!-- ---------------- right: portrait ---------------- -->
+      <!-- ---------------- portrait ---------------- -->
       <figure class="hero__figure">
         <span class="hero__frame" aria-hidden="true"></span>
 
@@ -74,100 +69,75 @@ const last = parts[parts.length - 1] ?? '';
           fetchpriority="high"
           decoding="async"
         />
-
-        <figcaption class="hero__cap">
-          <span class="mono">{profile.location}</span>
-          <span class="hero__cap-rule" aria-hidden="true"></span>
-          <span class="mono hero__cap-status">{profile.currentStatus}</span>
-        </figcaption>
       </figure>
     </div>
 
-    <!-- ---------------- jump row ---------------- -->
-    <nav class="hero__jump" aria-label="Sections on this page">
-      <span class="mono hero__jump-label">On this page</span>
-      <ul class="hero__jump-list">
-        {
-          homeSections.map((s) => (
-            <li>
-              <a href={`#${s.id}`} class="hero__jump-link mono">
-                {s.label}
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </nav>
+    <!-- ---------------- meta rule ---------------- -->
+    <div class="hero__meta">
+      <span class="mono">{profile.location}</span>
+      <span class="hero__meta-rule" aria-hidden="true"></span>
+      <span class="mono">{profile.currentStatus}</span>
+    </div>
   </div>
 </section>
 
 <style>
+  /* ==========================================================================
+     HERO
+     ========================================================================== */
   .hero {
     position: relative;
-    padding-top: clamp(2.5rem, 6vw, 5rem);
-    padding-bottom: clamp(2rem, 4vw, 3rem);
+    /* The portrait is allowed to break the top edge, so the section clips. */
     overflow: hidden;
-  }
-
-  /* The hero needs more horizontal room than the default shell, so the
-     composition can push the portrait toward the right edge. */
-  .hero__shell {
-    max-width: 1440px;
+    padding-top: clamp(2.25rem, 5vw, 4rem);
   }
 
   .hero__grid {
     display: grid;
-    gap: clamp(2rem, 4vw, 3.5rem);
+    gap: clamp(2.5rem, 5vw, 4rem);
     grid-template-columns: 1fr;
     align-items: center;
   }
 
-  /* From 900px the type and the portrait share a row, the portrait weighted a
-     little narrower so the name remains the dominant element. */
-  @media (min-width: 900px) {
+  @media (min-width: 940px) {
     .hero__grid {
-      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-      gap: clamp(2rem, 5vw, 4.5rem);
+      /* Type leads. The portrait column is narrower and pulled upward, which
+         is what creates the asymmetry. */
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.78fr);
+      gap: clamp(2rem, 4vw, 3.5rem);
       align-items: start;
     }
   }
 
   /* ---------------- type ---------------- */
-  .hero__type {
-    max-width: 34ch;
-  }
-
-  @media (min-width: 900px) {
+  /*
+    NO max-width on the column itself. An earlier `max-width: 20ch` here resolved
+    against the body font, not the display font, and collapsed the whole column
+    to ~200px — which wrapped the name into a narrow ribbon and made the hero
+    twice as tall as intended. The measure is constrained per element instead
+    (the h1 and the lead paragraph), which is where it actually matters.
+  */
+  @media (min-width: 940px) {
     .hero__type {
-      padding-top: clamp(1rem, 3vw, 2.5rem);
+      padding-top: clamp(1.5rem, 4vw, 3.5rem);
+      /* Sits above the portrait where they overlap. */
+      position: relative;
+      z-index: 2;
     }
   }
 
   .hero__eyebrow {
-    margin-bottom: clamp(1.1rem, 2.5vw, 1.6rem);
-  }
-
-  .hero__eyebrow::before {
-    display: none;
-  }
-
-  .hero__dot {
-    display: inline-block;
-    width: 0.4rem;
-    height: 0.4rem;
-    margin-inline-end: 0.5rem;
-    border-radius: var(--r-full);
-    background-color: var(--accent);
-    vertical-align: middle;
+    margin-bottom: clamp(1.25rem, 2.6vw, 1.75rem);
   }
 
   .hero__name {
     font-family: var(--font-display);
-    /* The largest type on the site — this is the hierarchy anchor. */
-    font-size: clamp(2.6rem, 1rem + 7.4vw, 6.2rem);
+    /* The largest type on the site. This is the hierarchy anchor; everything
+       else is measured against it. */
+    font-size: var(--text-display);
     font-weight: 500;
-    line-height: 0.98;
-    letter-spacing: -0.03em;
+    line-height: 0.96;
+    letter-spacing: -0.032em;
     color: var(--fg-strong);
   }
 
@@ -175,21 +145,21 @@ const last = parts[parts.length - 1] ?? '';
     display: block;
   }
 
-  /* The surname is italic: an editorial contrast move that stops the two words
-     reading as one long grey block. */
+  /* Italic surname: an editorial contrast move that stops the name reading as
+     one long grey block. */
   .hero__name-line--last em {
     font-style: italic;
     position: relative;
-    padding-inline-end: 0.15em;
+    padding-inline-end: 0.12em;
   }
 
-  /* Burgundy rule running out from the surname into the page. */
+  /* Burgundy rule running out of the surname into the whitespace. */
   .hero__name-line--last em::after {
     content: '';
     position: absolute;
-    left: calc(100% + 0.28em);
-    top: 0.58em;
-    width: clamp(2rem, 9vw, 8rem);
+    left: calc(100% + 0.3em);
+    top: 0.56em;
+    width: clamp(1.5rem, 7vw, 6rem);
     height: 2px;
     background-color: var(--accent);
   }
@@ -200,31 +170,18 @@ const last = parts[parts.length - 1] ?? '';
     font-size: var(--text-xl);
     font-style: italic;
     color: var(--accent);
-    letter-spacing: -0.005em;
   }
 
-  .hero__positioning {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem 0.5rem;
-    margin: clamp(0.9rem, 2vw, 1.3rem) 0 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .hero__pill {
-    padding: 0.28rem 0.6rem;
-    border: var(--hairline) solid var(--border-strong);
-    border-radius: var(--r-full);
-    color: var(--fg-muted);
+  .hero__fields {
+    margin-top: 0.9rem;
+    color: var(--fg-faint);
     text-transform: none;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.06em;
   }
 
   .hero__lede {
-    margin-top: clamp(1.1rem, 2.4vw, 1.6rem);
-    max-width: 46ch;
-    font-size: var(--text-base);
+    margin-top: clamp(1.15rem, 2.4vw, 1.6rem);
+    max-width: 42ch;
     color: var(--fg-muted);
   }
 
@@ -232,14 +189,14 @@ const last = parts[parts.length - 1] ?? '';
     display: flex;
     flex-wrap: wrap;
     gap: 0.7rem;
-    margin-top: clamp(1.5rem, 3vw, 2.1rem);
+    margin-top: clamp(1.75rem, 3.2vw, 2.25rem);
   }
 
   .hero__btn {
     display: inline-flex;
     align-items: center;
     gap: 0.55rem;
-    padding: 0.78rem 1.3rem;
+    padding: 0.8rem 1.35rem;
     border: var(--hairline) solid transparent;
     border-radius: var(--r-xs);
     font-family: var(--font-mono);
@@ -280,12 +237,19 @@ const last = parts[parts.length - 1] ?? '';
     margin: 0;
   }
 
-  /* Offset hairline frame: sits up and to the left of the photograph, which is
-     what gives the composition its layered feel. */
+  @media (min-width: 940px) {
+    .hero__figure {
+      /* Pulled up so the photograph breaks past the section's top padding and
+         the composition feels cropped rather than contained. */
+      margin-top: clamp(-5rem, -6vw, -2rem);
+    }
+  }
+
+  /* Offset hairline frame — up and to the left of the photograph. */
   .hero__frame {
     position: absolute;
-    inset: -0.75rem 0.75rem auto -0.75rem;
-    height: 55%;
+    inset: -0.85rem 0.85rem auto -0.85rem;
+    height: 52%;
     border-top: 1px solid var(--accent-line);
     border-left: 1px solid var(--accent-line);
     pointer-events: none;
@@ -299,100 +263,60 @@ const last = parts[parts.length - 1] ?? '';
     /* Native portrait ratio — nothing cropped. */
     object-fit: cover;
     border-radius: var(--r-xs);
-    /* A deep shadow lifts the photo off the background without a card wrapper. */
     box-shadow: var(--shadow-lg);
-    filter: saturate(0.96) contrast(1.02);
+    /* A touch of desaturation keeps the photograph sitting inside the palette
+       instead of fighting it. */
+    filter: saturate(0.94) contrast(1.03);
   }
 
-  .hero__cap {
+  /* ---------------- meta rule ---------------- */
+  .hero__meta {
     display: flex;
     align-items: center;
-    gap: 0.7rem;
-    margin-top: 0.9rem;
-  }
-
-  .hero__cap-rule {
-    flex: 1;
-    height: 1px;
-    background-color: var(--border);
-  }
-
-  .hero__cap-status {
-    color: var(--fg-faint);
-  }
-
-  /* ---------------- jump row ---------------- */
-  .hero__jump {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.6rem 1.1rem;
+    gap: 1rem;
     margin-top: clamp(2.5rem, 5vw, 4rem);
     padding-top: 1.1rem;
     border-top: var(--hairline) solid var(--border);
   }
 
-  .hero__jump-label {
-    color: var(--fg-faint);
-    flex: none;
-  }
-
-  .hero__jump-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem 1.1rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .hero__jump-link {
-    color: var(--fg-muted);
-    text-transform: none;
-    letter-spacing: 0.03em;
-    transition: color var(--t-fast) var(--ease);
-  }
-
-  .hero__jump-link:hover {
-    color: var(--accent);
+  .hero__meta-rule {
+    flex: 1;
+    height: 1px;
+    background-color: var(--border-faint);
   }
 
   /* ---------------- mobile ---------------- */
-  @media (max-width: 899px) {
-    /* Portrait leads on narrow screens: the face first, then the type. */
+  @media (max-width: 939px) {
+    /* Portrait first, and capped hard — a 2:3 photograph at full width would be
+       ~530px tall and push the name off the first screen. */
     .hero__figure {
       order: -1;
-      /* Deliberately small. A 2:3 portrait at full width would be ~530px tall
-         and push the name off the first screen, so it is capped hard. */
-      max-width: 15rem;
+      max-width: 14rem;
     }
 
-    /* The offset accent frame reads as a stray line at this size. */
+    /* The offset frame reads as a stray line at this size. */
     .hero__frame {
       display: none;
     }
 
-    .hero__type {
+    .hero__name-line--last em::after {
+      width: clamp(1.25rem, 12vw, 3.5rem);
+    }
+
+    .hero__lede {
       max-width: none;
     }
+  }
 
-    .hero__name-line--last em::after {
-      width: clamp(1.5rem, 14vw, 4rem);
-    }
-
-    /* Stack the caption so neither item wraps mid-phrase. */
-    .hero__cap {
+  @media (max-width: 560px) {
+    .hero__meta {
       flex-direction: column;
       align-items: flex-start;
-      gap: 0.2rem;
+      gap: 0.3rem;
     }
 
-    .hero__cap-rule {
+    .hero__meta-rule {
       display: none;
-    }
-
-    .hero__cap-status {
-      order: -1;
     }
   }
 </style>

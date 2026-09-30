@@ -1,45 +1,62 @@
 ---
 /**
- * PREVIEW: SKILLS
+ * PREVIEW: SKILLS  (homepage)
  *
- * Shows the tool logos at a size that is actually readable — the brief asked
- * for "logos large enough, not too small". Each tile is a 4rem target holding a
- * 2.4rem mark, with the name beneath.
+ * A curated set of tool marks — NOT the full inventory. The brief asked for
+ * selected skills on the homepage and the complete list on /skills.
  *
- * NO PROFICIENCY PERCENTAGES. Neither source document states any, so showing
- * "Python 90%" would be fabrication. The site lists what has been worked with,
- * grouped by area.
+ * The selection is explicit rather than "the first N": these are the tools the
+ * source material ties to actual work, so the preview shows the strongest
+ * evidence rather than whatever happens to be first in the data file.
  *
- * Only the FIRST group of logos appears here; /skills carries all of them.
+ * NO PROFICIENCY PERCENTAGES — none are documented anywhere, so none are shown.
  */
 import SectionHead from '@/components/ui/SectionHead.astro';
 import SkillTile from '@/components/ui/SkillTile.astro';
 import { skillGroups, totalSkills } from '@/data/skills';
 
-/** A representative slice: every group's iconed items, capped for the preview. */
-const preview = skillGroups
-  .flatMap((g) => g.items)
-  .filter((i) => i.icon)
-  .slice(0, 14);
+/**
+ * Curated by name. A new skill added to `skills.ts` appears on /skills
+ * automatically; it only reaches the homepage if it is listed here too, which
+ * keeps this section deliberate.
+ */
+const SELECTED = [
+  'Python',
+  'SQL',
+  'Java',
+  'JavaScript',
+  'Google Looker Studio',
+  'Tableau',
+  'Microsoft Excel',
+  'Google Sheets',
+  'Figma',
+  'GitHub',
+  'CapCut',
+  'Google Apps Script',
+];
+
+/** Resolve the selection against the skill data, preserving the order above. */
+const byName = new Map(skillGroups.flatMap((g) => g.items).map((i) => [i.name, i]));
+const selected = SELECTED.map((n) => byName.get(n)).filter(Boolean);
 ---
 
-<section class="sp" id="skills-preview">
+<section class="sk" id="skills-preview">
   <div class="shell">
     <SectionHead
       index="04"
       eyebrow="Skills"
-      title="Tools and methods I work with"
-      lede="Grouped by area — analytics and visualisation, programming and databases, modelling, process work, design, and everyday tooling."
+      title="Tools I work with"
+      lede="Analytics and visualisation, programming and databases, modelling, process work, design, and everyday tooling."
       href="/skills"
-      linkLabel="Explore skills"
+      linkLabel="Explore all skills"
       note={`${totalSkills} entries`}
     />
 
-    <ul class="sp__grid">
+    <ul class="sk__grid">
       {
-        preview.map((item) => (
+        selected.map((item) => (
           <li>
-            <SkillTile name={item.name} icon={item.icon} />
+            <SkillTile name={item!.name} icon={item!.icon} />
           </li>
         ))
       }
@@ -48,19 +65,19 @@ const preview = skillGroups
 </section>
 
 <style>
-  .sp {
-    padding-block: var(--section-y);
-    background-color: color-mix(in srgb, var(--surface) 55%, transparent);
+  .sk {
+    background-color: var(--band);
     border-block: var(--hairline) solid var(--border-faint);
   }
 
-  .sp__grid {
+  .sk__grid {
     display: grid;
-    gap: clamp(0.6rem, 1.4vw, 1rem);
+    gap: var(--gap-tight);
     margin: 0;
     padding: 0;
     list-style: none;
-    /* auto-fill keeps tiles the right size at every width with no media query */
-    grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+    /* auto-fill keeps tiles the right size at every width, with no media
+       query and no dependence on how many skills are selected */
+    grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
   }
 </style>

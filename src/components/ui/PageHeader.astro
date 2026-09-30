@@ -1,10 +1,13 @@
 ---
 /**
- * PAGE HEADER — the masthead used by every detail page.
+ * PAGE HEADER — the masthead every detail page shares.
  *
- * Keeps all detail pages visually consistent: eyebrow (with an index number),
- * an oversized serif title, an optional standfirst, and an optional meta strip
- * on the right. Nothing about the content is hardcoded here.
+ * This is what makes each page feel distinct from the homepage while still
+ * being unmistakably the same site: the same eyebrow treatment, the same
+ * oversized serif, the same hairline, but a different statement of purpose.
+ *
+ * Anatomy:  eyebrow (accent rule + label)  →  title  →  standfirst  →  meta rail
+ * Every part except the eyebrow and title is optional.
  */
 interface Props {
   /** Small uppercase label above the title. */
@@ -13,7 +16,7 @@ interface Props {
   title: string;
   /** Optional lead paragraph under the title. */
   standfirst?: string;
-  /** Optional short facts shown as a right-hand column (mono, hairline rules). */
+  /** Optional short facts shown as a right-hand rail. */
   meta?: { label: string; value: string }[];
   /** Two-digit index shown before the eyebrow, e.g. "02". */
   index?: string;
@@ -29,7 +32,7 @@ const { eyebrow, title, standfirst, meta = [], index } = Astro.props;
       {eyebrow}
     </p>
 
-    <div class="ph__grid" class:list={[meta.length > 0 && 'ph__grid--split']}>
+    <div class:list={['ph__grid', meta.length > 0 && 'ph__grid--split']}>
       <div class="ph__lead">
         <h1 class="ph__title">{title}</h1>
         {standfirst && <p class="ph__stand">{standfirst}</p>}
@@ -55,7 +58,7 @@ const { eyebrow, title, standfirst, meta = [], index } = Astro.props;
 
 <style>
   .ph {
-    padding-top: clamp(3rem, 7vw, 5.5rem);
+    padding-top: clamp(3rem, 6vw, 5rem);
     padding-bottom: clamp(1.75rem, 3vw, 2.5rem);
   }
 
@@ -74,10 +77,11 @@ const { eyebrow, title, standfirst, meta = [], index } = Astro.props;
     grid-template-columns: 1fr;
   }
 
-  /* Title takes the larger share; meta sits in a narrow right column. */
+  /* The title takes the larger share; meta sits in a narrow right rail,
+     aligned to the title's baseline. */
   @media (min-width: 900px) {
     .ph__grid--split {
-      grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
       align-items: end;
     }
   }
@@ -86,11 +90,9 @@ const { eyebrow, title, standfirst, meta = [], index } = Astro.props;
     font-family: var(--font-display);
     font-size: var(--text-4xl);
     font-weight: 500;
-    line-height: 1.04;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.026em;
     color: var(--fg-strong);
-    /* Editorial optical sizing: the serif needs a touch of positive tracking
-       at display size to stop the letters colliding. */
+    /* A long title would otherwise run the full width and lose its shape. */
     max-width: 20ch;
   }
 

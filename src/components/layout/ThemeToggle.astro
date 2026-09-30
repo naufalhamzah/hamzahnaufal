@@ -80,7 +80,8 @@
     sync(resolveTheme());
     btn.addEventListener('click', () => {
       const next: Theme = resolveTheme() === 'dark' ? 'light' : 'dark';
-      applyTheme(next);
+      // `animate` turns on the crossfade guard for this change only.
+      applyTheme(next, true, true);
       sync(next);
     });
   }

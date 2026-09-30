@@ -122,9 +122,38 @@ const LOCAL: Record<string, SkillIcon> = {
 /* Registry                                                                   */
 /* -------------------------------------------------------------------------- */
 
-/** simple-icons ships single-path marks; we take the path and brand colour. */
+/**
+ * simple-icons ships single-path marks plus a brand colour.
+ *
+ * DARK-MARK FIX: several official marks are near-black — Java (#000000),
+ * GitHub (#181717), OBS Studio (#302E31). Painted with `fill: #000000` on a
+ * near-black canvas they disappear completely, which is how a tile ends up
+ * looking empty while still being "correct" data. Any brand colour too dark to
+ * read is dropped to `null`, which the tile renders as `currentColor` and
+ * therefore inherits the theme's foreground. The mark keeps its silhouette and
+ * stays visible in both themes.
+ *
+ * Threshold: relative luminance below 0.12 is unreadable on the dark canvas.
+ */
+function isTooDark(hex: string): boolean {
+  const h = hex.replace('#', '');
+  if (h.length !== 6) return false;
+  const chan = (v: number) => {
+    v /= 255;
+    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+  };
+  const r = chan(parseInt(h.slice(0, 2), 16));
+  const g = chan(parseInt(h.slice(2, 4), 16));
+  const b = chan(parseInt(h.slice(4, 6), 16));
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b < 0.12;
+}
+
 function brand(icon: { path: string; hex: string }): SkillIcon {
-  return { path: icon.path, hex: `#${icon.hex}`, kind: 'brand' };
+  return {
+    path: icon.path,
+    hex: isTooDark(icon.hex) ? null : `#${icon.hex}`,
+    kind: 'brand',
+  };
 }
 
 const REGISTRY: Record<string, SkillIcon> = {
