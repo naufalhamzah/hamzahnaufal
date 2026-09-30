@@ -72,6 +72,16 @@ src/
 │   └── islands/             the React filter (the only client JS)
 │
 ├── pages/                   one file per route
+│   ├── index.astro          homepage — 6 curated previews only
+│   ├── about.astro           full background + education + organisations
+│   ├── projects/             index (filterable) + [id] case studies
+│   ├── experience.astro      professional roles + organisations
+│   ├── skills.astro          all skill groups
+│   ├── publications.astro
+│   ├── certifications.astro  credential showcases
+│   ├── achievements.astro    awards / competitions / funding
+│   ├── gallery.astro         all photographs
+│   └── contact.astro
 ├── layouts/BaseLayout.astro <head>, theme bootstrap, nav, footer, lightbox
 ├── styles/                  global.css + tokens.css (the design system)
 ├── types/content.ts         the shapes of the data
@@ -89,6 +99,7 @@ Every one of these is **one object appended to one array** — no component edit
 | A certificate | `src/data/certifications.ts` + drop the scan in `public/images/certificates/` |
 | A paper | `src/data/publications.ts` |
 | A skill | `src/data/skills.ts` (add an icon key in `skill-icons.ts` if you want a logo) |
+| An achievement | `src/data/achievements.ts` |
 | A gallery photo | `src/data/gallery.ts` + the file in `public/images/gallery/` |
 | A nav destination | `src/utils/navigation.ts` — navbar, mobile panel, footer and sitemap all follow |
 
@@ -114,13 +125,32 @@ what lets cards reserve the correct space and avoid layout shift.
 Everything visual is a token in `src/styles/tokens.css`. Components reference
 `var(--x)` and never a raw colour, so the whole site re-skins from one file.
 
-- **Dark-first**, warm ivory type, muted burgundy accent.
-- **Background**: two wide radial washes (burgundy, charcoal) plus a vignette —
-  depth rather than decoration; no patterns, photos, glows or particles.
-- **Light theme** is a warm paper palette, not an inverted dark one.
+**One system, two designed themes** — not two inversions of each other:
+
+| | Dark | Light |
+| --- | --- | --- |
+| canvas | near-black, warm (`#0d0c0b`) | warm ivory (`#f7f3ec`) |
+| surfaces | charcoal, 3 elevation steps | soft beige → white-ish |
+| type | warm ivory | charcoal |
+| accent | muted burgundy | muted burgundy |
+
+- Neither theme uses pure `#000` or `#fff`.
+- **Elevation** is tokenised (`--surface`, `--surface-2`, `--surface-3`) so a
+  panel can lift without a hard border; `--band` is the full-width section tint
+  that separates homepage sections instead of a rule.
+- **Vertical rhythm** is three named steps (`--space-section`, `--space-band`,
+  `--space-block`) — sections never invent their own padding.
+- **One measure** (`--measure`) governs every page, so sections align.
 - Typography: Playfair Display (display serif), Inter (body), JetBrains Mono
-  (metadata labels).
-- Corners stay near-square (`2–6px`).
+  (metadata). Fluid `clamp()` scale, no per-breakpoint font sizes.
+- Corners stay near-square (`2–8px`).
+
+### Theme transition
+
+Switching theme crossfades rather than snapping: the toggle adds a
+`.theme-switching` guard for ~340ms which transitions background, border, colour,
+fill and shadow together, then removes itself. Keeping it on a temporary class
+means first paint and hovers stay instant. `prefers-reduced-motion` disables it.
 
 ---
 
@@ -166,6 +196,14 @@ Rules that were followed throughout, and must keep being followed:
    not the site's identity.
 6. **Personal photographs are not attributed to an employer** unless the image
    itself proves it. Ambiguous photos live in the Gallery.
+
+### Skill marks that are near-black
+
+Several official brand colours are near-black — Java (`#000000`), GitHub
+(`#181717`), OBS Studio (`#302E31`). Painted literally they vanish on the dark
+canvas. `src/data/skill-icons.ts` drops any brand colour below a luminance
+threshold to `null`, which renders as `currentColor` and inherits the theme
+foreground. Add new marks through the same `brand()` helper.
 
 ### Certificate corrections made from the source text layer
 
