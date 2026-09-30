@@ -16,6 +16,14 @@
  * "Python 90%" would be fabrication. This is a list of things worked with,
  * grouped by area.
  *
+ * NO IoT CLAIM. An earlier version of this file carried a "Hardware & IoT"
+ * group — sensors, microcontrollers, the ESP32. That was removed on the user's
+ * instruction: the smart-farming build was a team deployment they contributed
+ * to, not a hardware specialism, and the group overstated it. What they DO work
+ * with is ordinary IT support hardware, which is what the group now describes.
+ * The ESP32 still appears where it is accurate — in the project's own tools
+ * list.
+ *
  * TO ADD A SKILL: add one string to the relevant `items` array, plus an `icon`
  * entry in skill-icons.ts if you want a logo. Add an icon-less skill by leaving
  * `icon: null`.
@@ -35,8 +43,8 @@ const raw: SkillGroup[] = [
       { name: 'Tableau', icon: 'tableau' },
       { name: 'Microsoft Excel', icon: 'excel' },
       { name: 'Google Sheets', icon: 'sheets' },
-      { name: 'Data visualisation', icon: null },
-      { name: 'Data processing & validation', icon: null },
+      { name: 'Data visualisation', icon: 'dataviz' },
+      { name: 'Data processing & validation', icon: 'datacheck' },
     ],
     source: 'both',
   },
@@ -51,18 +59,21 @@ const raw: SkillGroup[] = [
       { name: 'C++', icon: 'cpp' },
       { name: 'JavaScript', icon: 'javascript' },
       { name: 'Google Apps Script', icon: 'appsscript' },
+      { name: 'Google Colab', icon: 'colab' },
     ],
     source: 'both',
   },
   {
-    id: 'hardware-iot',
-    title: 'Hardware & IoT',
+    id: 'it-support-hardware',
+    title: 'IT Support & Hardware',
     description:
-      'Sensors and microcontrollers — from the IoT-based smart-farming irrigation system built for the PPK Ormawa programme.',
+      'Everyday hardware and end-user support — computer setup, peripherals, and keeping devices working.',
     items: [
-      { name: 'ESP32 / ESP8266', icon: 'espressif' },
-      { name: 'IoT sensor integration', icon: null },
-      { name: 'Microcontroller programming', icon: null },
+      { name: 'Windows environment', icon: 'windows' },
+      { name: 'Computer hardware setup', icon: 'pc' },
+      { name: 'Printer & peripheral setup', icon: 'printer' },
+      { name: 'Device troubleshooting', icon: 'wrench' },
+      { name: 'Microsoft Office Suite', icon: 'officesuite' },
     ],
     source: 'portfolio',
   },
@@ -73,8 +84,8 @@ const raw: SkillGroup[] = [
       'Network and security fundamentals, evidenced by the Cisco Networking Academy Cybersecurity Essentials certificate.',
     items: [
       { name: 'Cybersecurity essentials', icon: 'cisco' },
-      { name: 'Networking fundamentals', icon: null },
-      { name: 'Technical documentation', icon: null },
+      { name: 'Networking fundamentals', icon: 'network' },
+      { name: 'Technical documentation', icon: 'documentation' },
     ],
     source: 'portfolio',
   },
@@ -83,12 +94,12 @@ const raw: SkillGroup[] = [
     title: 'Machine Learning & Modeling',
     description: 'Methods applied in published research and coursework.',
     items: [
-      { name: 'K-Nearest Neighbors', icon: null },
-      { name: 'Naive Bayes', icon: null },
-      { name: 'SVM', icon: null },
-      { name: 'Transformer model', icon: null },
-      { name: 'Model evaluation', icon: null },
-      { name: 'Confusion matrix analysis', icon: null },
+      { name: 'K-Nearest Neighbors', icon: 'knn' },
+      { name: 'Naive Bayes', icon: 'bayes' },
+      { name: 'SVM', icon: 'svm' },
+      { name: 'Transformer model', icon: 'transformer' },
+      { name: 'Model evaluation', icon: 'evaluation' },
+      { name: 'Confusion matrix analysis', icon: 'confusion' },
     ],
     source: 'portfolio',
   },
@@ -98,9 +109,9 @@ const raw: SkillGroup[] = [
     description: 'Mapping how work actually flows, then improving it.',
     items: [
       { name: 'Business process flowcharting', icon: 'drawio' },
-      { name: 'Systems analysis', icon: null },
-      { name: 'Process improvement', icon: null },
-      { name: 'Requirements documentation', icon: null },
+      { name: 'Systems analysis', icon: 'systems' },
+      { name: 'Process improvement', icon: 'improve' },
+      { name: 'Requirements documentation', icon: 'requirements' },
     ],
     source: 'both',
   },
@@ -114,7 +125,7 @@ const raw: SkillGroup[] = [
       { name: 'Adobe Lightroom', icon: 'lightroom' },
       { name: 'Canva', icon: 'canva' },
       { name: 'CapCut', icon: 'capcut' },
-      { name: 'UI/UX design', icon: null },
+      { name: 'UI/UX design', icon: 'uiux' },
     ],
     source: 'portfolio',
   },
@@ -126,9 +137,9 @@ const raw: SkillGroup[] = [
       { name: 'Microsoft Word', icon: 'word' },
       { name: 'Microsoft PowerPoint', icon: 'powerpoint' },
       { name: 'Google Docs', icon: 'gdocs' },
-      { name: 'Technical reporting', icon: null },
-      { name: 'Scientific article writing', icon: null },
-      { name: 'Popular article writing', icon: null },
+      { name: 'Technical reporting', icon: 'techreport' },
+      { name: 'Scientific article writing', icon: 'scientific' },
+      { name: 'Popular article writing', icon: 'popular' },
     ],
     source: 'portfolio',
   },
