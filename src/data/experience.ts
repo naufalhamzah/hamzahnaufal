@@ -82,16 +82,47 @@ const raw: ExperienceEntry[] = [
     companyFull:
       'Journal of Advances in Information Systems and Technology (JAIST)',
     role: 'Editorial Staff',
-    dateRange: 'January 2025 – Present',
-    sortKey: '9999-01',
+    /*
+      End date CONFIRMED by the user: the role ran January 2025 to June 2026.
+
+      The deck said "Januari 2025 - Sekarang", which is why this previously read
+      as ongoing with `sortKey: 9999-01` — a sentinel that sorts a current role to
+      the top. With a real end month the sentinel is gone and the entry sorts by
+      its actual dates, so it no longer claims to be current work.
+    */
+    dateRange: 'January 2025 – June 2026',
+    sortKey: '2025-01',
     location: 'Semarang, Indonesia',
-    current: true,
+    current: false,
     summary:
       'Editorial staff for a Sinta 4-accredited campus journal, responsible for checking that manuscripts meet format and eligibility requirements before publication, and supporting the editorial process from initial review through to publication.',
     highlights: [
       'Checked manuscript format compliance and article eligibility before publication',
       'Supported the editorial process from initial review through to publication',
       'Coordinated with authors, reviewers and editors to keep the publication flow on track',
+    ],
+    /*
+      TOOLS: DERIVED, not stated.
+
+      The deck describes this role's responsibilities but never names the tools
+      it was performed with, so this list is assembled from tools the SAME deck
+      documents as skills (its Office & Documentation and Collaboration slides:
+      Microsoft Word, Google Docs, Google Drive, technical and scientific
+      writing) and restricted to the ones an editorial review workflow actually
+      uses. Nothing here is invented — every entry appears in the source — but
+      the LINK between tool and role is inferred rather than quoted, which is why
+      this comment exists.
+
+      Kept deliberately short. Padding it with every office tool on the skills
+      slide would imply the role involved Excel and PowerPoint reporting, which
+      nothing suggests.
+    */
+    tools: [
+      'Google Docs',
+      'Microsoft Word',
+      'Google Drive',
+      'Manuscript review',
+      'Scientific writing',
     ],
     logo: {
       src: '/images/logos/jaist.webp',
@@ -108,8 +139,15 @@ const raw: ExperienceEntry[] = [
       },
     ],
     source: 'portfolio',
+    /*
+      The TODO that used to sit here ("confirm whether the role is still active")
+      is resolved: the end date came from the user directly. The remaining note is
+      only that the START month comes from the deck, because the profile export
+      does not list this role at all — worth keeping visible so nobody later
+      assumes both dates came from the same source.
+    */
     todo:
-      'Role start month is from the portfolio deck; the profile export does not list this role. Confirm whether the role is still active.',
+      'Start month is from the portfolio deck; the profile export does not list this role. End date confirmed by the author.',
   },
   {
     id: 'beauty-innovation',

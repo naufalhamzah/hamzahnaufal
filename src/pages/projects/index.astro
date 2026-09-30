@@ -133,10 +133,6 @@ const meta = [
 </BaseLayout>
 
 <style>
-  .pj {
-    padding-block: clamp(1.5rem, 3vw, 2.5rem) var(--space-section);
-  }
-
   .pj__head {
     display: flex;
     flex-wrap: wrap;
@@ -151,23 +147,27 @@ const meta = [
     color: var(--fg-faint);
   }
 
+  /*
+    ONE COLUMN, full width.
+
+    The grid used to be two columns with the first cell spanning both. That is
+    what produced the inconsistency the user reported: a spanning lead card and
+    two half-width cards have different available widths, so the same 16:10 frame
+    rendered at 1152px wide on one row and 550px on the next — and because each
+    row could hold cards of different heights, the whole list read as uneven.
+
+    A single full-width column removes the variable entirely. Every card now has
+    the same width, the same frame ratio and therefore the same visual weight, so
+    the page reads as a sequence of case studies rather than a jumble of tiles.
+  */
   .pj__grid {
     display: grid;
-    gap: clamp(2rem, 4vw, 3.25rem);
+    gap: clamp(3rem, 6vw, 5rem);
     grid-template-columns: 1fr;
     margin-top: clamp(2rem, 4vw, 3rem);
   }
-
-  @media (min-width: 880px) {
-    .pj__grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    /* The lead project spans both columns — the same hierarchy move the
-       homepage uses, so the two pages feel related. */
-    .pj__cell:first-child {
-      grid-column: 1 / -1;
-    }
+  .pj {
+    padding-block: clamp(1.5rem, 3vw, 2.5rem) var(--space-section);
   }
 
   /* Hidden by the filter island. */

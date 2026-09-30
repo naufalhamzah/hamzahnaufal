@@ -241,16 +241,19 @@ const links = [
                 {/*
                   A link that is worth having but has no URL yet.
 
-                  Rendered as a DISABLED row rather than an anchor: a live-looking
-                  button with `href="#"` goes nowhere and reads as a broken site,
-                  whereas a clearly-marked pending row is honest about the state
-                  and turns into a real button the moment the URL is supplied.
+                  Styled as a BUTTON — the same shape and position a real link
+                  will occupy — but rendered as a non-interactive element rather
+                  than an anchor. `href="#"` would look live and go nowhere, which
+                  reads as a broken site; this reads as a button that is waiting
+                  for its address. The user asked for the button to exist now and
+                  the URL to follow, so the slot is fully laid out and filling in
+                  `link.href` is the only change needed to activate it.
                 */}
                 {project.linkPending && (
                   <li>
                     <span class="pd-link pd-link--pending" aria-disabled="true">
                       <span>{project.linkPending}</span>
-                      <span class="pd-link-tag mono">Link coming soon</span>
+                      <span class="pd-link-tag mono">Soon</span>
                     </span>
                   </li>
                 )}
@@ -596,22 +599,22 @@ const links = [
   }
 
   /*
-    A pending link: the same row shape as a real one, but visibly inactive —
-    dashed border, muted ink, and a "coming soon" tag. It must be obvious at a
-    glance that it is not clickable, or it reads as a broken button.
+    A pending link: a FULL-SIZE button, in the position a real one occupies, but
+    visually held back — a dashed edge and muted ink — so it is obviously not
+    clickable yet. It keeps the button's weight so the rail looks complete and
+    does not reflow when the URL arrives.
   */
   .pd-link--pending {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.2rem;
     border-style: dashed;
-    color: var(--fg-faint);
+    border-color: var(--border-strong);
+    color: var(--fg-subtle);
     cursor: default;
   }
 
   .pd-link--pending:hover {
     border-color: var(--border-strong);
     background-color: transparent;
+    color: var(--fg-subtle);
   }
 
   .pd-link-tag {
