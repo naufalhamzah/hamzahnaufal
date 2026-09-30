@@ -22,6 +22,17 @@ export default defineConfig({
     react(),
   ],
 
+  /**
+   * The dev toolbar is disabled on purpose.
+   *
+   * It renders a floating bar over the bottom of every page in `npm run dev`
+   * and injects ~15 extra script requests per route, which (a) covers content
+   * while reviewing layout and (b) makes a dev-mode network trace look nothing
+   * like production. The site ships zero client JS outside /projects, so the
+   * dev experience should reflect that.
+   */
+  devToolbar: { enabled: false },
+
   vite: {
     plugins: [tailwindcss()],
   },
