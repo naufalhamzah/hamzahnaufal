@@ -150,16 +150,28 @@ const RECIPES = [
 
   /* --------- PROJECT: PLN dashboard — the NEWER assets replace old ------- */
   ['Gambaran Project Dashboard PLN  (1).png', 'projects/pln-dashboard-1.webp', {
-    w: 1300, q: Q.shot
+    w: 1300, q: Q.shot,
+    // Looker Studio exports these with the corners of a rounded card still in the
+    // file. See the clipRoundedCorners note in convert().
+    clipRoundedCorners: {},
   }],
   ['Gambaran Project Dashboard PLN  (2).png', 'projects/pln-dashboard-2.webp', {
-    w: 1300, q: Q.shot
+    w: 1300, q: Q.shot,
+    // Looker Studio exports these with the corners of a rounded card still in the
+    // file. See the clipRoundedCorners note in convert().
+    clipRoundedCorners: {},
   }],
   ['Gambaran Project Dashboard PLN  (3).png', 'projects/pln-dashboard-3.webp', {
-    w: 1300, q: Q.shot
+    w: 1300, q: Q.shot,
+    // Looker Studio exports these with the corners of a rounded card still in the
+    // file. See the clipRoundedCorners note in convert().
+    clipRoundedCorners: {},
   }],
   ['Gambaran Project Dashboard PLN  (4).png', 'projects/pln-dashboard-4.webp', {
-    w: 1300, q: Q.shot
+    w: 1300, q: Q.shot,
+    // Looker Studio exports these with the corners of a rounded card still in the
+    // file. See the clipRoundedCorners note in convert().
+    clipRoundedCorners: {},
   }],
 
   /* ------------------------ PROJECT: smart farming ---------------------- */
@@ -576,6 +588,143 @@ async function convert(from, rel, opts) {
         meta.height = nh;
         targetW = Math.min(targetW, nw);
       }
+    }
+
+    /*
+      clipRoundedCorners: remove the WHITE NOTCHES at the corners of a rounded
+      capture.
+
+      The four dashboard screenshots came out of Google Looker Studio with a
+      rounded card behind them, and the exported PNG kept the corners: each one
+      holds a small white triangle left over from outside the rounded edge.
+      Measured on the shipped file: 2259 white pixels, 0.72% of the frame, 88% of
+      them within 20px of an edge, and the corner triangles run 3–4px along the
+      diagonal.
+
+      `trimWhiteMargin` above cannot catch this, and the reason is the
+      distinction between the two defects. That step looks for whole rows and
+      columns that are uniformly white — a MARGIN. A rounded corner is not a
+      margin: it is a notch, so no complete row or column qualifies and the trim
+      correctly leaves the image alone. The white is real, small, and invisible on
+      a light page, which is why it survived until the user spotted it against the
+      dark theme.
+
+      THE FIX IS A MASK, NOT A COLOUR KNOCKOUT.
+
+      Removing white pixels by colour would be catastrophic here: the dashboard
+      legitimately contains 278 white pixels in its interior — text, table rules,
+      chart labels — and a colour filter would punch holes straight through them.
+      A knockout of "white connected to the border" is not safe either, because
+      dashboard panels touch the edge and would bleed inward.
+
+      Instead the corner is CLIPPED with the same radius the source used. The mask
+      only ever touches the four corner boxes, and inside those boxes it removes
+      exactly what lies outside a quarter-circle — geometry, not colour. Interior
+      white is untouched by construction.
+
+      Alpha, not paint: the corner becomes transparent, so the frame's own matte
+      shows through and the radius blends with whatever theme is active.
+    */
+    if (opts.clipRoundedCorners) {
+      const radius = opts.clipRoundedCorners.radius ?? 0.008;
+      let { data, info } = await pipe
+        .ensureAlpha()
+        .raw()
+        .toBuffer({ resolveWithObject: true });
+      let { width: iw, height: ih } = info;
+
+      /*
+        FIRST, SHAVE THE EDGE BANDS.
+
+        These captures carry a white hairline along the bottom and the right that
+        has nothing to do with the rounded corners: measured on the shipped file,
+        the last two rows are 99.6% and 99.9% white, and the last column is 99.3%.
+        Top and left are clean (under 1%), so only those two sides are trimmed.
+
+        A 90% threshold across the whole row/column is what makes this safe: the
+        interior white — dashboard text, table rules, chart labels — never fills an
+        entire row, so it can never trigger a shave. The 2-3px of the capture that
+        actually holds content stays.
+      */
+      const isBand = (get, len, idx) => {
+        let white = 0;
+        for (let i = 0; i < len; i++) {
+          const o = get(i, idx);
+          if (data[o] >= 235 && data[o + 1] >= 235 && data[o + 2] >= 235) white++;
+        }
+        return white / len > 0.9;
+      };
+
+      let shaveBottom = 0;
+      while (
+        shaveBottom < 8 &&
+        isBand((i, y) => (y * iw + i) * 4, iw, ih - 1 - shaveBottom)
+      )
+        shaveBottom++;
+      let shaveRight = 0;
+      while (
+        shaveRight < 8 &&
+        isBand((y, x) => (y * iw + x) * 4, ih, iw - 1 - shaveRight)
+      )
+        shaveRight++;
+
+      if (shaveBottom || shaveRight) {
+        const nw = iw - shaveRight;
+        const nh = ih - shaveBottom;
+        pipe = sharp(data, { raw: info }).extract({
+          left: 0,
+          top: 0,
+          width: nw,
+          height: nh,
+        });
+        const again = await pipe
+          .ensureAlpha()
+          .raw()
+          .toBuffer({ resolveWithObject: true });
+        data = again.data;
+        info = again.info;
+        iw = nw;
+        ih = nh;
+        meta.width = nw;
+        meta.height = nh;
+        targetW = Math.min(targetW, nw);
+      }
+
+      const r = Math.max(2, Math.round(Math.min(iw, ih) * radius));
+      // Anti-alias the curve over ~1.5px so the clip is smooth, not stepped.
+      const soft = 1.5;
+
+      const clip = (x, y) => {
+        // Which corner is this pixel in, and how far from the curve's centre?
+        const cx = x < r ? r : x >= iw - r ? iw - r - 1 : -1;
+        const cy = y < r ? r : y >= ih - r ? ih - r - 1 : -1;
+        if (cx < 0 || cy < 0) return; // not in a corner box
+
+        const dx = x - cx;
+        const dy = y - cy;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist <= r - soft) return;
+
+        const o = (y * iw + x) * 4 + 3;
+        if (dist >= r) {
+          data[o] = 0;
+        } else {
+          // Feather: ramp alpha down as the pixel approaches the curve.
+          const t = (r - dist) / soft;
+          data[o] = Math.round(data[o] * Math.min(Math.max(t, 0), 1));
+        }
+      };
+
+      for (let y = 0; y < r; y++) {
+        for (let x = 0; x < r; x++) {
+          clip(x, y);
+          clip(iw - 1 - x, y);
+          clip(x, ih - 1 - y);
+          clip(iw - 1 - x, ih - 1 - y);
+        }
+      }
+
+      pipe = sharp(data, { raw: info });
     }
 
     /*
