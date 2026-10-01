@@ -126,11 +126,23 @@ const raw: PublicationEntry[] = [
     title:
       'Smart Farming: Optimalisasi Suplai Air Lahan untuk Produktivitas Pertanian Desa Gonoharjo dengan Automatic Irrigation System Berbasis Energi Hijau Terintegrasi SIMPELDES',
     /*
-      AUTHOR LIST — read from the APA citation block printed on the article's own
-      first page, which is the authoritative byline. An earlier version listed
-      eight names taken from the deck and flagged the tail as possibly
-      incomplete; the printed citation carries sixteen, so the eight-name version
-      was truncated. Hamzah is the fifth author, which both sources agree on.
+      AUTHOR LIST — FIFTEEN, transcribed from the article's own printed byline.
+
+      Read off the article's first page at 4x with the contrast raised, name by
+      name against each superscript. The page's final line carries the affiliation
+      key "(1-15)", which settles the count independently of the names.
+
+      Two earlier versions were wrong in different ways: the deck listed only
+      eight, and a first pass at transcribing the page produced sixteen with three
+      names misread. The names below are what the page actually prints:
+
+        ... ¹¹Arell Saverro Biyantoro, ¹²Bela Sisilia, ¹³Novi Fitri Rahayu,
+        ¹⁴Muhammad Assegaf, ¹⁵Ireneus Pradipta Prabaswara
+
+      The three corrections, because they were plausible-looking misreadings
+      rather than obvious typos: 'Averro S Biyantoro' -> 'Arell Saverro
+      Biyantoro', 'Bella Stellvi' -> 'Bela Sisilia', 'Inez Pradipta Prabaswara'
+      -> 'Ireneus Pradipta Prabaswara'.
     */
     authors: [
       'Melani Siyamafiroh',
@@ -143,14 +155,13 @@ const raw: PublicationEntry[] = [
       'Nabila Khoiriyatunnisa',
       'Lutfi Zaki Prabaswara',
       'Muhammad Syafiq Fadhilah',
-      'Averro S Biyantoro',
-      'Alfia Sisilia',
-      'Bella Stellvi',
+      'Arell Saverro Biyantoro',
+      'Bela Sisilia',
       'Novi Fitri Rahayu',
       'Muhammad Assegaf',
-      'Inez Pradipta Prabaswara',
+      'Ireneus Pradipta Prabaswara',
     ],
-    // Fifth of sixteen, as printed on the article.
+    // Fifth of fifteen, as printed on the article.
     authorPosition: 5,
     venue: 'AMPOEN',
     venueFull:
@@ -182,7 +193,13 @@ const raw: PublicationEntry[] = [
     doi: '10.32672/ampoen.v2i2.2365',
     link: {
       label: 'View article',
-      href: 'https://jurnal.serambimekkah.ac.id/index.php/ampoen',
+      /*
+        The ARTICLE page, not the journal root. Verified: its Highwire meta tags
+        carry this paper's exact title, volume 2, issue 2, firstpage 980,
+        lastpage 993, date 2024-11-17, ISSN 3025-8030, and 'Hamzah Naufal Zuhdi'
+        as the fifth of fifteen authors.
+      */
+      href: 'https://jurnal.serambimekkah.ac.id/index.php/ampoen/article/view/2365',
       external: true,
     },
     visual: {
