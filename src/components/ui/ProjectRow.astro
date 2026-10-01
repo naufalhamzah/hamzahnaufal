@@ -115,44 +115,70 @@ const dims =
             every "phone" row was empty plate. The device renders are cut-outs
             with their own bezel and shadow, so the frame was adding nothing.
           */
-          <div class="ph" style={`--phone-ar: ${phoneAr};`}>
-            <div class="ph__row">
-              <figure class="ph__item ph__item--lead">
-                <img
-                  src={hero.src}
-                  alt={hero.alt}
-                  width={dims?.[0] ?? hero.width}
-                  height={dims?.[1] ?? hero.height}
-                  loading="lazy"
-                  decoding="async"
-                />
-              </figure>
+          <div class="ph" style={`--phone-ar: ${phoneAr};`} data-lightbox-group>
+            <div class="ph__viewport">
+              <div
+                class="ph__row"
+                data-row-rail
+                role="group"
+                aria-label={`${shots.length} screens — swipe or use the arrows`}
+                tabindex="0"
+              >
+                {shots.map((img, i) => {
+                  const d =
+                    getImageDims(img.src) ??
+                    (img.width && img.height
+                      ? ([img.width, img.height] as [number, number])
+                      : null);
+                  return (
+                    <button
+                      type="button"
+                      class:list={['ph__item', i === 0 && 'ph__item--lead']}
+                      data-lightbox-src={img.src}
+                      data-lightbox-alt={img.alt}
+                      data-lightbox-caption={img.caption ?? img.alt}
+                      aria-label={`View larger: ${img.alt}`}
+                    >
+                      <img
+                        src={img.src}
+                        alt={img.alt}
+                        width={d?.[0] ?? img.width}
+                        height={d?.[1] ?? img.height}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </button>
+                  );
+                })}
+              </div>
 
-              {supporting.map((img) => {
-                const d =
-                  getImageDims(img.src) ??
-                  (img.width && img.height
-                    ? ([img.width, img.height] as [number, number])
-                    : null);
-                return (
-                  <figure class="ph__item">
-                    <img
-                      src={img.src}
-                      alt={img.alt}
-                      width={d?.[0] ?? img.width}
-                      height={d?.[1] ?? img.height}
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </figure>
-                );
-              })}
+              {shots.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    class="ph__arrow ph__arrow--prev"
+                    data-row-prev
+                    aria-label="Previous screen"
+                    hidden
+                  >
+                    <span aria-hidden="true">‹</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="ph__arrow ph__arrow--next"
+                    data-row-next
+                    aria-label="Next screen"
+                    hidden
+                  >
+                    <span aria-hidden="true">›</span>
+                  </button>
+                </>
+              )}
             </div>
 
-            {moreCount > 0 && (
-              <p class="ph__more mono">
-                +{moreCount} more
-                <span class="sr-only"> in this project's gallery</span>
+            {shots.length > 1 && (
+              <p class="ph__more mono" data-row-count hidden>
+                <span data-row-index>1</span> / {shots.length}
               </p>
             )}
 
@@ -243,10 +269,22 @@ const dims =
         </ul>
       )}
 
-      <span class="pr__cta">
+      {/*
+        THE CTA IS A REAL LINK, and the title carries the stretched layer.
+
+        It used to be `<span>View project</span>` — a control that looks pressable
+        and is not, unreachable by keyboard and invisible to a screen reader's link
+        list. It is now a second `<a>` to the same destination.
+
+        Two links to one place is intentional and correct here: the stretched layer
+        means the whole row is already clickable, and a visible "View project" that
+        does nothing would be worse than either option. The CTA sits ABOVE the
+        stretched layer (z-index 3) so its own hover and focus states work.
+      */}
+      <a href={href} class="pr__cta">
         <span>View project</span>
         <span class="pr__arrow" aria-hidden="true">→</span>
-      </span>
+      </a>
     </div>
   </div>
 </article>
@@ -394,30 +432,85 @@ const dims =
     position: relative;
   }
 
+  .ph__viewport {
+    position: relative;
+    overflow: visible;
+  }
+
+  /*
+    A SWIPEABLE RAIL, not a static trio.
+
+    The user's report: "yang ini ga bisa di swipe ataupun di liat gambar lainnya".
+    The row showed three phones and a printed "+N more" — the rest of the set was
+    unreachable, and the pictures were not clickable at all.
+
+    EVERY slide is the same size and the SAME ratio as the device. The previous
+    grid made the lead 1.5x its neighbours, which reads well as a still trio and
+    badly in a rail: the visitor is moving through ONE sequence of screens, and a
+    screen 1.5x the others claims an importance it does not have.
+
+    Scroll-snap does the work natively, so touch, trackpad and keyboard scrolling
+    all function before any script runs.
+  */
   .ph__row {
-    display: grid;
-    grid-template-columns: 1.5fr 1fr 1fr;
-    align-items: end;
+    display: flex;
+    align-items: flex-end;
     gap: clamp(0.7rem, 1.8vw, 1.4rem);
-    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+    /* Room for the drop-shadow — a scroll container clips its own overflow, and a
+       shadow cut in a straight line reads as the box this change removed. */
+    padding: 0.75rem 0.25rem 1.25rem;
+    scroll-padding-inline: 0.25rem;
+  }
+
+  .ph__row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ph__row:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .ph__row[data-dragging] {
+    scroll-snap-type: none;
+    cursor: grabbing;
   }
 
   .ph__item {
+    flex: 0 0 auto;
     margin: 0;
-    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: zoom-in;
+    width: clamp(7.5rem, 19vw, 11.5rem);
     aspect-ratio: var(--phone-ar, 0.488);
-    /* A ceiling for very wide windows, where 1.5fr of a broad column would
-       otherwise render a phone taller than the viewport. */
-    max-height: 36rem;
+    scroll-snap-align: start;
+    /*
+      ABOVE THE ROW'S STRETCHED LINK.
+
+      The link covers the whole row at `z-index: 2` so a click anywhere navigates.
+      That silently swallowed clicks on the pictures: measured with
+      `elementFromPoint` over a device, the topmost element was `A.pr__link`, so the
+      lightbox could never open — which is exactly what "ga bisa di liat gambar
+      lainnya" described.
+
+      A picture is its own affordance, so it wins inside its own box. The text
+      column keeps the stretched layer, and the CTA sits at the same level as this.
+    */
+    position: relative;
+    z-index: 3;
   }
 
   .ph__item img {
     display: block;
     width: 100%;
     height: 100%;
-    /* `contain` with a bottom anchor: if the ceiling caps the height, the device
-       letterboxes horizontally rather than stretching, and it stays ON the row's
-       baseline instead of floating up from it. */
     object-fit: contain;
     object-position: center bottom;
     /* Depth follows the ALPHA silhouette — the bezel, not a rectangle around it. */
@@ -431,16 +524,75 @@ const dims =
       drop-shadow(0 14px 28px rgba(62, 46, 30, 0.16));
   }
 
-  .pr:hover .ph__item--lead img {
-    transform: translateY(-4px);
+  .ph__item:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
   }
 
+  /* ---------------- rail arrows + counter ---------------- */
+  .ph__arrow {
+    position: absolute;
+    top: 50%;
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    width: 2.3rem;
+    height: 2.3rem;
+    border: var(--hairline) solid var(--border-strong);
+    border-radius: var(--r-full);
+    background-color: var(--surface);
+    color: var(--fg);
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    transform: translateY(-50%);
+    transition:
+      border-color var(--t-base) var(--ease),
+      color var(--t-base) var(--ease),
+      background-color var(--t-base) var(--ease),
+      opacity var(--t-base) var(--ease);
+  }
+
+  /* `display: grid` would beat the `hidden` attribute; the state is owned by the
+     script, and an arrow that looks live but does nothing is worse than none. */
+  .ph__arrow[hidden] {
+    display: none;
+  }
+
+  .ph__arrow:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background-color: var(--accent-soft);
+  }
+
+  .ph__arrow--prev {
+    left: -1.1rem;
+  }
+
+  .ph__arrow--next {
+    right: -1.1rem;
+  }
+
+  .ph__arrow[disabled] {
+    opacity: 0.35;
+    cursor: default;
+    border-color: var(--border-faint);
+    color: var(--fg-faint);
+    background-color: var(--surface-2);
+  }
+
+  /* The counter replaces the old printed "+N more", which was a count of images
+     the visitor had no way to reach. */
   .ph__more {
-    margin-top: 1rem;
+    margin-top: 0.4rem;
     text-align: center;
     color: var(--fg-faint);
     text-transform: none;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.04em;
+  }
+
+  .ph__more[hidden] {
+    display: none;
   }
 
   /* The hover rule sits under the whole group, not under one phone. */
@@ -456,18 +608,44 @@ const dims =
   }
 
   @media (max-width: 640px) {
-    /* Three phones will not fit a narrow column; the group becomes one column of
-       equal phones, which keeps every device the same readable size. */
-    .ph__row,
-    .ph__row:not(:has(.ph__item:not(.ph__item--lead))) {
-      grid-template-columns: minmax(0, 1fr);
+    /* The rail keeps scrolling on a narrow screen — that is its whole point — but
+       the slides shrink so more than one is visible at a time, which is what tells
+       the visitor there is more to see. */
+    .ph__item {
+      width: clamp(7rem, 42vw, 9rem);
+    }
+
+    /* The arrows drop below the rail rather than covering the device. */
+    .ph__arrow {
+      position: static;
+      transform: none;
+      width: 2.6rem;
+      height: 2.6rem;
+    }
+
+    .ph__viewport {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .ph__row {
+      grid-column: 1 / -1;
+      grid-row: 1;
       justify-content: center;
     }
 
-    .ph__item {
-      max-height: none;
-      max-width: 15rem;
-      margin-inline: auto;
+    .ph__arrow--prev {
+      grid-column: 1;
+      grid-row: 2;
+      justify-self: end;
+    }
+
+    .ph__arrow--next {
+      grid-column: 3;
+      grid-row: 2;
+      justify-self: start;
     }
   }
 
@@ -520,12 +698,27 @@ const dims =
   }
 
   .pr__link {
-    position: relative;
     text-decoration: none;
     color: inherit;
   }
 
-  /* A stretched link covers the whole row, so clicking anywhere navigates. */
+  /*
+    THE STRETCHED LINK WAS BROKEN, AND THE MEASUREMENT SAYS WHY.
+
+    `::after` was `position: absolute; inset: 0` on `.pr__link`, while `.pr__link`
+    itself carried `position: relative`. That makes the pseudo cover the LINK's own
+    box — measured 129x42px inside a 1152x530px row — so none of the card was
+    clickable except the four words of the title. `elementFromPoint` over the image
+    returned `IMG`, and clicking it did nothing at all.
+
+    The fix is not to reposition the pseudo but to drop the inline `position`, so
+    the nearest positioned ancestor becomes `.pr` (which is `position: relative`)
+    and `inset: 0` then means the whole row — which is what "stretched link" has
+    always meant here.
+
+    `z-index: 2` keeps it above the images; the rail's arrows and the CTA sit at 3
+    so they receive their own clicks instead of navigating.
+  */
   .pr__link::after {
     content: '';
     position: absolute;
@@ -606,6 +799,10 @@ const dims =
   }
 
   .pr__cta {
+    /* Above the stretched link's `z-index: 2`, so the CTA receives its own click
+       and keyboard focus instead of being covered by the row's navigation layer. */
+    position: relative;
+    z-index: 3;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
@@ -615,7 +812,13 @@ const dims =
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--fg-strong);
+    text-decoration: none;
     transition: color var(--t-fast) var(--ease);
+  }
+
+  .pr__cta:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
   }
 
   .pr:hover .pr__cta {
@@ -645,3 +848,164 @@ const dims =
     }
   }
 </style>
+
+<script>
+  /**
+   * Row rail controls — progressive enhancement over the scroll-snap rail.
+   *
+   * The rail is a native horizontal scroller, so swipe, trackpad and keyboard
+   * scrolling all work before this script exists. It adds the arrows, the counter,
+   * end-state disabling, and mouse drag.
+   *
+   * NO ARROWS WITHOUT SCRIPT, and no arrows when the rail already fits: they ship
+   * `hidden` and are revealed only once they do something. Three screens at a wide
+   * window do not scroll, so controls there would be decoration.
+   */
+  const rails = document.querySelectorAll<HTMLElement>('[data-row-rail]');
+
+  if (rails.length) {
+    rails.forEach((rail) => {
+      const root = rail.closest('.ph__viewport');
+      const wrap = rail.closest('.ph');
+      const slides = Array.from(rail.children) as HTMLElement[];
+      if (!root || !wrap || slides.length < 2) return;
+
+      const prev = wrap.querySelector<HTMLButtonElement>('[data-row-prev]');
+      const next = wrap.querySelector<HTMLButtonElement>('[data-row-next]');
+      const counterWrap = wrap.querySelector<HTMLElement>('[data-row-count]');
+      const counterIndex = wrap.querySelector<HTMLElement>('[data-row-index]');
+
+      /** One step is the measured distance between two slides — includes the gap. */
+      const step = () => slides[1].offsetLeft - slides[0].offsetLeft;
+
+      const go = (dir: 1 | -1) => {
+        rail.scrollBy({ left: step() * dir, behavior: 'smooth' });
+      };
+
+      let frame = 0;
+
+      const sync = () => {
+        frame = 0;
+        const max = rail.scrollWidth - rail.clientWidth;
+        const s = step();
+        const index = s > 0 ? Math.round(rail.scrollLeft / s) : 0;
+        const clamped = Math.min(Math.max(index, 0), slides.length - 1);
+
+        /*
+          Whether the rail actually has somewhere to go. Recomputed on resize,
+          because a narrower window turns a fitting rail into a scrolling one.
+        */
+        const overflows = max > 4;
+        if (prev) prev.hidden = !overflows;
+        if (next) next.hidden = !overflows;
+        if (counterWrap) counterWrap.hidden = !overflows;
+
+        if (prev) prev.disabled = rail.scrollLeft <= 1;
+        if (next) next.disabled = rail.scrollLeft >= max - 1;
+        if (counterIndex) counterIndex.textContent = String(clamped + 1);
+      };
+
+      const schedule = () => {
+        if (!frame) frame = requestAnimationFrame(sync);
+      };
+
+      rail.addEventListener('scroll', schedule, { passive: true });
+      window.addEventListener('resize', schedule);
+
+      prev?.addEventListener('click', () => go(-1));
+      next?.addEventListener('click', () => go(1));
+
+      /*
+        MOUSE DRAG — a native scroll container does not drag with a mouse. Touch is
+        left to the browser on purpose: hijacking it costs the momentum and
+        rubber-banding the platform gives for free.
+
+        The 6px threshold is what keeps a plain CLICK working. Without it the
+        smallest movement while pressing a picture would count as a drag and swallow
+        the lightbox click.
+      */
+      let dragging = false;
+      let startX = 0;
+      let startLeft = 0;
+      let moved = 0;
+
+      rail.addEventListener('pointerdown', (event) => {
+        if (event.pointerType !== 'mouse' || event.button !== 0) return;
+        dragging = true;
+        moved = 0;
+        startX = event.clientX;
+        startLeft = rail.scrollLeft;
+      });
+
+      rail.addEventListener('pointermove', (event) => {
+        if (!dragging) return;
+        const dx = event.clientX - startX;
+        moved = Math.max(moved, Math.abs(dx));
+
+        if (moved > 6) {
+          if (!rail.hasAttribute('data-dragging')) {
+            rail.setAttribute('data-dragging', '');
+            rail.setPointerCapture(event.pointerId);
+          }
+          event.preventDefault();
+          rail.scrollLeft = startLeft - dx;
+        }
+      });
+
+      const endDrag = (event: PointerEvent) => {
+        if (!dragging) return;
+        dragging = false;
+        rail.removeAttribute('data-dragging');
+        if (rail.hasPointerCapture?.(event.pointerId)) {
+          rail.releasePointerCapture(event.pointerId);
+        }
+
+        if (moved > 6) {
+          const s = step();
+          rail.scrollTo({ left: Math.round(rail.scrollLeft / s) * s, behavior: 'smooth' });
+
+        }
+      };
+
+      /*
+        RESET `moved` ON THE NEXT GESTURE, not after the current one.
+
+        `moved` exists to swallow the click that ends a drag. The click handler below
+        clears it — but a drag that ends OUTSIDE the rail (pointerup on the page, or
+        a cancelled gesture) fires no click at all, so `moved` stayed above the
+        threshold and the NEXT genuine click on an arrow was swallowed by a handler
+        reacting to a drag that had already finished. One press, no response, for no
+        visible reason.
+
+        Resetting on the next pointerdown fixes that without breaking the case the
+        flag exists for: a new gesture clears it BEFORE its own click can arrive,
+        while the drag click that follows the current gesture still sees the value it
+        needs. Listening on the wrapper `.ph` rather than the rail matters — the
+        arrows live outside the rail, so a rail-scoped reset would miss them.
+      */
+      wrap.addEventListener('pointerdown', () => {
+        moved = 0;
+      });
+
+      rail.addEventListener('pointerup', endDrag);
+      rail.addEventListener('pointercancel', endDrag);
+
+      /* A drag must not also open the lightbox underneath it. */
+      rail.addEventListener(
+        'click',
+        (event) => {
+          if (moved > 6) {
+            event.preventDefault();
+            event.stopPropagation();
+            moved = 0;
+          }
+        },
+        true,
+      );
+
+      rail.addEventListener('dragstart', (event) => event.preventDefault());
+
+      sync();
+    });
+  }
+</script>

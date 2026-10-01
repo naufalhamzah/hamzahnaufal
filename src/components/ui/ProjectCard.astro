@@ -177,10 +177,12 @@ const phoneAr =
         )
       }
 
-      <span class="pc__cta">
+      {/* A real link — see the note in `ProjectRow.astro`: a `<span>` that looks
+          pressable is unreachable by keyboard and does nothing on click. */}
+      <a href={href} class="pc__cta">
         <span>View project</span>
         <span class="pc__arrow" aria-hidden="true">→</span>
-      </span>
+      </a>
     </div>
   </div>
 </article>
@@ -339,11 +341,19 @@ const phoneAr =
     rail keep their own clicks and the rest of the card navigates.
   */
   .pc__link {
-    position: relative;
     text-decoration: none;
     color: inherit;
   }
 
+  /*
+    STRETCHED LINK — the same fix as in `ProjectRow.astro`, and the same bug.
+
+    With `position: relative` on `.pc__link`, the `::after` covered only the
+    link's own box: measured 79x31px inside a 552x631px card, so almost none of
+    the card navigated. Dropping the inline `position` lets the nearest positioned
+    ancestor (`.pc`) become the containing block, and `inset: 0` then means the
+    whole card.
+  */
   .pc__link::after {
     content: '';
     position: absolute;
@@ -459,6 +469,10 @@ const phoneAr =
 
   /* Pins the CTA to the bottom of the card so a row's links line up. */
   .pc__cta {
+    /* Above the stretched link's `z-index: 2`, so the CTA receives its own click
+       and keyboard focus instead of being covered by the card's navigation layer. */
+    position: relative;
+    z-index: 3;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
@@ -469,7 +483,13 @@ const phoneAr =
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--fg-strong);
+    text-decoration: none;
     transition: color var(--t-fast) var(--ease);
+  }
+
+  .pc__cta:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
   }
 
   .pc:hover .pc__cta {
