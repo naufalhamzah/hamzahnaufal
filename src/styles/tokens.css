@@ -204,6 +204,11 @@
   --photo-filter: saturate(0.9) contrast(1.03);
   --photo-mat: var(--surface-2);
   --photo-edge: rgba(229, 220, 205, 0.13);
+  /* A drawn phone shell for mobile-screenshot mockups: a body darker than the
+     page so the shell reads as an object, and an edge light enough to define its
+     outline against the matte. */
+  --device-body: rgb(18, 15, 13);
+  --device-edge: rgba(229, 220, 205, 0.2);
   /* A lift applied only to very dark photographs on dark, so a black backdrop
      separates from a black page. */
   --photo-shadow: 0 24px 60px -28px rgba(0, 0, 0, 0.9);
@@ -283,6 +288,10 @@
   --photo-filter: saturate(0.96) contrast(1.02) brightness(1.02);
   --photo-mat: var(--surface-3);
   --photo-edge: rgba(33, 28, 23, 0.22);
+  /* On paper the shell inverts: a light body with a darker outline, so it still
+     reads as a device and never as a white rectangle on an ivory page. */
+  --device-body: rgb(255, 253, 250);
+  --device-edge: rgba(33, 28, 23, 0.24);
   --photo-shadow: 0 24px 56px -30px rgba(62, 46, 30, 0.34);
 
   /* Paper gets no vignette — one faint warm wash so it is not flat white. */

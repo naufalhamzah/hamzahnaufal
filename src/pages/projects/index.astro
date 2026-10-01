@@ -3,18 +3,22 @@
  * PROJECTS — the complete project portfolio.
  *
  * Structure:
- *   · the three featured projects, rendered as an editorial spread (the first
- *     wide, the next two side by side)
- *   · a category filter over the full list, which is the ONE interactive part
- *     of the site and therefore the only client-side island
- *   · every remaining project as a card, grouped by category
+ *   · a category filter over the full list, which is the ONE interactive part of
+ *     the site and therefore the only client-side island
+ *   · every project as an EDITORIAL ROW — image on one side, text on the other,
+ *     sides alternating down the page, with a supporting strip under the hero
+ *     where the project has more documentation
+ *
+ * The rows replaced a single-column card grid. At full width that grid made
+ * every image 1152px wide, so the page read as a stack of billboards; see
+ * `ProjectRow.astro` for why a row with a beside-it text column is the fix.
  *
  * No subjective ranking labels ("best", "top"). Grouping is by CATEGORY, which
  * is a fact about the work, not a judgement of it.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PageHeader from '@/components/ui/PageHeader.astro';
-import ProjectCard from '@/components/ui/ProjectCard.astro';
+import ProjectRow from '@/components/ui/ProjectRow.astro';
 import ProjectFilter from '@/components/islands/ProjectFilter';
 import {
   projectEntries,
@@ -115,10 +119,15 @@ const meta = [
               data-categories={n.project.categories.join(' ')}
               data-index={i}
             >
-              <ProjectCard
+              {/*
+                Sides alternate down the list so the page zig-zags instead of
+                running down one edge — the rhythm that makes a long list of
+                similar entries readable.
+              */}
+              <ProjectRow
                 project={n.project}
                 index={n.index}
-                
+                side={i % 2 === 1 ? 'right' : 'left'}
               />
             </div>
           ))
@@ -165,6 +174,13 @@ const meta = [
     gap: clamp(3rem, 6vw, 5rem);
     grid-template-columns: 1fr;
     margin-top: clamp(2rem, 4vw, 3rem);
+  }
+
+  /* A hairline between rows, since the rows themselves are now wide and a gap
+     alone is not enough separation. */
+  .pj__cell + .pj__cell {
+    padding-top: clamp(3rem, 6vw, 5rem);
+    border-top: var(--hairline) solid var(--border-faint);
   }
   .pj {
     padding-block: clamp(1.5rem, 3vw, 2.5rem) var(--space-section);

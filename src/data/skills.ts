@@ -27,6 +27,16 @@
  * TO ADD A SKILL: add one string to the relevant `items` array, plus an `icon`
  * entry in skill-icons.ts if you want a logo. Add an icon-less skill by leaving
  * `icon: null`.
+ *
+ * CATEGORY ORDER IS THE POSITIONING, not an accident.
+ *
+ * Array order IS the page order, and the brief is explicit that the order must
+ * read DATA -> TECHNOLOGY -> DESIGN -> SUPPORTING. Categories closest to the
+ * data work lead; collaboration, office and business tools support that work
+ * rather than describe it, so they come after. An earlier ordering interleaved
+ * them (business came fourth, design seventh), which buried the design work
+ * behind process tooling and flattened the hierarchy the page is supposed to
+ * communicate.
  * ============================================================================
  */
 
@@ -64,6 +74,20 @@ const raw: SkillGroup[] = [
     source: 'both',
   },
   {
+    id: 'machine-learning',
+    title: 'Machine Learning & Modeling',
+    description: 'Methods applied in published research and coursework.',
+    items: [
+      { name: 'K-Nearest Neighbors', icon: 'knn' },
+      { name: 'Naive Bayes', icon: 'bayes' },
+      { name: 'SVM', icon: 'svm' },
+      { name: 'Transformer model', icon: 'transformer' },
+      { name: 'Model evaluation', icon: 'evaluation' },
+      { name: 'Confusion matrix analysis', icon: 'confusion' },
+    ],
+    source: 'portfolio',
+  },
+  {
     id: 'it-support-hardware',
     title: 'IT Support & Hardware',
     description:
@@ -90,32 +114,6 @@ const raw: SkillGroup[] = [
     source: 'portfolio',
   },
   {
-    id: 'machine-learning',
-    title: 'Machine Learning & Modeling',
-    description: 'Methods applied in published research and coursework.',
-    items: [
-      { name: 'K-Nearest Neighbors', icon: 'knn' },
-      { name: 'Naive Bayes', icon: 'bayes' },
-      { name: 'SVM', icon: 'svm' },
-      { name: 'Transformer model', icon: 'transformer' },
-      { name: 'Model evaluation', icon: 'evaluation' },
-      { name: 'Confusion matrix analysis', icon: 'confusion' },
-    ],
-    source: 'portfolio',
-  },
-  {
-    id: 'business-process',
-    title: 'Business Process & Analysis',
-    description: 'Mapping how work actually flows, then improving it.',
-    items: [
-      { name: 'Business process flowcharting', icon: 'drawio' },
-      { name: 'Systems analysis', icon: 'systems' },
-      { name: 'Process improvement', icon: 'improve' },
-      { name: 'Requirements documentation', icon: 'requirements' },
-    ],
-    source: 'both',
-  },
-  {
     id: 'design-creative',
     title: 'Design & Creative',
     description: 'Interface design and supporting visual work.',
@@ -128,6 +126,20 @@ const raw: SkillGroup[] = [
       { name: 'UI/UX design', icon: 'uiux' },
     ],
     source: 'portfolio',
+  },
+  {
+    id: 'collaboration-tooling',
+    title: 'Collaboration & Tooling',
+    description: 'The everyday stack used to get work done with others.',
+    items: [
+      { name: 'GitHub', icon: 'github' },
+      { name: 'Git', icon: 'git' },
+      { name: 'Google Drive', icon: 'gdrive' },
+      { name: 'Draw.io', icon: 'drawio' },
+      { name: 'OBS Studio', icon: 'obs' },
+      { name: 'Zoom', icon: 'zoom' },
+    ],
+    source: 'both',
   },
   {
     id: 'office-documentation',
@@ -144,16 +156,14 @@ const raw: SkillGroup[] = [
     source: 'portfolio',
   },
   {
-    id: 'collaboration-tooling',
-    title: 'Collaboration & Tooling',
-    description: 'The everyday stack used to get work done with others.',
+    id: 'business-process',
+    title: 'Business Process & Analysis',
+    description: 'Mapping how work actually flows, then improving it.',
     items: [
-      { name: 'GitHub', icon: 'github' },
-      { name: 'Git', icon: 'git' },
-      { name: 'Google Drive', icon: 'gdrive' },
-      { name: 'Draw.io', icon: 'drawio' },
-      { name: 'OBS Studio', icon: 'obs' },
-      { name: 'Zoom', icon: 'zoom' },
+      { name: 'Business process flowcharting', icon: 'drawio' },
+      { name: 'Systems analysis', icon: 'systems' },
+      { name: 'Process improvement', icon: 'improve' },
+      { name: 'Requirements documentation', icon: 'requirements' },
     ],
     source: 'both',
   },

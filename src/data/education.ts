@@ -17,7 +17,12 @@ const raw: EducationEntry[] = [
     institution: 'Universitas Negeri Semarang',
     degree: "Bachelor's Degree",
     field: 'Information Systems',
-    dateRange: '2022 – 2026',
+    /*
+      Graduation month confirmed by the user: MARCH 2026. It is stated as a range
+      end so the education entry reads like every other dated record on the site,
+      and the TODO below was removed because the question is now answered.
+    */
+    dateRange: '2022 – March 2026',
     sortKey: '2022-08',
     location: 'Semarang, Jawa Tengah, Indonesia',
     highlights: [
@@ -28,11 +33,18 @@ const raw: EducationEntry[] = [
     logo: {
       src: '/images/logos/unnes.webp',
       alt: 'Universitas Negeri Semarang crest',
+      /*
+        REAL file size — 800x1069, not the 800x800 an earlier version claimed.
+        The wrong pair was not cosmetic: these numbers become the <img> width and
+        height attributes, so the browser reserved a SQUARE box for a portrait
+        file. Against the portrait image that reserve is wrong in both
+        directions, and inside a fixed square plate the crest was then squeezed —
+        which is what the user saw as a cut-off logo.
+      */
       width: 800,
-      height: 800,
+      height: 1069,
     },
     source: 'both',
-    todo: 'Graduation month is not documented in either source.',
   },
   {
     id: 'sman1-tangerang',

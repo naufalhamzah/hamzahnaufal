@@ -220,6 +220,13 @@ export interface PublicationEntry {
   method?: string;
   abstract?: string;
   keywords?: string[];
+  /**
+   * The DOI as PRINTED by the publisher. Kept separate from `link` because a
+   * printed DOI is not always resolvable — one journal here prints a DOI its
+   * publisher has not registered yet, so the clickable link has to point
+   * somewhere else while the citation still carries the DOI.
+   */
+  doi?: string;
   link?: ContentLink;
   visual: ProjectVisual;
   /** Article pages shown alongside the cover. */

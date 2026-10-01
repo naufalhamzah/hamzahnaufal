@@ -15,6 +15,8 @@ import Collage from '@/components/ui/Collage.astro';
 import { profile } from '@/data/profile';
 import { educationSorted } from '@/data/education';
 import { organizationsSorted, organizationGroups } from '@/data/organizations';
+import { experienceSorted } from '@/data/experience';
+import { skillGroups } from '@/data/skills';
 
 /** Education entries carry their own logos. */
 const education = educationSorted;
@@ -29,7 +31,70 @@ const orgsByGroup = organizationGroups.map((g) => ({
   roles: organizationsSorted.filter((o) => o.group === g),
 }));
 
-/** A short strip of the strongest personal photographs. */
+/**
+ * The snapshot sections, all derived from the data layer — nothing here is a
+ * new claim about the person, only a re-presentation of records that already
+ * exist. Each is deliberately CAPPED: About is a background page, not a second
+ * Experience or Skills page, and the sections it summarises have their own
+ * destinations linked at the end.
+ */
+
+/** Three most recent roles — the professional record in brief. */
+const experienceSnapshot = experienceSorted.slice(0, 3);
+
+/** Six groups' names, as a flat index of what the work covers. */
+const skillIndex = skillGroups.map((g) => g.title);
+
+/**
+ * INTERESTS — the four positioning axes, expanded into one plain sentence each.
+ * The labels come from `profile.positioning` and the sentences only restate what
+ * the summary and the project record already say; no new field is introduced.
+ */
+const interests = [
+  {
+    label: 'Data',
+    text: 'Reading a dataset well enough to say what decision it should support — dashboards, reporting and the validation work that makes both trustworthy.',
+  },
+  {
+    label: 'Technology',
+    text: 'Building the tool rather than only specifying it: information systems, automation, and the code that connects them.',
+  },
+  {
+    label: 'Business Process',
+    text: 'Mapping how work actually flows before changing it, then documenting requirements so the result fits the team using it.',
+  },
+  {
+    label: 'Digital Solutions',
+    text: 'Product thinking on interface and flow — the three UI/UX case studies in the portfolio come from this side of the work.',
+  },
+];
+
+/**
+ * CURRENT DIRECTION — where the work is heading, stated from the record.
+ * Every phrase below is supported by an entry that exists: the AirNav internship
+ * ([P], current), the systems and dashboard projects, and the published research.
+ * Nothing is a promise about a future title or employer.
+ */
+const direction = [
+  'Deepening the information-systems side of the work — currently at AirNav Indonesia as an Information Technology Administration Staff Intern, learning how air navigation services operate from an IT perspective, and building a web-based application to support company performance.',
+  'Moving further into analytics and reporting: the procurement dashboard and the marketing data system both started as questions about which decision a report should support, and that is the part of the work worth specialising in.',
+  'Keeping the research habit. The two first-author papers applied KNN and Naive Bayes to real evaluation problems — methods worth continuing, because they force a claim to be measurable.',
+];
+
+/**
+ * The personal photographs this page uses.
+ *
+ * NO SPREADSHEET. This array used to carry `beautylab-system.webp` — a dense
+ * customer-data screenshot — as the third image. The user removed it for the
+ * same reason it failed on the homepage: a spreadsheet carries its meaning in
+ * its TEXT, and in a strip-sized frame that text is unreadable, so it reads as a
+ * broken image rather than as evidence. It still appears where it CAN be read,
+ * inside the BeautyLab project's own gallery at full width.
+ *
+ * What belongs on About is photography that shows the person and the contexts
+ * they worked in — not a product screenshot. Two frames also balance better in a
+ * two-up composition than three did in a row.
+ */
 const photos = [
   {
     src: '/images/experience/ppk-ormawa.webp',
@@ -40,10 +105,6 @@ const photos = [
     src: '/images/experience/airnav-onboarding.webp',
     alt: 'AirNav Indonesia onboarding session',
     caption: 'Onboarding at AirNav Indonesia',
-  },
-  {
-    src: '/images/about/beautylab-system.webp',
-    alt: 'The Beauty Innovation Laboratories customer data spreadsheet',
   },
 ];
 
@@ -97,6 +158,32 @@ const meta = [
           }
         </ul>
       </aside>
+    </div>
+  </section>
+
+  <!-- ===================== interests ===================== -->
+  <section class="ab-int" aria-labelledby="ab-interests">
+    <div class="shell">
+      <div class="ab-int__head">
+        <h2 id="ab-interests" class="label">Interests</h2>
+        <p class="ab-int__lede">
+          Four axes, and what each one means in practice.
+        </p>
+      </div>
+
+      <ul class="ab-int__grid">
+        {
+          interests.map((it, i) => (
+            <li class="ab-int__item">
+              <p class="ab-int__n mono" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </p>
+              <h3 class="ab-int__label">{it.label}</h3>
+              <p class="ab-int__text">{it.text}</p>
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </section>
 
@@ -187,6 +274,55 @@ const meta = [
           </div>
         ))
       }
+    </div>
+  </section>
+
+  <!-- ===================== experience snapshot ===================== -->
+  <section class="ab-xp" aria-labelledby="ab-xp">
+    <div class="shell">
+      <div class="ab-xp__head">
+        <h2 id="ab-xp" class="label">Experience snapshot</h2>
+        <a href="/experience" class="ab-xp__more mono">Full experience →</a>
+      </div>
+
+      <ol class="ab-xp__list">
+        {
+          experienceSnapshot.map((e) => (
+            <li class="ab-xp__row">
+              <p class="ab-xp__when mono">{e.dateRange}</p>
+              <div class="ab-xp__body">
+                <p class="ab-xp__role">{e.role}</p>
+                <p class="ab-xp__org">{e.company}</p>
+                {e.current && <span class="ab-xp__now mono">Current</span>}
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- ===================== what I work with ===================== -->
+  <section class="ab-sk" aria-labelledby="ab-sk">
+    <div class="shell">
+      <div class="ab-sk__head">
+        <h2 id="ab-sk" class="label">What I work with</h2>
+        <a href="/skills" class="ab-sk__more mono">All skills →</a>
+      </div>
+
+      <ul class="ab-sk__grid">
+        {skillIndex.map((t) => <li class="ab-sk__item mono">{t}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== current direction ===================== -->
+  <section class="ab-dir" aria-labelledby="ab-dir">
+    <div class="shell">
+      <h2 id="ab-dir" class="label ab-dir__h">Current direction</h2>
+      <ol class="ab-dir__list">
+        {direction.map((d) => <li class="ab-dir__item">{d}</li>)}
+      </ol>
     </div>
   </section>
 
@@ -289,6 +425,233 @@ const meta = [
 
   .ab__way:last-child {
     border-bottom: var(--hairline) solid var(--border-faint);
+  }
+
+  /* ==========================================================================
+     interests
+     ========================================================================== */
+  .ab-int {
+    padding-block: var(--space-section);
+    border-top: var(--hairline) solid var(--border);
+  }
+
+  .ab-int__head {
+    display: grid;
+    gap: 0.6rem;
+    margin-bottom: clamp(1.5rem, 3vw, 2.25rem);
+  }
+
+  .ab-int__lede {
+    max-width: 46ch;
+    color: var(--fg-muted);
+  }
+
+  /*
+    Four cards, but they are NOT boxed. Each carries a hairline along its top
+    edge only, so the set reads as one ruled register rather than four tiles —
+    the brief's "less clutter, not card-heavy". The number gives the eye a
+    left-hand anchor without a bullet.
+  */
+  .ab-int__grid {
+    display: grid;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    grid-template-columns: 1fr;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 700px) {
+    .ab-int__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .ab-int__grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .ab-int__item {
+    padding-top: 1.1rem;
+    border-top: var(--hairline) solid var(--border-strong);
+  }
+
+  .ab-int__n {
+    color: var(--accent);
+  }
+
+  .ab-int__label {
+    margin-top: 0.5rem;
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 500;
+    color: var(--fg-strong);
+  }
+
+  .ab-int__text {
+    margin-top: 0.6rem;
+    font-size: var(--text-sm);
+    line-height: 1.55;
+    color: var(--fg-muted);
+  }
+
+  /* ==========================================================================
+     experience snapshot / skills index / direction
+     ========================================================================== */
+  .ab-xp,
+  .ab-sk {
+    padding-block: var(--space-section);
+    border-top: var(--hairline) solid var(--border);
+  }
+
+  .ab-xp__head,
+  .ab-sk__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    margin-bottom: clamp(1.25rem, 2.5vw, 1.75rem);
+  }
+
+  .ab-xp__more,
+  .ab-sk__more {
+    color: var(--accent);
+    text-transform: none;
+    letter-spacing: 0.03em;
+  }
+
+  .ab-xp__more:hover,
+  .ab-sk__more:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+  }
+
+  .ab-xp__list {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .ab-xp__row {
+    display: grid;
+    gap: 0.2rem 1.5rem;
+    grid-template-columns: 1fr;
+    padding: 1rem 0;
+    border-bottom: var(--hairline) solid var(--border-faint);
+  }
+
+  .ab-xp__row:first-child {
+    border-top: var(--hairline) solid var(--border-faint);
+  }
+
+  @media (min-width: 760px) {
+    .ab-xp__row {
+      grid-template-columns: minmax(0, 13rem) minmax(0, 1fr);
+      align-items: baseline;
+    }
+  }
+
+  .ab-xp__when {
+    color: var(--fg-faint);
+    text-transform: none;
+    letter-spacing: 0.03em;
+  }
+
+  .ab-xp__role {
+    font-size: var(--text-base);
+    color: var(--fg);
+  }
+
+  .ab-xp__org {
+    margin-top: 0.15rem;
+    font-size: var(--text-sm);
+    color: var(--fg-muted);
+  }
+
+  .ab-xp__now {
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 0.2rem 0.6rem;
+    border: var(--hairline) solid var(--accent-line);
+    border-radius: var(--r-full);
+    color: var(--accent);
+  }
+
+  .ab-sk__grid {
+    display: grid;
+    gap: 0.6rem 1rem;
+    grid-template-columns: 1fr;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 640px) {
+    .ab-sk__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1020px) {
+    .ab-sk__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .ab-sk__item {
+    padding: 0.65rem 0.9rem;
+    border-inline-start: 2px solid var(--accent-line);
+    background-color: var(--surface);
+    color: var(--fg-subtle);
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
+
+  .ab-dir {
+    padding-block: var(--space-section);
+    background-color: var(--band);
+    border-block: var(--hairline) solid var(--border-faint);
+  }
+
+  .ab-dir__h {
+    margin-bottom: clamp(1.25rem, 2.5vw, 1.75rem);
+  }
+
+  /*
+    The direction list is set in the display face at reading size — it is prose,
+    not a checklist, and the larger type is what keeps it from reading as a
+    to-do list. The hanging number gives it the editorial numbering the rest of
+    the page uses.
+  */
+  .ab-dir__list {
+    display: grid;
+    gap: 1.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: dir;
+  }
+
+  .ab-dir__item {
+    counter-increment: dir;
+    display: grid;
+    grid-template-columns: 2.25rem minmax(0, 1fr);
+    gap: 0 0.5rem;
+    max-width: 74ch;
+    color: var(--fg-muted);
+  }
+
+  .ab-dir__item::before {
+    content: counter(dir, decimal-leading-zero);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    padding-top: 0.35em;
   }
 
   /* ==========================================================================

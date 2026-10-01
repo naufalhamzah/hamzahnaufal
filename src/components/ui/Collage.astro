@@ -27,20 +27,60 @@ interface Props {
   caption?: string;
   /** Tighter gaps for use inside a card. */
   dense?: boolean;
+  /**
+   * Present narrow screenshots as device mockups (see ShotSlider). Used on the
+   * UI/UX case studies, where a phone capture should read as a mobile product
+   * rather than as a picture of a phone.
+   */
+  mockup?: boolean;
 }
 
-const { images, caption, dense = false } = Astro.props;
+const { images, caption, dense = false, mockup = false } = Astro.props;
+
+/** A cell is a device mockup only when the image is genuinely portrait. */
+const asMockup = (m: MediaAsset) => {
+  if (!mockup) return false;
+  const ar = m.width && m.height ? m.width / m.height : 1.5;
+  return ar < 0.75;
+};
 
 const n = images.length;
 /** Pick the composition from the count. */
 const layout = n <= 1 ? 'single' : n === 2 ? 'duo' : n === 3 ? 'trio' : 'many';
 /** Everything after the first three goes into the trailing row. */
 const rest = layout === 'many' ? images.slice(3) : [];
+
+/**
+ * For a duo, the frame ratio comes from the images themselves.
+ *
+ * A fixed ratio here is a crop, and a crop on a group photograph removes the
+ * banner or the faces at the top — the two things that make the picture worth
+ * showing. Averaging the pair's own proportions keeps both nearly whole while
+ * still giving the two cells a common shape, which is all the composition needs.
+ *
+ * Clamped, because an extreme pair (a tall portrait beside a wide panorama)
+ * would otherwise produce a frame so far from either that `cover` crops them
+ * heavily anyway. Documents are excluded — they are letterboxed, so their frame
+ * shape does not matter.
+ */
+const duoRatio = (() => {
+  if (layout !== 'duo') return '4 / 3';
+  const ars = images
+    .slice(0, 2)
+    .filter((m) => m.fit !== 'contain')
+    .map((m) => (m.width && m.height ? m.width / m.height : 4 / 3));
+  if (ars.length < 2) return '4 / 3';
+  const avg = ars.reduce((a, b) => a + b, 0) / ars.length;
+  return String(Math.min(Math.max(avg, 1.1), 1.9).toFixed(3));
+})();
 ---
 
 {
   n > 0 && (
-    <figure class:list={['collage', `collage--${layout}`, dense && 'collage--dense']}>
+    <figure
+      class:list={['collage', `collage--${layout}`, dense && 'collage--dense']}
+      style={layout === 'duo' ? `--duo-ratio: ${duoRatio};` : undefined}
+    >
       <div class="collage__grid">
         {images.slice(0, layout === 'many' ? 3 : n).map((img, i) => (
           <button
@@ -55,14 +95,27 @@ const rest = layout === 'many' ? images.slice(3) : [];
             data-lightbox-caption={img.caption ?? img.alt}
             aria-label={`View larger: ${img.alt}`}
           >
-            <img
-              src={img.src}
-              alt={img.alt}
-              width={img.width}
-              height={img.height}
-              loading="lazy"
-              decoding="async"
-            />
+            {asMockup(img) ? (
+              <span class="collage__device">
+                <img
+                  src={img.src}
+                  alt={img.alt}
+                  width={img.width}
+                  height={img.height}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </span>
+            ) : (
+              <img
+                src={img.src}
+                alt={img.alt}
+                width={img.width}
+                height={img.height}
+                loading="lazy"
+                decoding="async"
+              />
+            )}
             {img.caption && <span class="collage__cap">{img.caption}</span>}
           </button>
         ))}
@@ -163,6 +216,55 @@ const rest = layout === 'many' ? images.slice(3) : [];
     transform: none;
   }
 
+  /* ---------------- device mockup ---------------- */
+  /*
+    Sized by HEIGHT, so a tall capture can never push the shell past its cell —
+    the same rule as the slider's mockup, for the same reason.
+  */
+  .collage__device {
+    display: block;
+    position: relative;
+    height: calc(100% - 1.4rem);
+    aspect-ratio: 9 / 19.5;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0.35rem;
+    border: 1.5px solid var(--device-edge);
+    border-radius: 1.2rem;
+    background-color: var(--device-body);
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.28),
+      0 10px 24px -8px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+  }
+
+  .collage__device::before {
+    content: '';
+    position: absolute;
+    top: 0.62rem;
+    left: 50%;
+    z-index: 1;
+    width: 26%;
+    height: 0.3rem;
+    border-radius: var(--r-full);
+    background-color: var(--device-edge);
+    transform: translateX(-50%);
+  }
+
+  .collage__device img {
+    width: 100%;
+    height: 100%;
+    border-radius: 0.9rem;
+    object-fit: cover;
+    object-position: center top;
+    padding: 0;
+  }
+
+  .collage__device img,
+  .collage__cell:hover .collage__device img {
+    transform: none;
+  }
+
   .collage__cell:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 3px;
@@ -171,6 +273,7 @@ const rest = layout === 'many' ? images.slice(3) : [];
   .collage__cap {
     position: absolute;
     inset: auto 0 0 0;
+    z-index: 2;
     padding: 0.45rem 0.6rem;
     background: linear-gradient(
       180deg,
@@ -184,18 +287,44 @@ const rest = layout === 'many' ? images.slice(3) : [];
     text-align: left;
   }
 
+  /*
+    A captioned DEVICE cell needs extra room at the foot.
+
+    The caption is an overlay, and it was landing across the lower third of the
+    phone shell — the screenshot's own interface and the caption were competing
+    for the same pixels. The shell is shortened by the caption's height so the
+    two never overlap, which matters more here than on a photo because the bottom
+    of a phone screen is where the navigation bar lives.
+  */
+  .collage__cell:has(.collage__device) .collage__device {
+    height: calc(100% - 3.2rem);
+  }
+
   /* ---------------- 1 image ---------------- */
   .collage--single .collage__grid {
     grid-template-columns: 1fr;
   }
 
   /* ---------------- 2 images: 2:1 split ---------------- */
+  /*
+    THE FRAME FOLLOWS THE PHOTOS, not a fixed 4:3.
+
+    Both cells used to be forced to 4:3, which is fine for a landscape
+    photograph and wrong for everything else. The About page's pair is a
+    wide group shot and a narrower candid, and 4:3 sliced the top and bottom off
+    both — the group shot lost the banner it was taken under, so the picture
+    stopped showing the thing it was there to show.
+
+    `--duo-ratio` is set by the component from the images' own proportions, so the
+    composition adapts instead of cropping. The default stays 4:3 for callers that
+    do not supply one.
+  */
   .collage--duo .collage__grid {
     grid-template-columns: 1.35fr 1fr;
   }
 
   .collage--duo .collage__cell {
-    aspect-ratio: 4 / 3;
+    aspect-ratio: var(--duo-ratio, 4 / 3);
   }
 
   /* ---------------- 3 images: lead + 2 stacked ---------------- */

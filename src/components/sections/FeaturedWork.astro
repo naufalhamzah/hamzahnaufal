@@ -2,28 +2,37 @@
 /**
  * PREVIEW: SELECTED WORK  (homepage's strongest section)
  *
- * THREE projects, in three DIFFERENT sizes — a wide lead spread followed by two
- * supporting cards. The brief objected to repeated identical cards, so the
- * composition varies rather than the card styling.
+ * A HORIZONTAL RAIL, not a stacked grid.
+ *
+ * This section used to be a vertical spread — one wide lead card followed by two
+ * supporting cards — which read as "the whole portfolio, condensed" and set the
+ * homepage up as a list of work rather than an invitation to open one thing. It
+ * is now a carousel: one project holds the frame, the next stays half-visible at
+ * the edge, and the visitor chooses how far to walk through it.
+ *
+ * The rail is a native scroll-snap container, so all three projects are in the
+ * HTML and it works with JavaScript disabled. See `FeaturedRail.astro` for the
+ * carousel itself and the reasoning behind the peek, the snap and the controls.
  *
  * No subjective ranking labels ("best", "top"). The three are chosen to show the
- * RANGE of the work — a data system, a product case study, a research project —
- * rather than three entries of the same kind. See `featuredProjects` in the data
- * layer for why the selection is explicit rather than filtered.
+ * RANGE of the work — two data systems and a research programme — rather than
+ * three entries of the same kind. See `featuredProjects` in the data layer for
+ * why the selection is explicit rather than filtered.
  *
  * IMAGE BUDGET: three project visuals, no more.
  */
 import SectionHead from '@/components/ui/SectionHead.astro';
-import ProjectCard from '@/components/ui/ProjectCard.astro';
+import FeaturedRail from '@/components/ui/FeaturedRail.astro';
 import { featuredProjects, projectEntries } from '@/data/projects';
 
-/** Index numbers follow the master list so they stay stable across pages. */
-const numbered = featuredProjects.map((p) => ({
-  project: p,
-  index: projectEntries.findIndex((e) => e.id === p.id) + 1,
-}));
-
-const [lead, ...rest] = numbered;
+/**
+ * Master-list indices, so the "01 / 02 / 03" the rail shows is the SAME number
+ * the projects page gives that project — the numbering stays stable across
+ * pages instead of restarting inside the carousel.
+ */
+const indices = featuredProjects.map(
+  (p) => projectEntries.findIndex((e) => e.id === p.id) + 1,
+);
 ---
 
 <section class="fw" id="featured">
@@ -32,24 +41,14 @@ const [lead, ...rest] = numbered;
       index="02"
       eyebrow="Selected Work"
       title="Projects I have built and researched"
-      lede="A procurement monitoring dashboard, a product-design case study, and a funded smart-farming research programme — three different kinds of work."
+      lede="A marketing data system built from scratch, a procurement monitoring dashboard, and a funded smart-farming research programme — three different kinds of work."
       href="/projects"
       linkLabel="See more projects"
       note={`${projectEntries.length} total`}
       emphasis
     />
 
-    {lead && <ProjectCard project={lead.project} index={lead.index} variant="hero" />}
-
-    {
-      rest.length > 0 && (
-        <div class="fw__row">
-          {rest.map((r) => (
-            <ProjectCard project={r.project} index={r.index} variant="wide" />
-          ))}
-        </div>
-      )
-    }
+    <FeaturedRail projects={featuredProjects} indices={indices} />
   </div>
 </section>
 
@@ -59,21 +58,5 @@ const [lead, ...rest] = numbered;
   .fw {
     background-color: var(--band);
     border-block: var(--hairline) solid var(--border-faint);
-  }
-
-  .fw__row {
-    display: grid;
-    gap: var(--gap);
-    grid-template-columns: 1fr;
-    margin-top: clamp(2.5rem, 5vw, 4rem);
-    padding-top: clamp(2.5rem, 5vw, 4rem);
-    border-top: var(--hairline) solid var(--border);
-  }
-
-  @media (min-width: 860px) {
-    .fw__row {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: clamp(1.5rem, 3.5vw, 3rem);
-    }
   }
 </style>

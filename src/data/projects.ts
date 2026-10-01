@@ -231,11 +231,17 @@ const raw: ProjectEntry[] = [
     ],
     tools: ['K-Nearest Neighbors', 'Python', 'Confusion matrix', 'Model evaluation', 'Classification', 'Academic writing'],
     visual: {
-      src: '/images/projects/knn-paper.webp',
-      alt: 'Cover of the Indonesian Journal of Informatic Research and Software Engineering (IJIRSE), Vol. 4 No. 1, March 2024 — the issue carrying the K-Nearest Neighbors creditworthiness paper',
+      /*
+        The paper's OWN first page — its header carries the volume, issue, pages
+        and ISSN, so the image is evidence of the record rather than decoration.
+        (An earlier version pointed at the issue COVER, which identifies the issue
+        but not the article.)
+      */
+      src: '/images/publications/ijirse-article-knn.webp',
+      alt: 'First page of the KNN creditworthiness paper, headed IJIRSE Vol. 4 No. 1, Maret 2024, pp. 40–46',
       fit: 'contain',
-      width: 976,
-      height: 1379,
+      width: 1194,
+      height: 1686,
     },
     featured: false,
     source: 'portfolio',
@@ -264,11 +270,11 @@ const raw: ProjectEntry[] = [
     ],
     tools: ['Naive Bayes', 'Python', 'Sentiment analysis', 'Text preprocessing', 'Train–test split', 'Academic writing'],
     visual: {
-      src: '/images/projects/naive-bayes-paper.webp',
-      alt: 'Cover of the Indonesian Journal of Informatic Research and Software Engineering (IJIRSE), Vol. 5 No. 1, March 2025 — the issue carrying the iPusnas Naive Bayes sentiment paper',
+      src: '/images/publications/ijirse-article-nb.webp',
+      alt: 'First page of the iPusnas sentiment analysis paper, headed IJIRSE Vol. 5 No. 1, Maret 2025, pp. 12–19',
       fit: 'contain',
-      width: 976,
-      height: 1379,
+      width: 1194,
+      height: 1686,
     },
     featured: false,
     source: 'portfolio',
@@ -535,18 +541,19 @@ export const projectsInterleaved = [
  * one kind of project three times while the three UI/UX case studies never
  * appeared at all.
  *
- * The selection below is chosen to show the RANGE of the work: one long-form
- * data system, one product-design case study, and one published research
- * project. `featured` still marks which entries have the depth for a large card;
- * this list decides which of them the homepage actually spends its image budget
- * on.
+ * The selection below is chosen to show the RANGE of the work: two data systems
+ * and one published research programme. `featured` still marks which entries
+ * have the depth for a large card; this list decides which of them the homepage
+ * actually spends its image budget on.
  *
- * Order is deliberate: the lead spread (largest card) is the systems project
- * with the most documented depth, followed by the product and research pieces.
+ * Order is deliberate, and it is the order the user asked for: the marketing
+ * data system, then the procurement monitoring dashboard, then the smart-farming
+ * programme. All three render server-side in the rail, so no ordering decision
+ * here changes what is crawlable.
  */
 export const featuredProjects = [
+  'marketing-data-system',
   'procurement-dashboard',
-  'kedai-nyam',
   'smart-farming',
 ]
   .map((id) => projectEntries.find((p) => p.id === id))

@@ -71,12 +71,16 @@ const mark = getSkillIcon(icon);
     transform: translateY(-2px);
   }
 
-  /* ---- the mark: sized to be recognisable, which is the point ---- */
+  /* ---- the mark: sized to be recognisable, which is the point ----
+     Raised from 2.5rem to 3.25rem. At 2.5rem a detailed brand mark (Looker,
+     Figma) still read as a smudge at arm's length — the user asked twice for
+     logos large enough to identify on sight. The tile is what absorbs the extra
+     size, so the grid's rhythm is unchanged. */
   .st__mark {
     display: grid;
     place-items: center;
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 3.25rem;
+    height: 3.25rem;
     flex: none;
     /* Brand marks keep their colour; marks whose brand colour is unreadable on
        dark inherit this. */
@@ -90,8 +94,8 @@ const mark = getSkillIcon(icon);
   }
 
   .st__name {
-    font-size: var(--text-xs);
-    line-height: 1.3;
+    font-size: var(--text-sm);
+    line-height: 1.32;
     color: var(--fg-muted);
     text-wrap: balance;
   }
@@ -119,8 +123,8 @@ const mark = getSkillIcon(icon);
   }
 
   .st--small .st__mark {
-    width: 1.6rem;
-    height: 1.6rem;
+    width: 1.9rem;
+    height: 1.9rem;
   }
 
   .st--small .st__name {

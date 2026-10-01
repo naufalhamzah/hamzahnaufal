@@ -192,6 +192,13 @@ export const publicationEntrySchema = z.object({
   issn: z.string().optional(),
   issnPrint: z.string().optional(),
   accreditation: z.string().optional(),
+  /**
+   * The DOI as PRINTED by the publisher, kept separate from `link` because a
+   * printed DOI is not always resolvable — one journal here prints a DOI its
+   * publisher has not registered yet, so the clickable link has to point
+   * elsewhere while the citation still carries the DOI.
+   */
+  doi: z.string().optional(),
   metric: z.string().optional(),
   method: z.string().optional(),
   abstract: z.string().optional(),

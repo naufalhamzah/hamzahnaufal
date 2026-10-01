@@ -88,6 +88,7 @@ const meta = [
                       p.issn && { k: 'e-ISSN', v: p.issn },
                       p.issnPrint && { k: 'p-ISSN', v: p.issnPrint },
                       p.accreditation && { k: 'Accreditation', v: p.accreditation },
+                      p.doi && { k: 'DOI', v: p.doi, doi: true },
                       p.method && { k: 'Method', v: p.method },
                       p.metric && { k: 'Reported result', v: p.metric },
                     ]
@@ -95,7 +96,26 @@ const meta = [
                       .map((f: any) => (
                         <div class="pb__fact">
                           <dt class="mono">{f.k}</dt>
-                          <dd>{f.v}</dd>
+                          <dd>
+                            {/*
+                              A printed DOI is not always resolvable — one journal
+                              here prints a DOI its publisher has not registered,
+                              so only link the DOI when the entry's own `link`
+                              actually points at it.
+                            */}
+                            {f.doi && p.link?.href.includes(f.v) ? (
+                              <a
+                                href={p.link.href}
+                                class="pb__fact-link"
+                                rel="noopener noreferrer"
+                                target="_blank"
+                              >
+                                {f.v}
+                              </a>
+                            ) : (
+                              f.v
+                            )}
+                          </dd>
                         </div>
                       ))
                   }
@@ -174,6 +194,18 @@ const meta = [
 <style>
   .pb {
     padding-block: clamp(1.5rem, 3vw, 2.5rem) var(--space-section);
+  }
+
+  .pb__fact-link {
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-color: var(--accent-line);
+    text-underline-offset: 0.18em;
+    transition: text-decoration-color var(--t-fast) var(--ease);
+  }
+
+  .pb__fact-link:hover {
+    text-decoration-color: currentColor;
   }
 
   .pb__list {

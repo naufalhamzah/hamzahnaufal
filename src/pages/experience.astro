@@ -226,38 +226,82 @@ const meta = [
     letter-spacing: 0.03em;
   }
 
-  /* A logo plate keeps every employer mark the same optical size regardless of
-     whether the source file is square or a wide wordmark. */
+  /*
+    NO BORDERED PLATE.
+
+    The mark used to sit inside a 6rem x 3.25rem box with a hairline border and a
+    filled surface — which put a small logo inside a visible rectangle, exactly
+    the "thick bordered box around a tiny company logo" the brief objected to. The
+    box also fought the mark for attention: two rectangles, one of them empty.
+
+    So the plate is gone. The logo now sits directly on the page, sized by
+    HEIGHT, which is what makes a set of differently-shaped marks read at one
+    optical weight:
+
+      · a square badge is bound by height, so it grows to fill it;
+      · a long wordmark is bound by `max-width`, so it stays inside the column
+        while its lettering still reaches the same visual size.
+
+    Both constraints are needed, and `max-width` grows with the height — a width
+    cap that does not scale becomes the binding constraint and collapses the
+    height right back down.
+  */
   .xp__logo {
     display: grid;
     place-items: center;
-    width: 6rem;
-    height: 3.25rem;
-    padding: 0.45rem 0.6rem;
-    border: var(--hairline) solid var(--border);
-    border-radius: var(--r-xs);
-    background-color: var(--surface-2);
-    /* Safety net: a logo can never paint outside its plate. */
-    overflow: hidden;
+    width: 100%;
+    /*
+      NO `max-width` here — deliberately.
+
+      A width cap on the CONTAINER is what shrank the widest marks. JAIST is a
+      5.88:1 wordmark; capping its column at 11rem left it 176px wide and only
+      30px tall, which is smaller than the square badges it is supposed to match
+      optically. The column itself (13rem) is the real constraint, and the
+      `max-height` on the image is what keeps the tallest mark in proportion — so
+      the extra cap only ever did harm.
+    */
+    min-height: 3.5rem;
   }
 
   /*
-    max-* rather than width/height:100%. A percentage height does not resolve
-    inside a centred grid item (the item's height is content-sized), so a square
-    logo would overflow the plate and collide with the text below it. max-width
-    and max-height constrain against the plate's definite content box instead.
+    `max-*` rather than `width/height: 100%`. A percentage height does not resolve
+    inside a centred grid item — the item's height is content-sized — so a square
+    logo would overflow and collide with the text below it. `max-width` and
+    `max-height` constrain against the plate's definite content box instead.
+
+    Raised from 3.25rem to 4rem so the marks are readable at a glance rather than
+    only on inspection. It is still bounded by the meta column's width, and by
+    `max-width` on the container, so a wordmark cannot run past its column.
   */
   .xp__logo img {
     max-width: 100%;
-    max-height: 100%;
+    max-height: 4rem;
     width: auto;
     height: auto;
     object-fit: contain;
   }
 
+  /*
+    The meta column is where the width budget lives, so give the logos a little
+    more of it — 13rem was tight once the marks stopped being boxed. The extra
+    room goes to the wordmarks, which are the ones that read too small.
+  */
+  @media (min-width: 900px) {
+    .xp__row {
+      grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+    }
+  }
+
+  /*
+    A role with no logo keeps the SAME box, so the meta column's rhythm is
+    identical whether or not a mark exists — the numbering simply fills the space
+    the logo would have used.
+  */
   .xp__logo--empty {
     color: var(--fg-faint);
-    font-size: 1rem;
+    font-size: 1.35rem;
+    font-family: var(--font-display);
+    font-style: italic;
   }
 
   .xp__loc {

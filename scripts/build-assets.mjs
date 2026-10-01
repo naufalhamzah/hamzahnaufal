@@ -92,7 +92,7 @@ const RECIPES = [
       the `stripFaintAlpha` note in convert() — this is the one image on the site
       that needs it, because it is the one cut-out used at large size.
     */
-    stripFaintAlpha: { floor: 40, ceil: 120 },
+    stripFaintAlpha: { floor: 40, ceil: 120 }
   }],
   // The uncropped original, so nothing is lost if the framing is ever revisited.
   /*
@@ -105,7 +105,7 @@ const RECIPES = [
 
   /* -------------------------- AIRNAV (explicit) ------------------------- */
   ['Gambaran Pengalaman di Airnav.jpeg', 'experience/airnav-onboarding.webp', {
-    w: 1800, q: Q.photo,
+    w: 1800, q: Q.photo
   }],
   ['Gambar Gedung AirNav.jfif', 'experience/airnav-building.webp', { w: 1200, q: Q.shot }],
 
@@ -113,7 +113,7 @@ const RECIPES = [
   ['Momen Pengalaman di PLN.png', 'experience/pln-work.webp', { w: 1500, q: Q.photo }],
   ['Gambaran Halaman JAIST.png', 'experience/jaist-page.webp', { w: 1300, q: Q.shot }],
   ['Pengalaman PPK Ormawa dan Publikasi (1).png', 'experience/ppk-ormawa.webp', {
-    w: 1500, q: Q.photo,
+    w: 1500, q: Q.photo
   }],
 
   /* --------------------------------- ABOUT ------------------------------ */
@@ -141,23 +141,25 @@ const RECIPES = [
   // Apps Script editor behind it. Both are used, in that order.
   ['Gambaran Project di BeautyLab (2).png', 'projects/marketing-sheet-1.webp', {
     w: 1700, q: Q.shot,
+    trimWhiteMargin: {}
   }],
   ['Gambaran Project di BeautyLab (1).png', 'projects/marketing-script-1.webp', {
     w: 1500, q: Q.shot,
+    trimWhiteMargin: {}
   }],
 
   /* --------- PROJECT: PLN dashboard — the NEWER assets replace old ------- */
   ['Gambaran Project Dashboard PLN  (1).png', 'projects/pln-dashboard-1.webp', {
-    w: 1300, q: Q.shot,
+    w: 1300, q: Q.shot
   }],
   ['Gambaran Project Dashboard PLN  (2).png', 'projects/pln-dashboard-2.webp', {
-    w: 1300, q: Q.shot,
+    w: 1300, q: Q.shot
   }],
   ['Gambaran Project Dashboard PLN  (3).png', 'projects/pln-dashboard-3.webp', {
-    w: 1300, q: Q.shot,
+    w: 1300, q: Q.shot
   }],
   ['Gambaran Project Dashboard PLN  (4).png', 'projects/pln-dashboard-4.webp', {
-    w: 1300, q: Q.shot,
+    w: 1300, q: Q.shot
   }],
 
   /* ------------------------ PROJECT: smart farming ---------------------- */
@@ -165,28 +167,69 @@ const RECIPES = [
   // photograph — the name is kept accurate so alt text and usage stay honest.
   ['Pengalaman PPK Ormawa dan Publikasi (2).png', 'projects/smart-farming-article.webp', {
     w: 1200, q: Q.doc,
+      trimWhiteMargin: {}
   }],
 
   /* --------------------------- PROJECT: research ------------------------ */
   // Both files are IJIRSE covers/pages; named by what they actually show.
-  ['Publikasi Artikel IJIRSE (2).png', 'projects/knn-paper.webp', { w: 1200, q: Q.doc }],
-  ['Publikasi Artikel IJIRSE (1).png', 'projects/naive-bayes-paper.webp', { w: 1200, q: Q.doc }],
 
   /* ---------------------------- PROJECT: UI/UX -------------------------- */
-  ['Gambaran Project Guzelav (1).png', 'projects/guzelev-1.webp', { w: 1000, q: Q.shot }],
-  ['Gambaran Project Guzelav (2).png', 'projects/guzelev-2.webp', { w: 1000, q: Q.shot }],
-  ['Gambaran Project WellMind (1).png', 'projects/wellmind-1.webp', { w: 1000, q: Q.shot }],
-  ['Gambaran Project WellMind (2).png', 'projects/wellmind-2.webp', { w: 1000, q: Q.shot }],
-  ['Gambaran Project WellMind (3).png', 'projects/wellmind-3.webp', { w: 1000, q: Q.shot }],
-  ['Gambaran Project Kedai Nyam (1).png', 'projects/kedai-nyam-1.webp', { w: 1500, q: Q.shot }],
-  ['Gambaran Project Kedai Nyam (2).png', 'projects/kedai-nyam-2.webp', { w: 1000, q: Q.shot }],
-  ['Gambaran Project Kedai Nyam (3).png', 'projects/kedai-nyam-3.webp', { w: 1000, q: Q.shot }],
-  ['Gambaran Project Kedai Nyam (4).png', 'projects/kedai-nyam-4.webp', { w: 1500, q: Q.shot }],
+  ['Gambaran Project Guzelav (1).png', 'projects/guzelev-1.webp', { w: 1000, q: Q.shot , trimWhiteMargin: {} }],
+  ['Gambaran Project Guzelav (2).png', 'projects/guzelev-2.webp', { w: 1000, q: Q.shot , trimWhiteMargin: {} }],
+  ['Gambaran Project WellMind (1).png', 'projects/wellmind-1.webp', { w: 1000, q: Q.shot , trimWhiteMargin: {} }],
+  ['Gambaran Project WellMind (2).png', 'projects/wellmind-2.webp', { w: 1000, q: Q.shot , trimWhiteMargin: {} }],
+  ['Gambaran Project WellMind (3).png', 'projects/wellmind-3.webp', { w: 1000, q: Q.shot , trimWhiteMargin: {} }],
+  ['Gambaran Project Kedai Nyam (1).png', 'projects/kedai-nyam-1.webp', { w: 1500, q: Q.shot , trimWhiteMargin: {} }],
+  ['Gambaran Project Kedai Nyam (2).png', 'projects/kedai-nyam-2.webp', { w: 1000, q: Q.shot , trimWhiteMargin: {} }],
+  ['Gambaran Project Kedai Nyam (3).png', 'projects/kedai-nyam-3.webp', { w: 1000, q: Q.shot , trimWhiteMargin: {} }],
+  ['Gambaran Project Kedai Nyam (4).png', 'projects/kedai-nyam-4.webp', { w: 1500, q: Q.shot , trimWhiteMargin: {} }],
 
-  /* ---------------------------- PUBLICATIONS ---------------------------- */
-  ['Cover IJIRSE.png', 'publications/ijirse-cover.webp', { w: 1000, q: Q.doc }],
-  ['COVER AMPOEN.png', 'publications/ampoen-cover.webp', { w: 1000, q: Q.doc }],
-  ['Publikasi Artikel AMPOEN.png', 'publications/ampoen-article.webp', { w: 1200, q: Q.doc }],
+  /* ---------------------------- PUBLICATIONS ----------------------------
+     The user supplied a fresh set (Oct 2026): two journal covers and three
+     article first pages, in higher resolution than the previous batch.
+
+     PAIRING MATTERS HERE. A cover and an article page are different evidence —
+     the cover identifies the ISSUE, the first page identifies the PAPER — and
+     swapping them would misattribute one article's opening to another's journal.
+     Each output name therefore states both the journal and the role:
+
+       ijirse-cover          IJIRSE Vol. 4 No. 1 cover      (KNN paper's issue)
+       ijirse-cover-v5       IJIRSE Vol. 5 No. 1 cover      (Naive Bayes issue)
+       ijirse-article-knn    KNN paper, first page
+       ijirse-article-nb     Naive Bayes paper, first page
+       ampoen-cover          AMPOEN Vol. 2 No. 2 cover
+       ampoen-article        Smart Farming paper, first page
+
+     Two distinct IJIRSE covers exist because the papers were published in
+     different volumes — the previous single `ijirse-cover` was shown against
+     both papers, which was wrong for whichever one it did not belong to.
+     -------------------------------------------------------------------- */
+  /*
+    VERIFIED PAIRING — read off each page's own printed header, not assumed from
+    the filename numbers. `Artikel Ijirse 1.png` and `... 2.png` are NOT in the
+    order the paper titles suggest:
+
+      'Artikel Ijirse 1.png'  header reads "Vol. 5 No.1. Maret 2025, pp: 12-19"
+                              -> Naive Bayes / iPusnas paper
+      'Artikel Ijirse 2.png'  header reads "Vol. 4 No.1. Maret 2024, pp: 40-46"
+                              -> KNN / Bank ABC paper
+      'Cover IJIRSE.png'      cover reads "Vol 4. Iss 1. Maret 2024"
+                              -> the KNN paper's issue
+
+    The first attempt mapped them in filename order and therefore attached each
+    paper's opening page to the OTHER paper. Reading the header is the only
+    reliable check — the filenames number the upload, not the article.
+  */
+  ['Cover IJIRSE.png', 'publications/ijirse-cover.webp', { w: 1200, q: Q.doc,
+      trimWhiteMargin: {} }],
+  ['Artikel Ijirse 2.png', 'publications/ijirse-article-knn.webp', { w: 1400, q: Q.doc,
+      trimWhiteMargin: {} }],
+  ['Artikel Ijirse 1.png', 'publications/ijirse-article-nb.webp', { w: 1400, q: Q.doc,
+      trimWhiteMargin: {} }],
+  ['COVER AMPOEN.png', 'publications/ampoen-cover.webp', { w: 1200, q: Q.doc,
+      trimWhiteMargin: {} }],
+  ['Artikel Ampoen.png', 'publications/ampoen-article.webp', { w: 1400, q: Q.doc,
+      trimWhiteMargin: {} }],
 
   /* ---------------------- EMPLOYER LOGOS (from konten) ------------------ */
   /*
@@ -216,14 +259,41 @@ const RECIPES = [
       logo: true,
       knockOutWhite: true,
       crop: { left: 0, top: 0, width: 1, ratio: 1 / 0.8164 },
-      trim: true,
+      trim: true
     },
   ],
   ['Logo Beauty Lab.png', 'logos/beauty-lab.webp', { w: 1200, q: Q.logo, logo: true, trim: true }],
   ['Logo PLN Pusharlis.png', 'logos/pln-pusharlis.webp', { w: 1200, q: Q.logo, logo: true, trim: true }],
   ['Logo Jaist.png', 'logos/jaist.webp', { w: 1400, q: Q.logo, logo: true, trim: true }],
   ['Logo Guru Mengajar.png', 'logos/guru-mengajar.webp', { w: 1000, q: Q.logo, logo: true, trim: true }],
-  ['Logo UNNES.png', 'logos/unnes.webp', { w: 800, q: Q.logo, logo: true, knockOutWhite: true, trim: true }],
+  /*
+    UNNES — CREST ONLY, the wordmark dropped.
+
+    Same failure as AirNav's second line, measured the same way: the "UNNES" and
+    "UNIVERSITAS NEGERI SEMARANG" lettering is set in dark blue, and 91% of its
+    pixels fall below L<90 — invisible against the dark theme's band (L≈22). It is
+    also what made the file so tall (800x1069), which is why a square plate
+    squeezed it.
+
+    The crest ends at y 1785 of 2477 (72.1%), then a 60px gap, then the type. The
+    crop keeps everything above that gap, so the emblem — flame, wings, the whole
+    device — is untouched. `trim` then removes the empty margin.
+
+    Verified after cropping: crest 1541x1566, ratio 0.984, and no edge of it is
+    clipped.
+  */
+  [
+    'Logo UNNES.png',
+    'logos/unnes.webp',
+    {
+      w: 800,
+      q: Q.logo,
+      logo: true,
+      knockOutWhite: true,
+      crop: { left: 0, top: 0, width: 1, ratio: 1 / 0.7211 },
+      trim: true
+    },
+  ],
   ['Logo SMA.png', 'logos/sma.webp', { w: 800, q: Q.logo, logo: true, knockOutWhite: true, trim: true }],
 ];
 
@@ -422,6 +492,89 @@ async function convert(from, rel, opts) {
         meta.width = width;
         meta.height = height;
         targetW = Math.min(targetW, width);
+      }
+    }
+
+    /*
+      trimWhiteMargin: crop the EMPTY WHITE BORDER off a screenshot.
+
+      Measured on this set: fourteen project images carry a white margin around
+      the actual interface. On the UI/UX captures it is 55% of the edge pixels;
+      on the document scans it is 100%. Dropped into a dark frame that margin
+      becomes a bright plate around the product, which is exactly the "screenshot
+      pasted on a white box" look the user objected to.
+
+      THIS IS A CROP, NOT A KNOCKOUT, and that distinction is the whole reason it
+      is safe. Removing white pixels by colour would punch holes through every
+      white surface INSIDE the interface — dashboard panels, table cells, form
+      fields — and the screenshot would stop being a screenshot. Cropping only
+      discards a border that is uniformly white all the way round, and it stops
+      the moment the edge stops being white, so interior white is never touched.
+
+      The test is deliberately strict (>=246 on all three channels) and requires
+      whole rows and columns to qualify, so a light-grey interface edge or a
+      single pale pixel cannot trigger a cut. A guard refuses the crop entirely if
+      it would eat more than `max` of either dimension, which is what protects an
+      image that is genuinely white-backed rather than bordered.
+    */
+    if (opts.trimWhiteMargin) {
+      const { data, info } = await pipe
+        .ensureAlpha()
+        .raw()
+        .toBuffer({ resolveWithObject: true });
+      const { width: iw, height: ih } = info;
+
+      const isWhiteRow = (y) => {
+        for (let x = 0; x < iw; x++) {
+          const o = (y * iw + x) * 4;
+          if (data[o] < 246 || data[o + 1] < 246 || data[o + 2] < 246) return false;
+        }
+        return true;
+      };
+      const isWhiteCol = (x) => {
+        for (let y = 0; y < ih; y++) {
+          const o = (y * iw + x) * 4;
+          if (data[o] < 246 || data[o + 1] < 246 || data[o + 2] < 246) return false;
+        }
+        return true;
+      };
+
+      let top = 0;
+      while (top < ih && isWhiteRow(top)) top++;
+      let bottom = ih - 1;
+      while (bottom > top && isWhiteRow(bottom)) bottom--;
+      let left = 0;
+      while (left < iw && isWhiteCol(left)) left++;
+      let right = iw - 1;
+      while (right > left && isWhiteCol(right)) right--;
+
+      const nw = right - left + 1;
+      const nh = bottom - top + 1;
+      const maxX = opts.trimWhiteMargin.max ?? 0.18;
+      const maxY = opts.trimWhiteMargin.max ?? 0.18;
+
+      /*
+        Refuse a crop that would discard too much on EITHER axis — that is not a
+        margin, that is the picture. The two axes are checked independently, not
+        together: a document scan often has a white band top and bottom while its
+        sides run to the edge, and requiring BOTH axes to qualify would skip
+        exactly the case this exists for.
+
+        Measured on the real set: the UI/UX captures have NO qualifying margin at
+        all — their white is inside the interface — so this step correctly leaves
+        them alone. The journal pages carry 26–29px top/bottom and 14–17px sides,
+        which is 2% of a 1379px page and passes comfortably.
+      */
+      if (nw > 0 && nh > 0 && nw >= iw * (1 - maxX) && nh >= ih * (1 - maxY)) {
+        pipe = sharp(data, { raw: info }).extract({
+          left,
+          top,
+          width: nw,
+          height: nh
+        });
+        meta.width = nw;
+        meta.height = nh;
+        targetW = Math.min(targetW, nw);
       }
     }
 

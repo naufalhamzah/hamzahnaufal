@@ -1,0 +1,822 @@
+---
+/**
+ * FEATURED RAIL — the homepage's horizontal project carousel.
+ *
+ * WHY A RAIL INSTEAD OF A STACKED GRID
+ * The homepage used to present three projects as a vertical spread: one wide
+ * lead card followed by two supporting cards. It read as "here is the whole
+ * portfolio, condensed" — a wall of cards competing with the sections below it —
+ * when the homepage's job is to make a visitor want to open ONE thing.
+ *
+ * A horizontal rail changes the reading model. The section becomes a
+ * walk-through rather than a list: one project holds the frame, the next is
+ * visible at the edge as an invitation, and the visitor chooses how far to go.
+ * All three still render server-side in the HTML, so nothing depends on the
+ * script — the rail is a real scroll container and works with JS disabled.
+ *
+ * WHAT MAKES IT FEEL LIKE A CAROUSEL AND NOT A SCROLLING DIV
+ *   · ONE FRAME SHAPE. Every slide is the same size, so the rail never jumps as
+ *     different-shaped images come into view. Contents vary; geometry does not.
+ *   · SNAP POINTS. `scroll-snap-type: x mandatory` makes every swipe and every
+ *     arrow land exactly on a slide boundary, which is what separates a carousel
+ *     from a box you can drag.
+ *   · A PEEK. At desktop widths the next slide shows ~5.5rem of itself. That
+ *     sliver is the affordance — it says "there is more" more quietly than an
+ *     arrow does. It is also why the rail carries matching `padding-inline-end`:
+ *     without it the last slide cannot reach its own snap point and the carousel
+ *     silently becomes unscrollable at the end.
+ *   · A COUNTER AND A PROGRESS LINE, not dots. Dots are the generic template
+ *     answer; a rule that tracks the scroll position belongs to the editorial
+ *     language the rest of the site already uses.
+ *
+ * IMAGES. The slide reuses `ShotSlider` when a project has more than one image,
+ * so a multi-image project can be browsed in place, and letterboxes inside a
+ * fixed frame otherwise. Both paths keep the whole image visible rather than
+ * cropping it, which is the rule this site settled on: the frame is constant,
+ * the image is never cut.
+ */
+import type { ProjectEntry, MediaAsset } from '@/types/content';
+import { PROJECT_CATEGORY_LABELS } from '@/types/content';
+import { getImageDims } from '@/data/image-dims';
+import ShotSlider from './ShotSlider.astro';
+
+interface Props {
+  projects: ProjectEntry[];
+  /** 1-based master-list index for each project, in the same order. */
+  indices: number[];
+  /** Accessible name for the rail. */
+  label?: string;
+}
+
+const { projects, indices, label = 'Selected projects' } = Astro.props;
+
+/** The one frame ratio every slide shares — same as the projects grid. */
+const FRAME_RATIO = '16 / 10';
+
+const uid = `fw-${Math.random().toString(36).slice(2, 7)}`;
+const many = projects.length > 1;
+---
+
+{
+  projects.length > 0 && (
+    <div class="rail-wrap" data-carousel>
+      <ol
+        class="rail"
+        id={uid}
+        tabindex={many ? '0' : '-1'}
+        aria-label={`${label} — ${projects.length} projects`}
+      >
+        {projects.map((project, i) => {
+          const href = `/projects/${project.id}`;
+          const num = String(indices[i] ?? i + 1).padStart(2, '0');
+          const primary = project.categories[0];
+
+          /**
+           * Every image the project owns, hero first, de-duplicated. The gallery
+           * used to repeat the hero as its first entry, which made the slider
+           * open on the same picture twice.
+           */
+          const shots: MediaAsset[] = [
+            project.visual,
+            ...(project.gallery ?? []).filter((g) => g.src !== project.visual.src),
+          ];
+
+          const dims =
+            getImageDims(project.visual.src) ??
+            (project.visual.width && project.visual.height
+              ? ([project.visual.width, project.visual.height] as [number, number])
+              : null);
+
+          return (
+            <li class="rail__slide" data-slide>
+              <article class="fwc">
+                <div class="fwc__inner">
+                  <figure class="fwc__frame">
+                    {shots.length > 1 ? (
+                      <ShotSlider
+                        images={shots}
+                        ratio={FRAME_RATIO}
+                        lightbox={false}
+                        fit="contain"
+                        pairNarrow
+                        mockup
+                        label={project.title}
+                      />
+                    ) : (
+                      <img
+                        src={project.visual.src}
+                        alt={project.visual.alt}
+                        width={dims?.[0] ?? project.visual.width}
+                        height={dims?.[1] ?? project.visual.height}
+                        loading={i === 0 ? 'eager' : 'lazy'}
+                        decoding="async"
+                        draggable="false"
+                      />
+                    )}
+                    <span class="fwc__rule" aria-hidden="true" />
+                  </figure>
+
+                  <div class="fwc__body">
+                    <p class="fwc__meta">
+                      <span class="fwc__num" aria-hidden="true">
+                        {num}
+                      </span>
+                      <span class="fwc__cat mono">
+                        {PROJECT_CATEGORY_LABELS[primary]}
+                      </span>
+                      {project.year && (
+                        <span class="fwc__year mono">{project.year}</span>
+                      )}
+                    </p>
+
+                    <h3 class="fwc__title">
+                      <a href={href} class="fwc__link">
+                        {project.title}
+                      </a>
+                    </h3>
+
+                    <p class="fwc__tag">{project.tagline}</p>
+
+                    {project.tools.length > 0 && (
+                      <ul
+                        class="fwc__tools"
+                        aria-label={`Tools (${project.tools.length})`}
+                      >
+                        {project.tools.slice(0, 4).map((t) => (
+                          <li class="fwc__tool mono">{t}</li>
+                        ))}
+                        {project.tools.length > 4 && (
+                          <li
+                            class="fwc__tool fwc__tool--more mono"
+                            aria-hidden="true"
+                          >
+                            +{project.tools.length - 4}
+                          </li>
+                        )}
+                      </ul>
+                    )}
+
+                    <span class="fwc__cta">
+                      <span>View project</span>
+                      <span class="fwc__arrow" aria-hidden="true">
+                        →
+                      </span>
+                    </span>
+                  </div>
+                </div>
+              </article>
+            </li>
+          );
+        })}
+      </ol>
+
+      {many && (
+        <div class="rail__foot">
+          <div class="rail__progress" aria-hidden="true">
+            <span class="rail__progress-bar" data-rail-progress />
+          </div>
+
+          <div class="rail__nav">
+            <p class="rail__count mono" aria-hidden="true">
+              <span data-rail-index>01</span>
+              <span class="rail__count-sep">/</span>
+              <span>
+                {String(projects.length).padStart(2, '0')}
+              </span>
+            </p>
+
+            <div class="rail__btns">
+              <button
+                type="button"
+                class="rail__btn"
+                data-rail-prev
+                aria-label="Previous project"
+              >
+                <span aria-hidden="true">←</span>
+              </button>
+              <button
+                type="button"
+                class="rail__btn"
+                data-rail-next
+                aria-label="Next project"
+              >
+                <span aria-hidden="true">→</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+<style>
+  /* ==========================================================================
+     the rail
+     ========================================================================== */
+  .rail-wrap {
+    margin-top: clamp(2rem, 4vw, 3rem);
+  }
+
+  .rail {
+    /*
+      THE PEEK ARITHMETIC — this is the whole trick of the layout, so it is worth
+      stating exactly, because the obvious version is wrong twice over.
+
+      Goal: the next slide should show `--peek` pixels of itself past the rail's
+      right edge. That is the carousel's affordance — it says "there is more"
+      more quietly than an arrow.
+
+      Slide width  W = rail_width − peek − gap
+      Trailing spacer S must satisfy  W + S ≥ rail_width
+                                    → S ≥ peek + gap
+
+      Both halves are load-bearing:
+
+      1. W subtracts the GAP as well as the peek. A slide's visible sliver is
+         measured from the RAIL's edge, and the gap between slides sits inside
+         that sliver — leave the gap out and the peek renders `gap` pixels
+         narrower than intended.
+
+      2. A trailing spacer is required, and it is NOT cosmetic. Without it the
+         last slide's snap position sits beyond the maximum scroll offset, so the
+         carousel physically cannot bring the final project to rest at the left
+         edge — it stops one slide short and looks broken at the end. The spacer
+         is `peek` ALONE: the gap between the last slide and the spacer is a flex
+         gap and already contributes, so adding it again leaves a strip of dead
+         scroll past the end. Measured: `peek + gap` left 36px of run-on;
+         `peek` reaches the last slide exactly.
+
+      WHY A SPACER AND NOT `padding-inline-end`: percentage flex-basis resolves
+      against the CONTENT box, so a trailing padding shrinks the very `100%` the
+      width is calculated from — the peek then comes out double-counted. The
+      spacer is a separate flex item and leaves `100%` meaning what it says. It is
+      a pseudo-element, so it never appears in `rail.children` and cannot be
+      mistaken for a slide by the counter or the arrows.
+    */
+    --peek: 2.75rem;
+    --rail-gap: clamp(1.25rem, 3vw, 2.25rem);
+
+    display: flex;
+    gap: var(--rail-gap);
+    margin: 0;
+    padding: 0 0 0.25rem;
+    list-style: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    /* A horizontal swipe must not trigger browser back-navigation. */
+    overscroll-behavior-x: contain;
+    /* The rail handles horizontal panning itself; vertical stays with the page. */
+    touch-action: pan-y;
+  }
+
+  .rail::after {
+    content: '';
+    /*
+      `peek` ALONE — see the arithmetic note above. The preceding flex gap
+      already supplies the gap term; including it here overshoots by exactly one
+      gap and leaves the rail scrollable past its last slide.
+    */
+    flex: 0 0 var(--peek);
+  }
+
+  .rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .rail:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+    border-radius: var(--r-xs);
+  }
+
+  .rail__slide {
+    flex: 0 0 calc(100% - var(--peek) - var(--rail-gap));
+    min-width: 0;
+    scroll-snap-align: start;
+  }
+
+  @media (min-width: 880px) {
+    .rail {
+      --peek: 4.5rem;
+    }
+
+    /*
+      A SLIGHT step down for off-screen slides — set only once the script has
+      marked the container ready, so a no-JS visitor sees every slide at full
+      strength rather than a row of dimmed ones.
+    */
+    .rail[data-ready] .rail__slide {
+      opacity: 0.5;
+      transition: opacity var(--t-slow) var(--ease);
+    }
+
+    .rail[data-ready] .rail__slide[data-active] {
+      opacity: 1;
+    }
+
+    .rail[data-ready] .rail__slide:hover {
+      opacity: 1;
+    }
+  }
+
+  /* Mouse users get a grab cursor; the drag itself is wired in the script. */
+  @media (hover: hover) and (pointer: fine) {
+    .rail {
+      cursor: grab;
+    }
+
+    .rail[data-dragging] {
+      cursor: grabbing;
+      scroll-snap-type: none;
+    }
+  }
+
+  /* ==========================================================================
+     one project
+     ========================================================================== */
+  .fwc {
+    height: 100%;
+  }
+
+  .fwc__inner {
+    display: grid;
+    gap: clamp(1rem, 2.5vw, 2rem);
+    align-content: start;
+  }
+
+  @media (min-width: 980px) {
+    .fwc__inner {
+      grid-template-columns: minmax(0, 1.42fr) minmax(0, 1fr);
+      align-items: center;
+      gap: clamp(1.75rem, 4vw, 3.25rem);
+    }
+  }
+
+  /* ---------------- frame ---------------- */
+  .fwc__frame {
+    position: relative;
+    margin: 0;
+    overflow: hidden;
+    border: var(--hairline) solid var(--photo-edge);
+    border-radius: var(--r-xs);
+    background-color: var(--photo-mat);
+    aspect-ratio: 16 / 10;
+  }
+
+  /* The slider paints its own matte — do not double up a border around it. */
+  .fwc__frame :global(.sl__viewport) {
+    height: 100%;
+    border-radius: 0;
+  }
+
+  .fwc__frame img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 0.9rem;
+    filter: var(--photo-filter);
+    transition: transform var(--t-slow) var(--ease);
+  }
+
+  /*
+    The rule is what the eye reads as "this card is live". It wipes in from the
+    left on hover or keyboard focus — the same gesture the project cards use, so
+    the two pages feel like one document.
+  */
+  .fwc__rule {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    z-index: 3;
+    background-color: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--t-slow) var(--ease);
+  }
+
+  .fwc:hover .fwc__rule,
+  .fwc:has(.fwc__link:focus-visible) .fwc__rule {
+    transform: scaleX(1);
+  }
+
+  /* ---------------- stretched link ---------------- */
+  /*
+    The slider needs real <button> elements, and a button inside an anchor is
+    invalid HTML. So the card is a container, the title carries the anchor, and a
+    pseudo-element stretches it across the card. The slider's controls sit above
+    that layer on their own z-index, so they keep their clicks.
+  */
+  .fwc__link {
+    position: relative;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .fwc__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border-radius: var(--r-xs);
+  }
+
+  .fwc__link:focus-visible::after {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  /* ---------------- text ---------------- */
+  .fwc__body {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+  }
+
+  .fwc__meta {
+    display: flex;
+    align-items: baseline;
+    gap: 0.7rem;
+    width: 100%;
+  }
+
+  .fwc__num {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-style: italic;
+    line-height: 1;
+    color: var(--accent);
+  }
+
+  .fwc__cat {
+    color: var(--fg-faint);
+  }
+
+  .fwc__year {
+    margin-inline-start: auto;
+    color: var(--fg-faint);
+  }
+
+  .fwc__title {
+    margin-top: 0.6rem;
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--fg-strong);
+    transition: color var(--t-base) var(--ease);
+  }
+
+  @media (min-width: 980px) {
+    .fwc__title {
+      font-size: var(--text-3xl);
+    }
+  }
+
+  .fwc:hover .fwc__title,
+  .fwc:has(.fwc__link:focus-visible) .fwc__title {
+    color: var(--accent);
+  }
+
+  .fwc__tag {
+    margin-top: 0.75rem;
+    max-width: 46ch;
+    color: var(--fg-muted);
+  }
+
+  .fwc__tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.45rem;
+    margin: 1.15rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .fwc__tool {
+    padding: 0.24rem 0.6rem;
+    border: var(--hairline) solid var(--border);
+    border-radius: var(--r-full);
+    background-color: color-mix(in srgb, var(--surface-3) 55%, transparent);
+    color: var(--fg-subtle);
+    text-transform: none;
+    letter-spacing: 0.03em;
+    transition:
+      border-color var(--t-fast) var(--ease),
+      color var(--t-fast) var(--ease);
+  }
+
+  /* The first chip takes the accent, so a row of tools is not identical pills. */
+  .fwc__tool:first-child {
+    border-color: var(--accent-line);
+    color: var(--accent);
+  }
+
+  .fwc:hover .fwc__tool {
+    border-color: var(--border-strong);
+  }
+
+  .fwc:hover .fwc__tool:first-child {
+    border-color: var(--accent);
+  }
+
+  .fwc__tool--more {
+    border-style: dashed;
+    color: var(--fg-faint);
+  }
+
+  .fwc__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-strong);
+    transition: color var(--t-fast) var(--ease);
+  }
+
+  .fwc:hover .fwc__cta {
+    color: var(--accent);
+  }
+
+  .fwc__arrow {
+    transition: transform var(--t-base) var(--ease);
+  }
+
+  .fwc:hover .fwc__arrow {
+    transform: translateX(4px);
+  }
+
+  /* ==========================================================================
+     foot: progress + counter + arrows
+     ========================================================================== */
+  .rail__foot {
+    display: grid;
+    gap: 1rem;
+    margin-top: clamp(1.5rem, 3vw, 2.25rem);
+    padding-top: 1rem;
+    border-top: var(--hairline) solid var(--border-faint);
+  }
+
+  .rail__progress {
+    position: relative;
+    height: 2px;
+    background-color: var(--border-faint);
+    overflow: hidden;
+  }
+
+  .rail__progress-bar {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 0;
+    background-color: var(--accent);
+    transition: width var(--t-base) var(--ease);
+  }
+
+  .rail__nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .rail__count {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    color: var(--fg-subtle);
+    font-size: var(--text-sm);
+  }
+
+  .rail__count-sep {
+    color: var(--fg-faint);
+  }
+
+  .rail__btns {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .rail__btn {
+    display: grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    border: var(--hairline) solid var(--border-strong);
+    border-radius: var(--r-full);
+    background-color: transparent;
+    color: var(--fg);
+    font-size: 1rem;
+    line-height: 1;
+    transition:
+      border-color var(--t-base) var(--ease),
+      background-color var(--t-base) var(--ease),
+      color var(--t-base) var(--ease),
+      opacity var(--t-base) var(--ease);
+  }
+
+  .rail__btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    background-color: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  /*
+    A disabled arrow is the honest state at either end of the rail: it says "you
+    are already there" instead of silently doing nothing. `aria-disabled` is
+    mirrored on the button so the state reaches assistive tech too.
+  */
+  .rail__btn:disabled {
+    opacity: 0.32;
+    cursor: default;
+  }
+
+  .rail__btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  /* ==========================================================================
+     reduced motion
+     ========================================================================== */
+  @media (prefers-reduced-motion: reduce) {
+    .fwc__frame img,
+    .fwc__rule,
+    .fwc__arrow,
+    .rail__progress-bar,
+    .rail[data-ready] .rail__slide {
+      transition: none;
+    }
+
+    .fwc:hover .fwc__arrow {
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  /**
+   * Carousel controls — progressive enhancement over the scroll-snap rail.
+   *
+   * The rail is a native scroll container, so swipe, trackpad, scrollbar-drag and
+   * keyboard arrow keys ALL work before this script runs. What the script adds:
+   * the mouse drag, the two arrow buttons, the counter, the progress line, and
+   * the active-slide marking.
+   *
+   * ONE STEP IS MEASURED, NOT CALCULATED. The distance between the first two
+   * slides' `offsetLeft` already includes the gap, the peek and whatever the
+   * container width is — so the arrows stay correct at every breakpoint without
+   * reading any of those values. Computing it from `clientWidth` would drift the
+   * moment the peek changes at a media query.
+   */
+  const carousels = document.querySelectorAll<HTMLElement>('[data-carousel]');
+
+  if (carousels.length) {
+    carousels.forEach((root) => {
+      const rail = root.querySelector<HTMLElement>('.rail');
+      const slides = Array.from(rail?.children ?? []) as HTMLElement[];
+      if (!rail || slides.length < 2) return;
+
+      const prev = root.querySelector<HTMLButtonElement>('[data-rail-prev]');
+      const next = root.querySelector<HTMLButtonElement>('[data-rail-next]');
+      const counter = root.querySelector<HTMLElement>('[data-rail-index]');
+      const bar = root.querySelector<HTMLElement>('[data-rail-progress]');
+
+      /** Distance from one slide's start to the next — includes the gap. */
+      const step = () =>
+        slides.length > 1 ? slides[1].offsetLeft - slides[0].offsetLeft : rail.clientWidth;
+
+      const go = (dir: 1 | -1) => {
+        rail.scrollBy({ left: step() * dir, behavior: 'smooth' });
+      };
+
+      /* ---------------- sync: counter, progress, arrows, active slide ------- */
+      let frame = 0;
+
+      const sync = () => {
+        frame = 0;
+        const max = rail.scrollWidth - rail.clientWidth;
+        const x = rail.scrollLeft;
+        const s = step();
+        const index = s > 0 ? Math.round(x / s) : 0;
+        const clamped = Math.min(Math.max(index, 0), slides.length - 1);
+
+        if (counter) counter.textContent = String(clamped + 1).padStart(2, '0');
+
+        if (bar) {
+          // The bar tracks scroll POSITION, so it moves continuously while
+          // dragging rather than jumping between slides.
+          const pct = max > 0 ? (x / max) * 100 : 100;
+          bar.style.width = `${Math.min(Math.max(pct, 0), 100)}%`;
+        }
+
+        if (prev) prev.disabled = x <= 1;
+        if (next) next.disabled = x >= max - 1;
+
+        slides.forEach((s2, i) => {
+          if (i === clamped) s2.setAttribute('data-active', '');
+          else s2.removeAttribute('data-active');
+        });
+      };
+
+      const schedule = () => {
+        if (!frame) frame = requestAnimationFrame(sync);
+      };
+
+      rail.addEventListener('scroll', schedule, { passive: true });
+      window.addEventListener('resize', schedule);
+
+      prev?.addEventListener('click', () => go(-1));
+      next?.addEventListener('click', () => go(1));
+
+      /* ---------------- mouse drag ---------------- */
+      /*
+        Native scroll containers do not drag with a mouse, which is how a desktop
+        visitor expects a carousel to behave. Pointer Events cover mouse, pen and
+        touch in one path, but touch is left to the browser: hijacking it would
+        cost the momentum and rubber-banding the platform gives for free.
+
+        A small threshold keeps a plain click working — without it, the tiniest
+        pointer movement while clicking would count as a drag and swallow the
+        navigation.
+      */
+      let dragging = false;
+      let startX = 0;
+      let startLeft = 0;
+      let moved = 0;
+
+      rail.addEventListener('pointerdown', (event) => {
+        if (event.pointerType !== 'mouse' || event.button !== 0) return;
+        dragging = true;
+        moved = 0;
+        startX = event.clientX;
+        startLeft = rail.scrollLeft;
+      });
+
+      rail.addEventListener('pointermove', (event) => {
+        if (!dragging) return;
+        const dx = event.clientX - startX;
+        moved = Math.max(moved, Math.abs(dx));
+
+        if (moved > 6) {
+          // Only claim the gesture once it is clearly a drag, never on mousedown.
+          if (!rail.hasAttribute('data-dragging')) {
+            rail.setAttribute('data-dragging', '');
+            rail.setPointerCapture(event.pointerId);
+          }
+          event.preventDefault();
+          rail.scrollLeft = startLeft - dx;
+        }
+      });
+
+      const endDrag = (event: PointerEvent) => {
+        if (!dragging) return;
+        dragging = false;
+        rail.removeAttribute('data-dragging');
+        if (rail.hasPointerCapture?.(event.pointerId)) {
+          rail.releasePointerCapture(event.pointerId);
+        }
+
+        // Snap by hand — `data-dragging` disabled snap for the duration.
+        if (moved > 6) {
+          const s = step();
+          const target = Math.round(rail.scrollLeft / s) * s;
+          rail.scrollTo({ left: target, behavior: 'smooth' });
+        }
+      };
+
+      rail.addEventListener('pointerup', endDrag);
+      rail.addEventListener('pointercancel', endDrag);
+
+      /* A drag must not also activate the link underneath it. */
+      rail.addEventListener(
+        'click',
+        (event) => {
+          if (moved > 6) {
+            event.preventDefault();
+            event.stopPropagation();
+            moved = 0;
+          }
+        },
+        true,
+      );
+
+      /* An anchor drag ghost would fight the pointer drag above. */
+      rail.addEventListener('dragstart', (event) => event.preventDefault());
+
+      /* ---------------- init ---------------- */
+      rail.setAttribute('data-ready', '');
+      sync();
+    });
+  }
+</script>

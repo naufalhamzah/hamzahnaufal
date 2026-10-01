@@ -1,0 +1,437 @@
+---
+/**
+ * PROJECT ROW — the editorial entry used on /projects.
+ *
+ * WHY NOT THE CARD
+ * The card is built for a grid of equals: one frame, one block of text beneath.
+ * At full page width that frame rendered 1152px wide, which is a very large
+ * image for a list of eight — the page became a stack of billboards, and the
+ * user asked for something more editorial and less oversized.
+ *
+ * A row changes the reading model. The image keeps a sensible share of the
+ * width, the text sits BESIDE it, and the two alternate sides down the page so
+ * the eye zig-zags rather than running straight down one column. That is what
+ * makes a long list readable: rhythm, not repetition.
+ *
+ * THE SUPPORTING STRIP
+ * A project with extra documentation shows its hero plus up to two smaller
+ * frames beneath it. That is the "featured image, then supporting images"
+ * composition, and it means a visitor can see the breadth of a project without
+ * opening it — while still keeping the page far shorter than one large image per
+ * project would.
+ *
+ * ONE SHAPE, ONE RATIO. Same rule as everywhere else on this site: the frame is
+ * always 16:10 and images are letterboxed inside it, so a phone screenshot and a
+ * dashboard sit in the same box without either being cropped.
+ */
+import type { ProjectEntry, MediaAsset } from '@/types/content';
+import { PROJECT_CATEGORY_LABELS } from '@/types/content';
+import { getImageDims } from '@/data/image-dims';
+
+interface Props {
+  project: ProjectEntry;
+  /** 1-based master-list index, so numbering is stable across pages. */
+  index: number;
+  /** Which side the image sits on. Alternated by the caller. */
+  side?: 'left' | 'right';
+}
+
+const { project, index, side = 'left' } = Astro.props;
+
+const num = String(index).padStart(2, '0');
+const href = `/projects/${project.id}`;
+const primary = project.categories[0];
+
+/** Every image, hero first, de-duplicated — the hero is never repeated. */
+const shots: MediaAsset[] = [
+  project.visual,
+  ...(project.gallery ?? []).filter((g) => g.src !== project.visual.src),
+];
+
+const hero = shots[0];
+const supporting = shots.slice(1, 3);
+const moreCount = Math.max(0, shots.length - 3);
+
+const dims =
+  getImageDims(hero.src) ??
+  (hero.width && hero.height ? ([hero.width, hero.height] as [number, number]) : null);
+---
+
+<article class:list={['pr', `pr--${side}`]}>
+  <div class="pr__inner">
+    <!-- ---------------- visual ---------------- -->
+    <div class="pr__media">
+      <figure class="pr__frame">
+        <img
+          src={hero.src}
+          alt={hero.alt}
+          width={dims?.[0] ?? hero.width}
+          height={dims?.[1] ?? hero.height}
+          loading="lazy"
+          decoding="async"
+        />
+        <span class="pr__rule" aria-hidden="true" />
+      </figure>
+
+      {supporting.length > 0 && (
+        <div class="pr__strip">
+          {supporting.map((img) => {
+            const d =
+              getImageDims(img.src) ??
+              (img.width && img.height
+                ? ([img.width, img.height] as [number, number])
+                : null);
+            return (
+              <figure class="pr__thumb">
+                <img
+                  src={img.src}
+                  alt={img.alt}
+                  width={d?.[0] ?? img.width}
+                  height={d?.[1] ?? img.height}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </figure>
+            );
+          })}
+
+          {moreCount > 0 && (
+            <p class="pr__more mono">
+              +{moreCount} more
+              <span class="sr-only"> in this project's gallery</span>
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+
+    <!-- ---------------- text ---------------- -->
+    <div class="pr__body">
+      <p class="pr__meta">
+        <span class="pr__num" aria-hidden="true">{num}</span>
+        <span class="pr__cat mono">{PROJECT_CATEGORY_LABELS[primary]}</span>
+        {project.year && <span class="pr__year mono">{project.year}</span>}
+      </p>
+
+      <h3 class="pr__title">
+        <a href={href} class="pr__link">{project.title}</a>
+      </h3>
+
+      {project.subtitle && <p class="pr__sub mono">{project.subtitle}</p>}
+
+      <p class="pr__tag">{project.tagline}</p>
+
+      {project.role && (
+        <p class="pr__role">
+          <span class="pr__role-k mono">Role</span>
+          {project.role}
+        </p>
+      )}
+
+      {project.tools.length > 0 && (
+        <ul class="pr__tools" aria-label={`Tools (${project.tools.length})`}>
+          {project.tools.slice(0, 6).map((t) => (
+            <li class="pr__tool mono">{t}</li>
+          ))}
+          {project.tools.length > 6 && (
+            <li class="pr__tool pr__tool--more mono" aria-hidden="true">
+              +{project.tools.length - 6}
+            </li>
+          )}
+        </ul>
+      )}
+
+      <span class="pr__cta">
+        <span>View project</span>
+        <span class="pr__arrow" aria-hidden="true">→</span>
+      </span>
+    </div>
+  </div>
+</article>
+
+<style>
+  .pr {
+    position: relative;
+  }
+
+  .pr__inner {
+    display: grid;
+    gap: clamp(1.25rem, 3vw, 2.5rem);
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  @media (min-width: 900px) {
+    /*
+      The image takes the larger share but never the whole width — that is the
+      fix for "gambar terlalu besar". 1.25fr against 1fr puts it at roughly 55%
+      of the row, which is a comfortable size for a screenshot and leaves the text
+      a real column rather than a caption.
+    */
+    .pr__inner {
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+      gap: clamp(1.75rem, 4vw, 3.5rem);
+    }
+
+    /* Alternate the sides so the list zig-zags instead of running down one edge. */
+    .pr--right .pr__media {
+      order: 2;
+    }
+  }
+
+  /* ---------------- media ---------------- */
+  .pr__media {
+    min-width: 0;
+  }
+
+  .pr__frame {
+    position: relative;
+    margin: 0;
+    overflow: hidden;
+    border: var(--hairline) solid var(--photo-edge);
+    border-radius: var(--r-xs);
+    background-color: var(--photo-mat);
+    aspect-ratio: 16 / 10;
+  }
+
+  /* Documents are letterboxed, not cropped — their meaning is at the edges. */
+  .pr__frame img,
+  .pr__thumb img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    padding: 0.7rem;
+    filter: var(--photo-filter);
+    transition: transform var(--t-slow) var(--ease);
+  }
+
+  .pr:hover .pr__frame img {
+    transform: scale(1.015);
+  }
+
+  /* The accent rule that wipes in on hover — the site's shared gesture. */
+  .pr__rule {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background-color: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--t-slow) var(--ease);
+  }
+
+  .pr:hover .pr__rule,
+  .pr:has(.pr__link:focus-visible) .pr__rule {
+    transform: scaleX(1);
+  }
+
+  /* ---------------- supporting strip ---------------- */
+  .pr__strip {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.7rem;
+    margin-top: 0.7rem;
+    align-items: center;
+  }
+
+  .pr__thumb {
+    margin: 0;
+    overflow: hidden;
+    border: var(--hairline) solid var(--photo-edge);
+    border-radius: var(--r-xs);
+    background-color: var(--photo-mat);
+    /* A shorter frame than the hero, so the strip reads as supporting material
+       rather than a second row of equal images. */
+    aspect-ratio: 16 / 9;
+  }
+
+  .pr:hover .pr__thumb img {
+    transform: scale(1.03);
+  }
+
+  .pr__more {
+    grid-column: 2;
+    align-self: center;
+    color: var(--fg-faint);
+    text-transform: none;
+    letter-spacing: 0.03em;
+  }
+
+  /* ---------------- text ---------------- */
+  .pr__body {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+  }
+
+  .pr__meta {
+    display: flex;
+    align-items: baseline;
+    gap: 0.7rem;
+    width: 100%;
+  }
+
+  .pr__num {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-style: italic;
+    line-height: 1;
+    color: var(--accent);
+  }
+
+  .pr__cat {
+    color: var(--fg-faint);
+  }
+
+  .pr__year {
+    margin-inline-start: auto;
+    color: var(--fg-faint);
+  }
+
+  .pr__title {
+    margin-top: 0.6rem;
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 500;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    color: var(--fg-strong);
+    transition: color var(--t-base) var(--ease);
+  }
+
+  .pr:hover .pr__title,
+  .pr:has(.pr__link:focus-visible) .pr__title {
+    color: var(--accent);
+  }
+
+  .pr__link {
+    position: relative;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  /* A stretched link covers the whole row, so clicking anywhere navigates. */
+  .pr__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border-radius: var(--r-xs);
+  }
+
+  .pr__link:focus-visible::after {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .pr__sub {
+    margin-top: 0.4rem;
+    color: var(--fg-faint);
+    text-transform: none;
+    letter-spacing: 0.03em;
+  }
+
+  .pr__tag {
+    margin-top: 0.85rem;
+    max-width: 48ch;
+    color: var(--fg-muted);
+  }
+
+  .pr__role {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    font-size: var(--text-sm);
+    color: var(--fg-muted);
+  }
+
+  .pr__role-k {
+    color: var(--fg-faint);
+  }
+
+  .pr__tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.45rem;
+    margin: 1.1rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .pr__tool {
+    padding: 0.24rem 0.6rem;
+    border: var(--hairline) solid var(--border);
+    border-radius: var(--r-full);
+    background-color: color-mix(in srgb, var(--surface-3) 55%, transparent);
+    color: var(--fg-subtle);
+    text-transform: none;
+    letter-spacing: 0.03em;
+    transition:
+      border-color var(--t-fast) var(--ease),
+      color var(--t-fast) var(--ease);
+  }
+
+  .pr__tool:first-child {
+    border-color: var(--accent-line);
+    color: var(--accent);
+  }
+
+  .pr:hover .pr__tool {
+    border-color: var(--border-strong);
+  }
+
+  .pr:hover .pr__tool:first-child {
+    border-color: var(--accent);
+  }
+
+  .pr__tool--more {
+    border-style: dashed;
+    color: var(--fg-faint);
+  }
+
+  .pr__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-strong);
+    transition: color var(--t-fast) var(--ease);
+  }
+
+  .pr:hover .pr__cta {
+    color: var(--accent);
+  }
+
+  .pr__arrow {
+    transition: transform var(--t-base) var(--ease);
+  }
+
+  .pr:hover .pr__arrow {
+    transform: translateX(4px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pr__frame img,
+    .pr__thumb img,
+    .pr__rule,
+    .pr__arrow {
+      transition: none;
+    }
+
+    .pr:hover .pr__frame img,
+    .pr:hover .pr__thumb img,
+    .pr:hover .pr__arrow {
+      transform: none;
+    }
+  }
+</style>

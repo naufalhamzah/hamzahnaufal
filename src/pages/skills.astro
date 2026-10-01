@@ -100,22 +100,35 @@ const meta = [
     margin-top: clamp(2rem, 4vw, 3rem);
   }
 
+  /*
+    The group header is a two-line block: title and count on the first line,
+    description beneath. The earlier version was a two-column grid, which put the
+    count in the FIRST row's second cell — so it floated up beside the title while
+    the description wrapped below, and the count ended up visually orphaned
+    between them. An explicit two-row layout states the intent instead.
+  */
   .sk__head {
     display: grid;
-    gap: 0.35rem 1.5rem;
-    grid-template-columns: 1fr;
+    gap: 0.4rem 1.5rem;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'title count'
+      'desc  desc';
     align-items: baseline;
     margin-bottom: clamp(1.25rem, 2.5vw, 1.75rem);
   }
 
-  @media (min-width: 800px) {
-    .sk__head {
-      grid-template-columns: minmax(0, 1fr) auto;
-    }
+  .sk__title {
+    grid-area: title;
+  }
 
-    .sk__count {
-      text-align: right;
-    }
+  .sk__desc {
+    grid-area: desc;
+  }
+
+  .sk__count {
+    grid-area: count;
+    text-align: right;
   }
 
   .sk__title {
