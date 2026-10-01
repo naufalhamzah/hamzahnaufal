@@ -140,9 +140,18 @@ const raw: ProjectEntry[] = [
         caption: 'Vendor performance detail',
       },
     ],
+    /*
+      LINK — the direct Looker Studio URL, verified 200.
+
+      This replaced a bit.ly shortener that already resolved to the same report.
+      A shortener adds a third party between the visitor and the dashboard (and
+      its own failure mode: an expired or rate-limited link), for no benefit on a
+      site that renders the full URL nowhere. The report is publicly viewable at
+      the address below.
+    */
     link: {
-      label: 'View project',
-      href: 'https://bit.ly/DashboardMonitoring-Project',
+      label: 'Open the dashboard',
+      href: 'https://datastudio.google.com/reporting/fa9a8329-2d0e-494f-9ef8-3e8c4d9e15be',
       external: true,
     },
     featured: true,

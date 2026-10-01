@@ -23,10 +23,26 @@ import PageHeader from '@/components/ui/PageHeader.astro';
 import { galleryEntries, galleryByCollection } from '@/data/gallery';
 import { profile } from '@/data/profile';
 
+/**
+ * Two collections are DEFINED (campus and internship); reading the count of
+ * defined ones printed "1", which said nothing — a reader cannot tell whether
+ * that means one collection exists or one has photographs in it.
+ *
+ * What is worth stating is the split itself: how many photographs are actually
+ * in each, including the empty one. Showing the zero is the honest move. The
+ * internship collection is declared and waiting for material, and a page that
+ * says so is more trustworthy than one that quietly hides the gap.
+ */
+const campusCount = galleryEntries.filter((g) => g.collection === 'campus').length;
+const internshipCount = galleryEntries.length - campusCount;
+
 const meta = [
   { label: 'Photographs', value: String(galleryEntries.length) },
-  { label: 'Collections', value: String(galleryByCollection.length) },
-  { label: 'Note', value: 'Not attributed to a specific employer' },
+  { label: 'Campus & organisations', value: String(campusCount) },
+  {
+    label: 'Internships & workplace',
+    value: internshipCount === 0 ? 'Awaiting material' : String(internshipCount),
+  },
 ];
 ---
 

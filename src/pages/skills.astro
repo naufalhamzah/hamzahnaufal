@@ -15,13 +15,38 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import PageHeader from '@/components/ui/PageHeader.astro';
 import SkillTile from '@/components/ui/SkillTile.astro';
 import { skillGroups, totalSkills } from '@/data/skills';
+import { getSkillIcon } from '@/data/skill-icons';
 import { profile } from '@/data/profile';
+
+/**
+ * The meta strip answers what a reader actually asks about a skills page.
+ *
+ * "With a logo" used to sit here and read 49 against "Entries 49" — the same
+ * number twice, because every entry now has a mark. A figure that can only ever
+ * repeat another figure is not information; it just makes the panel look fuller.
+ * The counts below are ones that can DIFFER and therefore tell a reader
+ * something: how many of the entries are tools you can name, against practices
+ * that have no product behind them.
+ */
+const allItems = skillGroups.flatMap((g) => g.items);
+
+/*
+  The split comes from the ICON REGISTRY's own `kind`, not from guessing.
+
+  A first attempt counted entries that HAVE an icon — which is now every entry,
+  so it printed 49 against 0 and was just as uninformative as the label it
+  replaced. What actually distinguishes these entries is whether a mark is an
+  official product logo (`kind: 'brand'`) or a drawn category glyph for a method
+  (`kind: 'local'`), and only the registry knows that.
+*/
+const productCount = allItems.filter((i) => getSkillIcon(i.icon)?.kind === 'brand').length;
+const methodCount = totalSkills - productCount;
 
 const meta = [
   { label: 'Categories', value: String(skillGroups.length) },
   { label: 'Entries', value: String(totalSkills) },
-  { label: 'With a logo', value: String(skillGroups.flatMap((g) => g.items).filter((i) => i.icon).length) },
-  { label: 'Note', value: 'No proficiency levels are shown' },
+  { label: 'Products', value: String(productCount) },
+  { label: 'Methods & practices', value: String(methodCount) },
 ];
 ---
 
