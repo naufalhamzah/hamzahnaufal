@@ -141,6 +141,23 @@ const uniformRatio = (() => {
   return String(Math.min(Math.max(ar, 0.4), 2.2).toFixed(3));
 })();
 
+/**
+ * The ratio for a DEVICE cell, from the device image itself.
+ *
+ * Set on every layout, not just `screens`/`uniform`, because a device can appear
+ * in any composition — Kedai Nyam mixes two desktop screens with two phones under
+ * `trio`. A device cell that fell back to the generic `--uniform-ratio` default
+ * would be letterboxed inside a box of the wrong shape.
+ */
+const deviceRatio = (() => {
+  const dev = images.find((m) => {
+    const ar = m.width && m.height ? m.width / m.height : 1.5;
+    return ar < 0.75 && m.fit !== 'contain';
+  });
+  if (!dev || !dev.width || !dev.height) return uniformRatio;
+  return (dev.width / dev.height).toFixed(4);
+})();
+
 const duoRatio = (() => {
   if (layout !== 'duo') return '4 / 3';
   const ars = images
@@ -157,53 +174,125 @@ const duoRatio = (() => {
   n > 0 && (
     <figure
       class:list={['collage', `collage--${layout}`, dense && 'collage--dense']}
-      style={
+      style={`--device-ratio: ${deviceRatio};${
         layout === 'duo'
-          ? `--duo-ratio: ${duoRatio};`
+          ? ` --duo-ratio: ${duoRatio};`
           : layout === 'uniform' || layout === 'screens'
-            ? `--uniform-ratio: ${uniformRatio};`
-            : undefined
-      }
+            ? ` --uniform-ratio: ${uniformRatio};`
+            : ''
+      }`}
     >
-      <div class="collage__grid">
-        {images.slice(0, layout === 'many' ? 3 : n).map((img, i) => (
-          <button
-            type="button"
-            class:list={[
-              'collage__cell',
-              i === 0 && 'collage__cell--lead',
-              img.fit === 'contain' && 'collage__cell--contain',
-            ]}
-            data-lightbox-src={img.src}
-            data-lightbox-alt={img.alt}
-            data-lightbox-caption={img.caption ?? img.alt}
-            aria-label={`View larger: ${img.alt}`}
-          >
-            {asMockup(img) ? (
-              <span class="collage__device">
-                <img
-                  src={img.src}
-                  alt={img.alt}
-                  width={img.width}
-                  height={img.height}
-                  loading="lazy"
-                  decoding="async"
-                />
-              </span>
-            ) : (
-              <img
-                src={img.src}
-                alt={img.alt}
-                width={img.width}
-                height={img.height}
-                loading="lazy"
-                decoding="async"
-              />
-            )}
-            {img.caption && <span class="collage__cap">{img.caption}</span>}
-          </button>
-        ))}
-      </div>
+      {
+        layout === 'screens' ? (
+          /*
+            A SWIPEABLE RAIL — the gallery is interactive, not a static wall.
+
+            The user's ask: "gambar project bisa dibuat agar bisa diswipe untuk
+            lihat gambar lainnya. buat interaktif". A wrapped grid of six phones
+            asks the visitor to scan; a rail asks them to move through the flow,
+            which is what a set of app screens IS — an ordered sequence.
+
+            Scroll-snap does the work natively, so touch swipe, trackpad and
+            keyboard scrolling all function before any script runs. The script adds
+            the arrows, the counter and mouse drag.
+          */
+          <div class="collage__viewport">
+            <div
+              class="collage__rail"
+              data-gallery-rail
+              role="group"
+              aria-label={`${images.length} screens — swipe or use the arrows`}
+              tabindex="0"
+            >
+              {images.map((img) => (
+                <button
+                  type="button"
+                  class:list={['collage__cell', 'collage__cell--slide']}
+                  data-lightbox-src={img.src}
+                  data-lightbox-alt={img.alt}
+                  data-lightbox-caption={img.caption ?? img.alt}
+                  aria-label={`View larger: ${img.alt}`}
+                >
+                  <span class="collage__device">
+                    <img
+                      src={img.src}
+                      alt={img.alt}
+                      width={img.width}
+                      height={img.height}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </span>
+                  {img.caption && <span class="collage__cap">{img.caption}</span>}
+                </button>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              class="collage__arrow collage__arrow--prev"
+              data-gallery-prev
+              aria-label="Previous screen"
+              hidden
+            >
+              <span aria-hidden="true">‹</span>
+            </button>
+            <button
+              type="button"
+              class="collage__arrow collage__arrow--next"
+              data-gallery-next
+              aria-label="Next screen"
+              hidden
+            >
+              <span aria-hidden="true">›</span>
+            </button>
+
+            <span class="collage__count mono" data-gallery-count aria-hidden="true" hidden>
+              1 / {images.length}
+            </span>
+          </div>
+        ) : (
+          <div class="collage__grid">
+            {images.slice(0, layout === 'many' ? 3 : n).map((img, i) => (
+              <button
+                type="button"
+                class:list={[
+                  'collage__cell',
+                  i === 0 && 'collage__cell--lead',
+                  img.fit === 'contain' && 'collage__cell--contain',
+                ]}
+                data-lightbox-src={img.src}
+                data-lightbox-alt={img.alt}
+                data-lightbox-caption={img.caption ?? img.alt}
+                aria-label={`View larger: ${img.alt}`}
+              >
+                {asMockup(img) ? (
+                  <span class="collage__device">
+                    <img
+                      src={img.src}
+                      alt={img.alt}
+                      width={img.width}
+                      height={img.height}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </span>
+                ) : (
+                  <img
+                    src={img.src}
+                    alt={img.alt}
+                    width={img.width}
+                    height={img.height}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                )}
+                {img.caption && <span class="collage__cap">{img.caption}</span>}
+              </button>
+            ))}
+          </div>
+        )
+      }
 
       {rest.length > 0 && (
         <div class="collage__rest" data-count={rest.length}>
@@ -300,11 +389,20 @@ const duoRatio = (() => {
     transform: none;
   }
 
-  /* ---------------- device mockup ---------------- */
-  /*
-    Sized by HEIGHT, so a tall capture can never push the shell past its cell —
-    the same rule as the slider's mockup, for the same reason.
-  */
+  /* ---------------- device mockup ----------------
+    THE RENDER IS THE PHONE — this wrapper adds NO hardware of its own.
+
+    It used to draw a shell: a 1.5px border, a 1.2rem radius, a filled `--device-body`
+    plate and a box-shadow. Every capture that ships here is a full device render
+    exported from Figma with its own bezel, corner radius and shadow, so that
+    shell was a SECOND rectangle around a phone that already had one — visible on
+    every device cell in every gallery, including the mixed sets.
+
+    What remains is a transparent layout box: it reserves space, sizes from the
+    device's own ratio, and centres the render in its cell. All visible depth
+    comes from a `drop-shadow` on the IMAGE, which follows the alpha silhouette
+    rather than a rectangle.
+    ---------------------------------------------------------------------- */
   .collage__device {
     display: block;
     position: relative;
@@ -312,18 +410,15 @@ const duoRatio = (() => {
     aspect-ratio: 9 / 19.5;
     max-width: 100%;
     margin: 0 auto;
-    padding: 0.35rem;
-    border: 1.5px solid var(--device-edge);
-    border-radius: 1.2rem;
-    background-color: var(--device-body);
-    box-shadow:
-      0 1px 2px rgba(0, 0, 0, 0.28),
-      0 10px 24px -8px rgba(0, 0, 0, 0.4);
-    overflow: hidden;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background-color: transparent;
+    overflow: visible;
   }
 
   /*
-    NO DRAWN NOTCH — this was a real defect, proven by A/B.
+    NO DRAWN NOTCH — proven a defect by A/B.
 
     A `::before` used to paint a dark pill across the top of the shell. It was
     written for captures that show a bare screen, and the captures that actually
@@ -343,10 +438,20 @@ const duoRatio = (() => {
   .collage__device img {
     width: 100%;
     height: 100%;
-    border-radius: 0.9rem;
-    object-fit: cover;
-    object-position: center top;
+    /* The render supplies its own rounded corners, so `cover` would crop them
+       into square ones. `contain` shows the device whole. */
+    border-radius: 0;
+    object-fit: contain;
+    object-position: center bottom;
     padding: 0;
+    /* Depth follows the ALPHA silhouette — the bezel, not a rectangle around it. */
+    filter: var(--photo-filter) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.34))
+      drop-shadow(0 14px 30px rgba(0, 0, 0, 0.3));
+  }
+
+  :global([data-theme='light']) .collage__device img {
+    filter: var(--photo-filter) drop-shadow(0 2px 4px rgba(62, 46, 30, 0.18))
+      drop-shadow(0 14px 28px rgba(62, 46, 30, 0.16));
   }
 
   .collage__device img,
@@ -357,6 +462,26 @@ const duoRatio = (() => {
   .collage__cell:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 3px;
+  }
+
+  /*
+    ANY CELL HOLDING A DEVICE RENDER LOSES ITS BOX — not just the `screens` layout.
+
+    This has to be a rule about the CONTENT, not about the layout, or mixed sets
+    keep the defect: on Kedai Nyam (two desktop screens plus two phones) the
+    phones sat on a beige plate inside a 1px border while the neighbouring desktop
+    screenshots kept their frames, so the same gallery showed two different
+    treatments of the same kind of object.
+
+    The reasoning is uniform: a device render is a cut-out with its own bezel,
+    radius and shadow, so a cell around it can only add a second rectangle. A
+    photograph or a document is different — those are rectangular by nature, and
+    the plate is what makes letterboxing read as deliberate.
+  */
+  .collage__cell:has(.collage__device) {
+    border: 0;
+    background-color: transparent;
+    overflow: visible;
   }
 
   .collage__cap {
@@ -387,6 +512,40 @@ const duoRatio = (() => {
   */
   .collage__cell:has(.collage__device) .collage__device {
     height: calc(100% - 3.2rem);
+  }
+
+  /*
+    A caption on a device cell sits BELOW the device, not over it.
+
+    With the box gone there is no plate for the caption to sit on, and an overlay
+    would land straight across the device's home bar and bottom navigation — the
+    part of a phone screen a reader most needs to see.
+
+    THE ASPECT BOX MOVES TO THE DEVICE, not the cell. A cell carrying both an
+    `aspect-ratio` and an in-flow caption would have to fit both, and the ratio
+    wins — the caption gets clipped. So the cell becomes a plain column whose
+    DEVICE holds the ratio, and the caption simply follows it.
+
+    Scoped with `:has()` to device cells only: a photograph or a document keeps its
+    overlay caption, which is correct there because the caption sits on the matte
+    or the image itself rather than on an interface.
+  */
+  .collage__cell:has(.collage__device) {
+    aspect-ratio: auto;
+  }
+
+  .collage__cell:has(.collage__device) .collage__cap {
+    position: static;
+    inset: auto;
+    padding: 0.6rem 0 0;
+    background: none;
+    color: var(--fg-faint);
+    text-align: center;
+  }
+
+  .collage__cell:has(.collage__device) .collage__device {
+    aspect-ratio: var(--device-ratio, 9 / 19.5);
+    height: auto;
   }
 
   /* ---------------- 1 image ---------------- */
@@ -461,55 +620,216 @@ const duoRatio = (() => {
     aspect-ratio: var(--uniform-ratio, 16 / 9);
   }
 
-  /* ---------------- 3+ portrait: a row of phone screens ----------------
-     The counterpart to `uniform` for the other orientation, and it exists for
-     the same reason: the count-based layouts damage this content.
+  /* ---------------- 3+ portrait: a swipeable rail of phone screens ----------------
+     The counterpart to `uniform` for the other orientation, and it exists for the
+     same reason: the count-based layouts damage this content.
 
      Measured on a three-screen app gallery under `trio`, the two non-lead cells
      rendered their shells at 101x234px — the bezel takes most of that and the
-     interface inside is unreadable. Equal columns at the phone's own ratio is the
-     only composition that keeps a screen legible.
+     interface inside is unreadable.
 
-     NO GROWTH, AND THAT IS THE WHOLE POINT.
-
-     A first attempt used `flex: 1 1 12rem` (grow enabled). Measured on a
-     six-screen gallery at desktop width: FIVE cells fitted the first row and grew
-     only to 219x449, while the single leftover cell grew to the 17rem cap and
-     rendered 272x557. Two different sizes in one gallery — the exact
-     inconsistency this site has been fixed for twice before, reintroduced by a
-     flex default.
-
-     `flex: 0 1 <basis>` removes growth, so every cell is its basis size and a
-     short row simply keeps the same measure as a full one. Wrapping then only
-     changes how many fit per row, never how big they are. The basis is tuned per
-     breakpoint so each row holds a sensible number: two on a phone, three or
-     four as the measure opens up.
+     A RAIL, NOT A WRAPPED GRID. A set of app screens is an ordered sequence, so
+     the composition that matches it is a horizontal one the visitor moves through.
+     Scroll-snap makes each swipe land exactly on a screen, which is the difference
+     between a gallery and a box you can drag.
      -------------------------------------------------------------------- */
-  .collage--screens .collage__grid {
+  .collage__viewport {
+    position: relative;
+    /*
+      The arrows sit outside the rail's box on wide screens, so the viewport must
+      not clip them. The rail itself does the clipping.
+    */
+    overflow: visible;
+  }
+
+  .collage__rail {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: var(--collage-gap, clamp(0.5rem, 1.2vw, 0.9rem));
+    gap: clamp(0.75rem, 1.8vw, 1.5rem);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+    /*
+      A little vertical padding so a device's drop-shadow is not clipped by the
+      scroll container's own edge — a shadow cropped in a straight line reads as a
+      box, which is exactly what this change removed.
+    */
+    padding: 0.75rem clamp(0.25rem, 1vw, 0.5rem) 1.25rem;
+    /* Snap the FIRST and LAST screen flush to the viewport's edges. */
+    scroll-padding-inline: clamp(0.25rem, 1vw, 0.5rem);
   }
 
-  .collage--screens .collage__cell {
-    flex: 0 1 9.5rem;
-    min-width: 0;
-    aspect-ratio: var(--uniform-ratio, 9 / 19.5);
+  .collage__rail::-webkit-scrollbar {
+    display: none;
   }
 
-  @media (min-width: 560px) {
-    .collage--screens .collage__cell {
-      flex-basis: 12rem;
+  .collage__rail:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* While a mouse drag is in progress the snap must stand aside, or the rail
+     fights the pointer. */
+  .collage__rail[data-dragging] {
+    scroll-snap-type: none;
+    cursor: grabbing;
+  }
+
+  .collage__cell--slide {
+    /*
+      Sized so a full-width gallery shows about FOUR screens and the rest are
+      reached by swiping.
+
+      Measured with a smaller value: six slides fitted into 1432px of a 1152px
+      viewport, so the whole rail scrolled just 280px and every screen was already
+      on show — a rail that never needs to move is not a gallery, and the arrows had
+      almost nothing to do. At 17rem the same six screens need ~1727px, which makes
+      the swipe meaningful while keeping each device at its current height.
+    */
+    flex: 0 0 auto;
+    width: clamp(10rem, 30vw, 17rem);
+    aspect-ratio: var(--device-ratio, 9 / 19.5);
+    scroll-snap-align: start;
+    height: auto;
+  }
+
+  /*
+    A rail whose contents already fit shows no arrows.
+
+    Guzelev has three screens: at desktop width they fit inside the viewport, so
+    there is nothing to scroll to and controls would be decoration. The script
+    hides them in that case; this is the same state expressed before it runs.
+  */
+  .collage__rail:not([data-overflow]) ~ .collage__arrow {
+    display: none;
+  }
+
+  /* ---------------- rail arrows + counter ---------------- */
+  .collage__arrow {
+    position: absolute;
+    top: 50%;
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    border: var(--hairline) solid var(--border-strong);
+    border-radius: var(--r-full);
+    background-color: var(--surface);
+    color: var(--fg);
+    font-size: 1.15rem;
+    line-height: 1;
+    cursor: pointer;
+    transform: translateY(-50%);
+    transition:
+      border-color var(--t-base) var(--ease),
+      color var(--t-base) var(--ease),
+      background-color var(--t-base) var(--ease),
+      opacity var(--t-base) var(--ease);
+  }
+
+  /*
+    `display: grid` above would beat the `hidden` attribute, so the state is
+    honoured explicitly. The arrows ship hidden and the script reveals them —
+    without it there is no arrow at all, because an arrow that looks live but does
+    nothing is worse than no arrow.
+  */
+  .collage__arrow[hidden] {
+    display: none;
+  }
+
+  .collage__arrow:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background-color: var(--accent-soft);
+  }
+
+  .collage__arrow--prev {
+    left: -1.2rem;
+  }
+
+  .collage__arrow--next {
+    right: -1.2rem;
+  }
+
+  /* Disabled at either end rather than looping — a set of screens has a first and
+     a last, and pretending otherwise hides the shape of the sequence. */
+  .collage__arrow[disabled] {
+    opacity: 0.35;
+    cursor: default;
+    border-color: var(--border-faint);
+    color: var(--fg-faint);
+    background-color: var(--surface-2);
+  }
+
+  .collage__count {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    color: var(--fg-faint);
+    text-transform: none;
+    letter-spacing: 0.04em;
+  }
+
+  /* `hidden` must beat the positioning above; the state is owned by the script. */
+  .collage__count[hidden] {
+    display: none;
+  }
+
+  /* The arrows need somewhere to sit — a phone leaves more room around the rail
+     than a wrapped grid did, but not at every width. */
+  @media (max-width: 900px) {
+    .collage__arrow--prev {
+      left: 0;
+    }
+
+    .collage__arrow--next {
+      right: 0;
     }
   }
 
-  @media (min-width: 1000px) {
-    .collage--screens .collage__cell {
-      /* 17rem is the largest a phone screen should render here: past that the
-         shell is wider than the interface inside it needs to be, and four of
-         them no longer fit a full-measure row. */
-      flex-basis: 17rem;
+  @media (max-width: 620px) {
+    /* Three screens side by side will not fit a narrow viewport; the rail scrolls,
+       which is the point, but the arrows are dropped to the counter's row so they
+       never cover the interface. */
+    .collage__arrow {
+      position: static;
+      transform: none;
+      width: 2.6rem;
+      height: 2.6rem;
+    }
+
+    .collage__viewport {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .collage__rail {
+      grid-column: 1 / -1;
+      grid-row: 1;
+    }
+
+    .collage__arrow--prev {
+      grid-column: 1;
+      grid-row: 2;
+      justify-self: start;
+    }
+
+    .collage__arrow--next {
+      grid-column: 3;
+      grid-row: 2;
+      justify-self: end;
+    }
+
+    .collage__count {
+      position: static;
+      grid-column: 2;
+      grid-row: 2;
+      justify-self: center;
+      align-self: center;
     }
   }
 
@@ -594,3 +914,159 @@ const duoRatio = (() => {
     }
   }
 </style>
+
+<script>
+  /**
+   * Gallery rail controls — progressive enhancement over the scroll-snap rail.
+   *
+   * The rail is a native horizontal scroller, so touch swipe, trackpad, shift-wheel
+   * and keyboard arrow keys ALL work before this script exists. What it adds: the
+   * two arrows, the counter, the end-state disabling, and mouse drag.
+   *
+   * No script means no arrows — which is why the arrows ship `hidden` in the
+   * markup and are revealed here. An arrow that looks live but does nothing is
+   * worse than no arrow.
+   */
+  const viewports = document.querySelectorAll<HTMLElement>('[data-gallery-rail]');
+
+  if (viewports.length) {
+    viewports.forEach((rail) => {
+      const root = rail.closest('.collage__viewport');
+      const slides = Array.from(rail.children) as HTMLElement[];
+      if (!root || slides.length < 2) return;
+
+      const prev = root.querySelector<HTMLButtonElement>('[data-gallery-prev]');
+      const next = root.querySelector<HTMLButtonElement>('[data-gallery-next]');
+      const counter = root.querySelector<HTMLElement>('[data-gallery-count]');
+
+      /**
+       * One step is the distance between the first two slides' left edges.
+       *
+       * Measured rather than computed from `clientWidth`: the slides have a gap
+       * between them, so stepping by the container width would drift further out
+       * of alignment with every press. This number already contains the gap.
+       */
+      const step = () =>
+        slides.length > 1 ? slides[1].offsetLeft - slides[0].offsetLeft : rail.clientWidth;
+
+      const go = (dir: 1 | -1) => {
+        rail.scrollBy({ left: step() * dir, behavior: 'smooth' });
+      };
+
+      let frame = 0;
+
+      const sync = () => {
+        frame = 0;
+        const max = rail.scrollWidth - rail.clientWidth;
+        const s = step();
+        const index = s > 0 ? Math.round(rail.scrollLeft / s) : 0;
+        const clamped = Math.min(Math.max(index, 0), slides.length - 1);
+
+        /*
+          Whether the rail ACTUALLY has somewhere to go.
+
+          With three screens the rail fits its viewport, so there is nothing to
+          scroll to — arrows would be controls for a task that does not exist. The
+          flag is recomputed on resize, because a narrower window can turn a fitting
+          rail into a scrolling one.
+        */
+        const overflows = max > 4;
+        if (overflows) rail.setAttribute('data-overflow', '');
+        else rail.removeAttribute('data-overflow');
+
+        if (counter) counter.hidden = !overflows;
+        if (prev) prev.disabled = rail.scrollLeft <= 1;
+        if (next) next.disabled = rail.scrollLeft >= max - 1;
+        if (counter) counter.textContent = `${clamped + 1} / ${slides.length}`;
+      };
+
+      const schedule = () => {
+        if (!frame) frame = requestAnimationFrame(sync);
+      };
+
+      rail.addEventListener('scroll', schedule, { passive: true });
+      window.addEventListener('resize', schedule);
+
+      prev?.addEventListener('click', () => go(-1));
+      next?.addEventListener('click', () => go(1));
+
+      /*
+        MOUSE DRAG — a native scroll container does not drag with a mouse, which is
+        how a desktop visitor expects a gallery to behave. Touch is left to the
+        browser on purpose: hijacking it would cost the momentum and rubber-banding
+        the platform gives for free.
+
+        The 6px threshold is what keeps a plain CLICK working. Without it, the
+        smallest movement while pressing an image would register as a drag and
+        swallow the lightbox click.
+      */
+      let dragging = false;
+      let startX = 0;
+      let startLeft = 0;
+      let moved = 0;
+
+      rail.addEventListener('pointerdown', (event) => {
+        if (event.pointerType !== 'mouse' || event.button !== 0) return;
+        dragging = true;
+        moved = 0;
+        startX = event.clientX;
+        startLeft = rail.scrollLeft;
+      });
+
+      rail.addEventListener('pointermove', (event) => {
+        if (!dragging) return;
+        const dx = event.clientX - startX;
+        moved = Math.max(moved, Math.abs(dx));
+
+        if (moved > 6) {
+          if (!rail.hasAttribute('data-dragging')) {
+            rail.setAttribute('data-dragging', '');
+            rail.setPointerCapture(event.pointerId);
+          }
+          event.preventDefault();
+          rail.scrollLeft = startLeft - dx;
+        }
+      });
+
+      const endDrag = (event: PointerEvent) => {
+        if (!dragging) return;
+        dragging = false;
+        rail.removeAttribute('data-dragging');
+        if (rail.hasPointerCapture?.(event.pointerId)) {
+          rail.releasePointerCapture(event.pointerId);
+        }
+
+        // Snap by hand — `data-dragging` disabled snap for the duration.
+        if (moved > 6) {
+          const s = step();
+          rail.scrollTo({ left: Math.round(rail.scrollLeft / s) * s, behavior: 'smooth' });
+        }
+      };
+
+      rail.addEventListener('pointerup', endDrag);
+      rail.addEventListener('pointercancel', endDrag);
+
+      /* A drag must not also open the lightbox underneath it. */
+      rail.addEventListener(
+        'click',
+        (event) => {
+          if (moved > 6) {
+            event.preventDefault();
+            event.stopPropagation();
+            moved = 0;
+          }
+        },
+        true,
+      );
+
+      /* An image drag ghost would fight the pointer drag above. */
+      rail.addEventListener('dragstart', (event) => event.preventDefault());
+
+      /* Reveal the controls now that they work. */
+      if (prev) prev.hidden = false;
+      if (next) next.hidden = false;
+      rail.setAttribute('data-ready', '');
+      sync();
+    });
+  }
+</script>

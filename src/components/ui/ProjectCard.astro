@@ -69,17 +69,63 @@ const shots: MediaAsset[] = [
 ];
 const many = shots.length > 1;
 
+/**
+ * Is this project a set of PHONE SCREENS?
+ *
+ * Same rule as `ProjectRow.astro`, and it exists for the same measured reason: a
+ * 0.488-ratio device inside a 16:10 frame used about a quarter of the box's width.
+ * Measured on a related-project card: frame 552x345 with the phone rendering
+ * 128x295 inside it — so 77% of the frame was empty matte around a phone that
+ * already has its own bezel and shadow.
+ *
+ * Documents (`fit: 'contain'`) are excluded: a journal page is portrait too, but
+ * it is a page to be read on a matte, not a device to stand on the page.
+ */
+const isPortrait = (m: MediaAsset) => {
+  const ar = m.width && m.height ? m.width / m.height : 1.5;
+  return ar < 0.75 && m.fit !== 'contain';
+};
+const phones = shots.length > 0 && shots.every(isPortrait);
+
+/** The device ratio, read off the real image so the box matches it. */
+const phoneAr =
+  project.visual.width && project.visual.height
+    ? (project.visual.width / project.visual.height).toFixed(4)
+    : '0.488';
+
 ---
 
 <article
-  class:list={['pc', `pc--${variant}`]}
-  style={`--frame-ratio: ${FRAME_RATIO};`}
+  class:list={['pc', `pc--${variant}`, phones && 'pc--phones']}
+  style={`--frame-ratio: ${FRAME_RATIO}; --phone-ar: ${phoneAr};`}
 >
   <div class="pc__inner">
     <!-- ---------------- visual ---------------- -->
-    <div class="pc__frame pc__frame--contain">
+    <div class:list={['pc__frame', !phones && 'pc__frame--contain']}>
       {
-        many ? (
+        phones ? (
+          /* The device stands on its own — see the note in the frontmatter. */
+          <div class="pc__ph">
+            {many ? (
+              <ShotSlider
+                images={shots}
+                ratio={phoneAr}
+                lightbox={false}
+                fit="cover"
+                mockup
+              />
+            ) : (
+              <img
+                src={project.visual.src}
+                alt={project.visual.alt}
+                width={dims?.[0] ?? project.visual.width}
+                height={dims?.[1] ?? project.visual.height}
+                loading="lazy"
+                decoding="async"
+              />
+            )}
+          </div>
+        ) : many ? (
           <ShotSlider
             images={shots}
             ratio={FRAME_RATIO}
@@ -176,6 +222,69 @@ const many = shots.length > 1;
   .pc__frame :global(.sl__viewport) {
     height: 100%;
     border-radius: 0;
+  }
+
+  /* ---------------- phone screens: no frame ----------------
+     The device render is a cut-out with its own bezel and shadow, so the card
+     shows it directly. Measured before this change: a related-project card drew a
+     552x345 frame around a 128x295 phone — 77% of the box was empty matte.
+
+     The box that remains is TRANSPARENT and BORDERLESS, so it adds no visible
+     edges while still reserving layout space and giving the slider somewhere to
+     live.
+
+     CAPPED TO THE DASHBOARD CARD'S HEIGHT. A phone at the frame's full width would
+     stand 492px tall beside a 345px dashboard card, so two cards that should read
+     as equals ended at different heights and the row looked broken. The cap keeps
+     a phone card the same height as its neighbours; on a narrow screen it stops
+     binding and the device takes the width it has.
+     ---------------------------------------------------------------------- */
+  .pc--phones .pc__frame {
+    aspect-ratio: auto;
+    border: 0;
+    background-color: transparent;
+    overflow: visible;
+  }
+
+  .pc__ph {
+    width: 100%;
+    /* Roughly matched to the 16:10 frame's height at this card's width, so a phone
+       card and a dashboard card sit at a similar level in the row — while staying
+       large enough that the interface inside the device is still readable. */
+    max-width: 12.5rem;
+    margin-inline: auto;
+    aspect-ratio: var(--phone-ar, 0.488);
+  }
+
+  @media (max-width: 700px) {
+    .pc__ph {
+      /* One card per row below this width, so there is nothing to line up with. */
+      max-width: 14rem;
+    }
+  }
+
+  .pc__ph img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center bottom;
+    /* Depth follows the ALPHA silhouette — the bezel, not a rectangle around it. */
+    filter: var(--photo-filter) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.34))
+      drop-shadow(0 14px 30px rgba(0, 0, 0, 0.3));
+  }
+
+  :global([data-theme='light']) .pc__ph img {
+    filter: var(--photo-filter) drop-shadow(0 2px 4px rgba(62, 46, 30, 0.18))
+      drop-shadow(0 14px 28px rgba(62, 46, 30, 0.16));
+  }
+
+  /* The sliding rail already sizes its own track from `ratio`; inside a phone
+     card that ratio is the device's, so the rail must fill the box without
+     re-imposing a matte. */
+  .pc--phones :global(.sl__viewport) {
+    background-color: transparent;
+    border: 0;
   }
 
   .pc__frame img {

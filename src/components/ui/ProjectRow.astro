@@ -20,9 +20,29 @@
  * opening it — while still keeping the page far shorter than one large image per
  * project would.
  *
- * ONE SHAPE, ONE RATIO. Same rule as everywhere else on this site: the frame is
- * always 16:10 and images are letterboxed inside it, so a phone screenshot and a
- * dashboard sit in the same box without either being cropped.
+ * ONE SHAPE, ONE RATIO — for everything that is NOT a phone mockup.
+ *
+ * The frame is 16:10 and documents are letterboxed inside it, so a journal page
+ * and a dashboard sit in the same box without either being cropped. That rule
+ * still holds for screenshots and documents.
+ *
+ * IT DOES NOT HOLD FOR PHONE SCREENS, and forcing it there was the mistake.
+ *
+ * The user's report: "jangan kotak kotak begini. buat tampilannya menarik,
+ * langsung bentuk hp nya saja" — do not box these, just show the phone. They were
+ * right, and the numbers say why. A 0.488-ratio phone inside a 16:10 frame fills
+ * only 30% of the box's width; measured in the row, the phone rendered 233px
+ * wide inside a 487px frame, so roughly 65% of the frame was empty matte. The box
+ * was doing nothing except making a phone look like a small picture of a phone.
+ *
+ * So a project whose ENTIRE image set is portrait screens (which is every device
+ * render in this portfolio — they are exported as cut-outs with their own bezel
+ * and shadow) renders WITHOUT a frame: the device stands directly on the page at
+ * its own proportions, at a size that is actually readable. Mixed or
+ * landscape/document sets keep the frame exactly as before.
+ *
+ * The test is per PROJECT, not per image: a row that framed some images and let
+ * others float would be less consistent, not more.
  */
 import type { ProjectEntry, MediaAsset } from '@/types/content';
 import { PROJECT_CATEGORY_LABELS } from '@/types/content';
@@ -52,57 +72,139 @@ const hero = shots[0];
 const supporting = shots.slice(1, 3);
 const moreCount = Math.max(0, shots.length - 3);
 
+/**
+ * Is this project a set of PHONE SCREENS?
+ *
+ * True only when every image it owns is portrait, which in practice means every
+ * one is a device render. Documents (`fit: 'contain'`) are excluded explicitly:
+ * a journal page is also portrait, but it is a page to be read on a matte, not a
+ * device to stand on the page.
+ */
+const isPortrait = (m: MediaAsset) => {
+  const ar = m.width && m.height ? m.width / m.height : 1.5;
+  return ar < 0.75 && m.fit !== 'contain';
+};
+const phones = shots.length > 0 && shots.every(isPortrait);
+
+/**
+ * The device ratio, read off the real image so the group's boxes match it.
+ *
+ * Kept per-project rather than hardcoded in the stylesheet: the ratio belongs to
+ * the export, and a re-export at a different shape would otherwise be letterboxed
+ * inside boxes that still assumed the old one.
+ */
+const phoneAr =
+  hero.width && hero.height ? (hero.width / hero.height).toFixed(4) : '0.488';
+
 const dims =
   getImageDims(hero.src) ??
   (hero.width && hero.height ? ([hero.width, hero.height] as [number, number]) : null);
 ---
 
-<article class:list={['pr', `pr--${side}`]}>
+<article class:list={['pr', `pr--${side}`, phones && 'pr--phones']}>
   <div class="pr__inner">
     <!-- ---------------- visual ---------------- -->
     <div class="pr__media">
-      <figure class="pr__frame">
-        <img
-          src={hero.src}
-          alt={hero.alt}
-          width={dims?.[0] ?? hero.width}
-          height={dims?.[1] ?? hero.height}
-          loading="lazy"
-          decoding="async"
-        />
-        <span class="pr__rule" aria-hidden="true" />
-      </figure>
+      {
+        phones ? (
+          /*
+            PHONES STAND ON THE PAGE — no frame, no matte, no box.
 
-      {supporting.length > 0 && (
-        <div class="pr__strip">
-          {supporting.map((img) => {
-            const d =
-              getImageDims(img.src) ??
-              (img.width && img.height
-                ? ([img.width, img.height] as [number, number])
-                : null);
-            return (
-              <figure class="pr__thumb">
+            See the note at the top of this file: a 0.488-ratio device inside a
+            16:10 frame used about a third of the box's width, so two thirds of
+            every "phone" row was empty plate. The device renders are cut-outs
+            with their own bezel and shadow, so the frame was adding nothing.
+          */
+          <div class="ph" style={`--phone-ar: ${phoneAr};`}>
+            <div class="ph__row">
+              <figure class="ph__item ph__item--lead">
                 <img
-                  src={img.src}
-                  alt={img.alt}
-                  width={d?.[0] ?? img.width}
-                  height={d?.[1] ?? img.height}
+                  src={hero.src}
+                  alt={hero.alt}
+                  width={dims?.[0] ?? hero.width}
+                  height={dims?.[1] ?? hero.height}
                   loading="lazy"
                   decoding="async"
                 />
               </figure>
-            );
-          })}
 
-          {moreCount > 0 && (
-            <p class="pr__more mono">
-              +{moreCount} more
-              <span class="sr-only"> in this project's gallery</span>
-            </p>
-          )}
-        </div>
-      )}
+              {supporting.map((img) => {
+                const d =
+                  getImageDims(img.src) ??
+                  (img.width && img.height
+                    ? ([img.width, img.height] as [number, number])
+                    : null);
+                return (
+                  <figure class="ph__item">
+                    <img
+                      src={img.src}
+                      alt={img.alt}
+                      width={d?.[0] ?? img.width}
+                      height={d?.[1] ?? img.height}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </figure>
+                );
+              })}
+            </div>
+
+            {moreCount > 0 && (
+              <p class="ph__more mono">
+                +{moreCount} more
+                <span class="sr-only"> in this project's gallery</span>
+              </p>
+            )}
+
+            <span class="pr__rule" aria-hidden="true" />
+          </div>
+        ) : (
+          <>
+            <figure class="pr__frame">
+              <img
+                src={hero.src}
+                alt={hero.alt}
+                width={dims?.[0] ?? hero.width}
+                height={dims?.[1] ?? hero.height}
+                loading="lazy"
+                decoding="async"
+              />
+              <span class="pr__rule" aria-hidden="true" />
+            </figure>
+
+            {supporting.length > 0 && (
+              <div class="pr__strip">
+                {supporting.map((img) => {
+                  const d =
+                    getImageDims(img.src) ??
+                    (img.width && img.height
+                      ? ([img.width, img.height] as [number, number])
+                      : null);
+                  return (
+                    <figure class="pr__thumb">
+                      <img
+                        src={img.src}
+                        alt={img.alt}
+                        width={d?.[0] ?? img.width}
+                        height={d?.[1] ?? img.height}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </figure>
+                  );
+                })}
+
+                {moreCount > 0 && (
+                  <p class="pr__more mono">
+                    +{moreCount} more
+                    <span class="sr-only"> in this project's gallery</span>
+                  </p>
+                )}
+              </div>
+            )}
+          </>
+        )
+      }
     </div>
 
     <!-- ---------------- text ---------------- -->
@@ -259,6 +361,114 @@ const dims =
     color: var(--fg-faint);
     text-transform: none;
     letter-spacing: 0.03em;
+  }
+
+  /* ---------------- phone screens: no frame ---------------- */
+  /*
+    THE DEVICE IS THE PICTURE.
+
+    These renders are cut-outs — transparent margin, their own bezel, screen and
+    baked-in shadow — so the only thing a wrapper can add is a box around a phone
+    that already looks like a phone. The frame is gone entirely: no border, no
+    matte, no aspect-ratio box, no hidden overflow.
+
+    GRID WITH EXPLICIT PROPORTIONS, not flex with per-item heights.
+
+    The first attempt gave the lead and the supporting pair separate `max-height`
+    clamps. That ties the sizes to the VIEWPORT (`vh`) rather than to the space the
+    image column actually has, and the two drifted: measured at 1440px the lead
+    rendered 183x374 — smaller than the plain framed screenshot on the next row —
+    while a short window shrank it further still.
+
+    A grid whose COLUMN RATIOS mirror the size relationship removes the
+    guesswork: the lead's column is 1.5x the supporting columns, so the lead is
+    1.5x their width and therefore 1.5x their height. Every phone scales from the
+    column width, so the group fills the media column at any viewport instead of
+    floating small in the middle of it.
+
+    `--phone-ar` comes from the frontmatter, read off the real image. It is not
+    hardcoded because the set's ratio is a property of the export, not of this
+    stylesheet — a re-export at a different shape must not letterbox silently.
+  */
+  .ph {
+    position: relative;
+  }
+
+  .ph__row {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    align-items: end;
+    gap: clamp(0.7rem, 1.8vw, 1.4rem);
+    min-width: 0;
+  }
+
+  .ph__item {
+    margin: 0;
+    min-width: 0;
+    aspect-ratio: var(--phone-ar, 0.488);
+    /* A ceiling for very wide windows, where 1.5fr of a broad column would
+       otherwise render a phone taller than the viewport. */
+    max-height: 36rem;
+  }
+
+  .ph__item img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    /* `contain` with a bottom anchor: if the ceiling caps the height, the device
+       letterboxes horizontally rather than stretching, and it stays ON the row's
+       baseline instead of floating up from it. */
+    object-fit: contain;
+    object-position: center bottom;
+    /* Depth follows the ALPHA silhouette — the bezel, not a rectangle around it. */
+    filter: var(--photo-filter) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.34))
+      drop-shadow(0 14px 30px rgba(0, 0, 0, 0.3));
+    transition: transform var(--t-slow) var(--ease);
+  }
+
+  :global([data-theme='light']) .ph__item img {
+    filter: var(--photo-filter) drop-shadow(0 2px 4px rgba(62, 46, 30, 0.18))
+      drop-shadow(0 14px 28px rgba(62, 46, 30, 0.16));
+  }
+
+  .pr:hover .ph__item--lead img {
+    transform: translateY(-4px);
+  }
+
+  .ph__more {
+    margin-top: 1rem;
+    text-align: center;
+    color: var(--fg-faint);
+    text-transform: none;
+    letter-spacing: 0.03em;
+  }
+
+  /* The hover rule sits under the whole group, not under one phone. */
+  .pr--phones .pr__rule {
+    bottom: -1rem;
+  }
+
+  /* A single phone (no supporting images) keeps the lead's column, so one device
+     is never stretched across the whole media column. */
+  .ph__row:not(:has(.ph__item:not(.ph__item--lead))) {
+    grid-template-columns: minmax(0, 0.62fr);
+    justify-content: start;
+  }
+
+  @media (max-width: 640px) {
+    /* Three phones will not fit a narrow column; the group becomes one column of
+       equal phones, which keeps every device the same readable size. */
+    .ph__row,
+    .ph__row:not(:has(.ph__item:not(.ph__item--lead))) {
+      grid-template-columns: minmax(0, 1fr);
+      justify-content: center;
+    }
+
+    .ph__item {
+      max-height: none;
+      max-width: 15rem;
+      margin-inline: auto;
+    }
   }
 
   /* ---------------- text ---------------- */

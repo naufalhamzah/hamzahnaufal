@@ -372,11 +372,20 @@ const many = images.length > 1;
   /*
     A drawn phone shell around a portrait screenshot.
 
-    The measurement that matters: the shell is sized by HEIGHT first
+    The measurement that matters: the box is sized by HEIGHT first
     (`height: 100%`, width from the aspect ratio), then the screenshot sits
-    inside its padding. Sizing by width would let a very tall capture push the
-    shell past the frame and clip it — the same trap that clipped the portrait
-    earlier in this build, one level down.
+    inside it. Sizing by width would let a very tall capture push past the frame
+    and clip it — the same trap that clipped the portrait earlier in this build,
+    one level down.
+
+    THE RENDER IS THE PHONE — this wrapper adds NO hardware of its own.
+
+    It used to draw a shell (1.5px border, 1.35rem radius, a filled `--device-body`
+    plate, a box-shadow) plus a drawn notch. Every capture that ships here is a
+    full device render with its own bezel, corner radius, dynamic island and
+    shadow, so the shell was a SECOND rectangle around a phone that already had
+    one. What remains is a transparent layout box: it reserves space, sizes from
+    the device's own ratio, and centres the render.
   */
   .sl__device {
     display: block;
@@ -385,42 +394,32 @@ const many = images.length > 1;
     aspect-ratio: 9 / 19.5;
     max-width: 100%;
     margin: 0 auto;
-    padding: 0.4rem;
-    border: 1.5px solid var(--device-edge);
-    border-radius: 1.35rem;
-    background-color: var(--device-body);
-    box-shadow:
-      0 1px 2px rgba(0, 0, 0, 0.3),
-      0 10px 26px -8px rgba(0, 0, 0, 0.42);
-    /* The screen area is its own clipped layer, so the screenshot's corners
-       follow the shell's radius without the shell leaking a square edge. */
-    overflow: hidden;
-  }
-
-  /* The notch — a small pill, drawn rather than imaged. */
-  .sl__device::before {
-    content: '';
-    position: absolute;
-    top: 0.72rem;
-    left: 50%;
-    z-index: 1;
-    width: 26%;
-    height: 0.34rem;
-    border-radius: var(--r-full);
-    background-color: var(--device-edge);
-    transform: translateX(-50%);
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background-color: transparent;
+    box-shadow: none;
+    overflow: visible;
   }
 
   .sl__device img {
     display: block;
     width: 100%;
     height: 100%;
-    border-radius: 1rem;
-    /* The capture fills the screen area; the notch overlaps its top edge the
-       way it does on a real device. */
-    object-fit: cover;
-    object-position: center top;
+    /* The render supplies its own rounded corners, so `cover` would crop them into
+       square ones and `border-radius` here would round the wrong rectangle. */
+    border-radius: 0;
+    object-fit: contain;
+    object-position: center bottom;
     padding: 0;
+    /* Depth follows the ALPHA silhouette — the bezel, not a rectangle around it. */
+    filter: var(--photo-filter) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.34))
+      drop-shadow(0 14px 30px rgba(0, 0, 0, 0.3));
+  }
+
+  :global([data-theme='light']) .sl__device img {
+    filter: var(--photo-filter) drop-shadow(0 2px 4px rgba(62, 46, 30, 0.18))
+      drop-shadow(0 14px 28px rgba(62, 46, 30, 0.16));
   }
 
   /* NO DRAWN NOTCH — same defect and same evidence as in `Collage.astro`.
@@ -556,6 +555,89 @@ const many = images.length > 1;
       const rail = viewport?.querySelector<HTMLElement>('.sl__rail');
       if (!rail) return;
       step(rail, btn.hasAttribute('data-slider-prev') ? -1 : 1);
+    });
+
+    /*
+      MOUSE DRAG — native scroll containers do not drag with a mouse, which is how
+      a desktop visitor expects a gallery to behave. Touch is deliberately left to
+      the browser: hijacking it would cost the momentum and rubber-banding the
+      platform gives for free.
+
+      Pointer Events cover mouse, pen and touch in one path. The 6px threshold keeps
+      a plain CLICK working — without it the tiniest movement while pressing would
+      count as a drag and swallow the click on the image underneath.
+
+      Same implementation as `FeaturedRail.astro`, and it is duplicated rather than
+      extracted because the two differ in one detail: this rail steps by its own
+      WIDTH (one slide is 100% of it), while the featured rail steps by the measured
+      distance between two slides. Sharing the code would mean parameterising that
+      difference for no gain.
+    */
+    rails.forEach((rail) => {
+      let dragging = false;
+      let startX = 0;
+      let startLeft = 0;
+      let moved = 0;
+
+      rail.addEventListener('pointerdown', (event) => {
+        if (event.pointerType !== 'mouse' || event.button !== 0) return;
+        dragging = true;
+        moved = 0;
+        startX = event.clientX;
+        startLeft = rail.scrollLeft;
+      });
+
+      rail.addEventListener('pointermove', (event) => {
+        if (!dragging) return;
+        const dx = event.clientX - startX;
+        moved = Math.max(moved, Math.abs(dx));
+
+        if (moved > 6) {
+          // Claim the gesture only once it is clearly a drag, never on mousedown.
+          if (!rail.hasAttribute('data-dragging')) {
+            rail.setAttribute('data-dragging', '');
+            rail.setPointerCapture(event.pointerId);
+          }
+          event.preventDefault();
+          rail.scrollLeft = startLeft - dx;
+        }
+      });
+
+      const endDrag = (event: PointerEvent) => {
+        if (!dragging) return;
+        dragging = false;
+        rail.removeAttribute('data-dragging');
+        if (rail.hasPointerCapture?.(event.pointerId)) {
+          rail.releasePointerCapture(event.pointerId);
+        }
+
+        // Snap by hand — `data-dragging` disabled snap for the duration.
+        if (moved > 6) {
+          const s = rail.clientWidth;
+          rail.scrollTo({ left: Math.round(rail.scrollLeft / s) * s, behavior: 'smooth' });
+        }
+      };
+
+      rail.addEventListener('pointerup', endDrag);
+      rail.addEventListener('pointercancel', endDrag);
+
+      /* A drag must not also fire the click on the image beneath it. */
+      rail.addEventListener(
+        'click',
+        (event) => {
+          if (moved > 6) {
+            event.preventDefault();
+            event.stopPropagation();
+            moved = 0;
+          }
+        },
+        true,
+      );
+
+      /* An anchor drag ghost would fight the pointer drag above. */
+      rail.addEventListener('dragstart', (event) => event.preventDefault());
+
+      rail.setAttribute('data-ready', '');
     });
   }
 </script>
