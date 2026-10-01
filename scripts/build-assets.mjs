@@ -107,7 +107,6 @@ const RECIPES = [
   ['Gambaran Pengalaman di Airnav.jpeg', 'experience/airnav-onboarding.webp', {
     w: 1800, q: Q.photo
   }],
-  ['Gambar Gedung AirNav.jfif', 'experience/airnav-building.webp', { w: 1200, q: Q.shot }],
 
   /* --------------------------- other employers -------------------------- */
   ['Momen Pengalaman di PLN.png', 'experience/pln-work.webp', { w: 1500, q: Q.photo }],
@@ -117,35 +116,41 @@ const RECIPES = [
   }],
 
   /* --------------------------------- ABOUT ------------------------------ */
+  /* --------------------- PROJECT: marketing data system -----------------
+     TWO captures of the system the project built: the customer spreadsheet and
+     the Apps Script behind it, in that order.
+
+     EACH IS CROPPED 8% OFF THE TOP, removing the browser chrome. Both sources
+     are full-screen grabs with the tab strip and the address bar baked into the
+     pixels, and `trimWhiteMargin` cannot help — that step only removes white,
+     and a browser's title bar is coloured. Measured off the source: the chrome
+     occupies the top 7.4% of each file. 8% clears it with no residue, and the
+     crop keeps the frame's own aspect ratio so nothing is squashed.
+
+     WHY THIS MATTERS BEYOND TIDINESS: an address bar prints a Google Docs URL
+     and a document title, which reads as a shared link rather than as the work.
+     The remaining pixels are the product — the sheet, the editor — which is what
+     the card is claiming to show.
+     -------------------------------------------------------------------- */
   /*
-    `Foto Kantor BeautyLab.png` is NOT used here any more.
+    The window is 16:10 — the card frame's own ratio — so the card shows the
+    capture WHOLE and never crops it again. An earlier pass took the full width
+    at 16:9, which left the output at 1.93; the card then trimmed 17% off the
+    sides to reach its frame and took the leftmost columns with it.
 
-    Two reasons, both of which are honesty problems rather than taste ones:
-
-      1. It is a flattened slide composition. The deck's own navy and teal
-         decorative strokes and a diagonally-cropped white field are baked into
-         the pixels, so it is a slide, not a photograph.
-      2. Nothing in the frame shows signage, a name or anything else that ties
-         the building to Beauty Innovation Laboratories. The old alt text
-         asserted that tie anyway, which is a guess dressed as a fact.
-
-    In its place: the actual system, which the deck itself attributes to
-    BeautyLab and which the experience data already describes. It supports the
-    About copy instead of decorating it, and every claim in its alt text is
-    visible in the picture.
+    `width` is therefore solved rather than chosen: with the top 8% removed there
+    are 1920px of height left in the sheet, and 1920 x 1.6 = 3072px of width,
+    which is 0.828 of the source. Anchored LEFT, so the columns that identify a
+    row — the reference, the customer ID, the name — stay in frame; a centred
+    window would cut them instead.
   */
-  ['Gambaran Project di BeautyLab (2).png', 'about/beautylab-system.webp', { w: 1400, q: Q.shot }],
-
-  /* --------------------- PROJECT: marketing data system ----------------- */
-  // marketing-sheet-2 is the spreadsheet itself; marketing-sheet-1 is the
-  // Apps Script editor behind it. Both are used, in that order.
   ['Gambaran Project di BeautyLab (2).png', 'projects/marketing-sheet-1.webp', {
     w: 1700, q: Q.shot,
-    trimWhiteMargin: {}
+    crop: { left: 0, top: 0.08, width: 0.828, ratio: 1.6 },
   }],
   ['Gambaran Project di BeautyLab (1).png', 'projects/marketing-script-1.webp', {
     w: 1500, q: Q.shot,
-    trimWhiteMargin: {}
+    crop: { left: 0, top: 0.08, width: 0.828, ratio: 1.6 },
   }],
 
   /* --------- PROJECT: PLN dashboard — the NEWER assets replace old -------
@@ -203,30 +208,54 @@ const RECIPES = [
   */
 
   /* ------------------------ PROJECT: smart farming ----------------------
-     THE COVER IS NOW THE FIELD PHOTOGRAPH, not the journal cover.
+     THREE images, three different jobs — the field, the system, and the paper
+     itself. Each is a real asset from the programme; none stands in for another.
 
-     The user's report: "gambar terlalu kecil. gunakan gambar ramaian aja buat
-     covernya." They were describing the effect of the old cover honestly — a
-     0.73-ratio journal page in a `contain` frame fills barely a third of the
-     width, so the card read as a small white page floating in a large frame.
+     THE COVER IS THE ARTICLE'S TITLE BLOCK, cropped out of the paper's first
+     page. The user asked to "pakai foto artikelnya untuk cover. di zoom saja
+     agar memenuhi border, arahkan pada judulnya" — so this is a CROP of the
+     published page, zoomed onto the title, not the whole page shrunk to fit.
 
-     The team-and-villagers photograph is landscape (1.33), which fills the frame
-     edge to edge, and it shows the programme's actual context — the people and
-     the village — which the article cover never could. The article cover keeps
-     its place as the LAST gallery entry, where it still documents the publication.
+     Why the whole page never worked as a cover: it is 0.73-ratio against a 1.6
+     frame, so even filling the height it occupied about 21% of the frame's width
+     and the card read as a small white document floating in a large box. The
+     crop below is landscape and fills the frame edge to edge.
 
-     The irrigation photograph is the one image that shows the SYSTEM itself: a
-     solar panel and the control enclosure standing in the maize field, which is
-     exactly what "Renewable-energy automatic irrigation" claims. Previously that
-     claim had no visual evidence anywhere on the site.
+     The crop fractions were measured off the source, not guessed. Title block
+     lives at x 125..455 and y 396..689 of 1224x1661; the window
+     { left 0.030, top 0.225, width 0.55 } at 1.6 lands on x 37..710, y 374..793,
+     which contains all nine title lines with margin. Verified by looking at the
+     rendered crop: no line is clipped top or bottom. The abstract column that
+     intrudes on the right is deliberate — it places the crop on a real document
+     rather than floating text.
      -------------------------------------------------------------------- */
   ['Momen PPKO Ormawa - Tim dan Warga.jpg', 'projects/smart-farming-team.webp', { w: 1600, q: Q.photo }],
   ['Momen PPKO Ormawa - Irigasi Tenaga Surya.jpg', 'projects/smart-farming-irrigation.webp', { w: 1600, q: Q.photo }],
-  // This file is the JOURNAL ARTICLE COVER (Ampoen Vol. 2 No. 2), not a field
-  // photograph — the name is kept accurate so alt text and usage stay honest.
+  /*
+    THE SOURCE IS THE PAPER'S FIRST PAGE, and the filename is a trap worth
+    recording: `Pengalaman PPK Ormawa dan Publikasi (2).png` is the article page,
+    while the file actually called `COVER AMPOEN.png` is a different, smaller
+    cover. The page is what carries the title, the volume, the page range and the
+    author list.
+
+    Both outputs come from this one source. The full page stays as the gallery's
+    evidence of the publication; the crop below is the card cover.
+
+    THE CROP IS THE TITLE BLOCK, and the window was chosen to include rather more
+    than the title. At 16:10 from `top 0.16` it spans the masthead, the volume and
+    page range, all three title lines, the full author list and the DOI — with no
+    line clipped at any edge. `top 0.13` left the tail of the line above the
+    masthead broken across the crop's top edge; 0.16 clears it entirely. That matters for two reasons: the frame is filled
+    edge to edge by a real document rather than by floating text, and the author
+    list it includes happens to name "Hamzah N.Zuhdi", so the card shows its own
+    attribution instead of asking the reader to take it on trust.
+  */
   ['Pengalaman PPK Ormawa dan Publikasi (2).png', 'projects/smart-farming-article.webp', {
     w: 1200, q: Q.doc,
-      trimWhiteMargin: {}
+  }],
+  ['Pengalaman PPK Ormawa dan Publikasi (2).png', 'projects/smart-farming-title.webp', {
+    w: 1200, q: Q.doc,
+    crop: { left: 0, top: 0.16, width: 1, ratio: 1.6 },
   }],
 
   /* --------------------------- PROJECT: research ------------------------ */

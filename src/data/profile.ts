@@ -113,8 +113,16 @@ const rawProfile: Profile = {
 
   email: 'naufalhamzahhh05@gmail.com',
 
-  // [D] closing slide
-  tagline: 'Learning never stops — every project is a chance to grow.',
+  /*
+    Tagline — the line the footer signs off with.
+
+    This replaces "Learning never stops — every project is a chance to grow."
+    That was true but generic: it could sit under any name on any portfolio and
+    say nothing about this one. The replacement is anchored to what the record
+    actually shows — systems built, questions asked, things measured — so it
+    reads as a description of the work rather than a slogan about it.
+  */
+  tagline: 'I build the system, then keep asking what it should measure.',
 
   /**
    * The hero portrait — `Foto Cover 1.png`, cropped and optimised by the asset

@@ -62,12 +62,64 @@ const meta = [
     meta={meta}
   />
 
+  <!-- ===================== filter / search ===================== -->
+  <section class="sk-tools" aria-label="Filter skills">
+    <div class="shell">
+      <div class="sk-tools__bar">
+        <label class="sk-tools__field">
+          <span class="sr-only">Search tools and methods</span>
+          <svg class="sk-tools__icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"></circle>
+            <path d="M20 20l-3.5-3.5"></path>
+          </svg>
+          <input
+            type="search"
+            id="sk-search"
+            class="sk-tools__input"
+            placeholder={`Search ${totalSkills} tools and methods…`}
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </label>
+
+        <ul class="sk-tools__chips" role="list">
+          <li>
+            <button type="button" class="sk-chip is-on" data-sk-filter="all" aria-pressed="true">
+              All <span class="sk-chip__n mono">{totalSkills}</span>
+            </button>
+          </li>
+          {
+            skillGroups.map((g) => (
+              <li>
+                <button
+                  type="button"
+                  class="sk-chip"
+                  data-sk-filter={g.id}
+                  aria-pressed="false"
+                >
+                  {g.title}
+                  <span class="sk-chip__n mono">{g.items.length}</span>
+                </button>
+              </li>
+            ))
+          }
+        </ul>
+
+        <p class="sk-tools__status mono" id="sk-status" role="status" aria-live="polite"></p>
+      </div>
+
+      <p class="sk-tools__empty" id="sk-empty" hidden>
+        Nothing matches that. Try a shorter term — “sql”, “figma”, “python”.
+      </p>
+    </div>
+  </section>
+
   <!-- ===================== groups ===================== -->
   <section class="sk" aria-label="Skill groups">
     <div class="shell">
       {
         skillGroups.map((group, gi) => (
-          <section class="sk__group" aria-labelledby={`sk-${group.id}`}>
+          <section class="sk__group" aria-labelledby={`sk-${group.id}`} data-sk-group={group.id}>
             <header class="sk__head">
               <h2 id={`sk-${group.id}`} class="sk__title">
                 <span class="sk__num mono" aria-hidden="true">
@@ -81,7 +133,7 @@ const meta = [
 
             <ul class="sk__grid">
               {group.items.map((item) => (
-                <li>
+                <li data-sk-item data-sk-name={item.name.toLowerCase()}>
                   <SkillTile name={item.name} icon={item.icon} />
                 </li>
               ))}
@@ -182,6 +234,148 @@ const meta = [
     color: var(--fg-faint);
   }
 
+  /* ==========================================================================
+     filter / search
+
+     A page that lists 49 entries over seven sections makes a reader scroll to
+     find one name. The bar narrows it in place instead: type a term, or pick a
+     category, and the groups below narrow to what matches.
+
+     The controls are ADDITIONS, never replacements — with JavaScript off, every
+     tile is already in the HTML and all that is missing is the ability to
+     narrow. Nothing is hidden by default and no content depends on the script.
+     ====================================================================== */
+  .sk-tools {
+    padding-block: clamp(1rem, 2vw, 1.5rem) 0;
+  }
+
+  .sk-tools__bar {
+    display: grid;
+    gap: 0.9rem;
+    padding-bottom: clamp(1rem, 2vw, 1.5rem);
+  }
+
+  @media (min-width: 860px) {
+    .sk-tools__bar {
+      grid-template-columns: minmax(16rem, 22rem) 1fr;
+      align-items: center;
+      gap: 0.9rem 1.5rem;
+    }
+
+    .sk-tools__status {
+      grid-column: 2;
+    }
+  }
+
+  .sk-tools__field {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .sk-tools__icon {
+    position: absolute;
+    inset-inline-start: 0.85rem;
+    color: var(--fg-faint);
+    pointer-events: none;
+  }
+
+  .sk-tools__input {
+    width: 100%;
+    padding: 0.62rem 0.9rem 0.62rem 2.35rem;
+    border: var(--hairline) solid var(--border);
+    border-radius: var(--r-xs);
+    background-color: var(--surface);
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    letter-spacing: 0.01em;
+  }
+
+  .sk-tools__input::placeholder {
+    color: var(--fg-faint);
+  }
+
+  .sk-tools__input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    border-color: var(--accent);
+  }
+
+  /* The native clear button inherits a light glyph that vanishes on dark. */
+  .sk-tools__input::-webkit-search-cancel-button {
+    appearance: none;
+    width: 0.8rem;
+    height: 0.8rem;
+    background-color: var(--fg-faint);
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  .sk-tools__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sk-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.45rem 0.7rem;
+    border: var(--hairline) solid var(--border);
+    border-radius: var(--r-xs);
+    background-color: transparent;
+    color: var(--fg-muted);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition:
+      color var(--t-fast) var(--ease),
+      border-color var(--t-fast) var(--ease),
+      background-color var(--t-fast) var(--ease);
+  }
+
+  .sk-chip:hover {
+    color: var(--fg);
+    border-color: var(--border-strong);
+  }
+
+  .sk-chip.is-on {
+    color: var(--on-solid);
+    background-color: var(--solid-bg);
+    border-color: var(--solid-bg);
+  }
+
+  .sk-chip__n {
+    font-size: var(--text-2xs);
+    opacity: 0.72;
+  }
+
+  .sk-tools__status {
+    margin: 0;
+    color: var(--fg-faint);
+  }
+
+  .sk-tools__empty {
+    margin: 0 0 clamp(1.5rem, 3vw, 2rem);
+    padding: 1rem 1.1rem;
+    border: var(--hairline) dashed var(--border-strong);
+    border-radius: var(--r-xs);
+    font-size: var(--text-sm);
+    color: var(--fg-muted);
+  }
+
+  /* A heading whose section has no matches is hidden with its header. */
+  .sk__group[hidden],
+  [data-sk-item][hidden] {
+    display: none;
+  }
+
   .sk__grid {
     display: grid;
     gap: clamp(0.6rem, 1.4vw, 1rem);
@@ -211,3 +405,98 @@ const meta = [
     color: var(--accent);
   }
 </style>
+
+<script>
+  /**
+   * SKILLS FILTER — narrow 49 entries in place.
+   *
+   * Progressive enhancement: every tile is already in the HTML and nothing is
+   * hidden until this runs. If the script never executes, the page is a complete
+   * list; it simply cannot be narrowed.
+   *
+   * Both controls compose rather than override each other — a category chip sets
+   * the scope and the search narrows within it, which is what a reader expects
+   * when they click "Data" and then type "sql".
+   */
+  const search = document.getElementById('sk-search') as HTMLInputElement | null;
+  const chips = Array.from(
+    document.querySelectorAll<HTMLButtonElement>('[data-sk-filter]'),
+  );
+  const groups = Array.from(
+    document.querySelectorAll<HTMLElement>('[data-sk-group]'),
+  );
+  const status = document.getElementById('sk-status');
+  const empty = document.getElementById('sk-empty');
+  /* Read from the DOM rather than repeating a literal: the count is data, and a
+     hardcoded 49 in the script would silently lie the first time a skill is
+     added. */
+  const TOTAL = document.querySelectorAll('[data-sk-item]').length;
+
+  if (search && chips.length && groups.length) {
+    let scope = 'all';
+
+    const apply = () => {
+      const term = search.value.trim().toLowerCase();
+      let shown = 0;
+
+      for (const group of groups) {
+        const inScope = scope === 'all' || group.dataset.skGroup === scope;
+        let groupShown = 0;
+
+        for (const item of Array.from(
+          group.querySelectorAll<HTMLElement>('[data-sk-item]'),
+        )) {
+          const name = item.dataset.skName ?? '';
+          const match = inScope && (!term || name.includes(term));
+          item.hidden = !match;
+          if (match) groupShown++;
+        }
+
+        /* Hide the whole section, heading included, when nothing in it matches —
+           an empty heading over an empty grid reads as a broken page. */
+        group.hidden = groupShown === 0;
+        shown += groupShown;
+      }
+
+      if (status) {
+        const scopeLabel =
+          scope === 'all'
+            ? 'all categories'
+            : (chips.find((c) => c.dataset.skFilter === scope)?.textContent ?? '')
+                .replace(/\s*\d+\s*$/, '')
+                .trim()
+                .toLowerCase();
+        status.textContent = term
+          ? `${shown} of ${TOTAL} match “${term}” in ${scopeLabel}`
+          : shown === TOTAL
+            ? ''
+            : `${shown} of ${TOTAL} in ${scopeLabel}`;
+      }
+
+      if (empty) empty.hidden = shown !== 0;
+    };
+
+    for (const chip of chips) {
+      chip.addEventListener('click', () => {
+        scope = chip.dataset.skFilter ?? 'all';
+        for (const c of chips) {
+          const on = c === chip;
+          c.classList.toggle('is-on', on);
+          c.setAttribute('aria-pressed', String(on));
+        }
+        apply();
+      });
+    }
+
+    search.addEventListener('input', apply);
+
+    /* Escape clears the field without reaching for the mouse. */
+    search.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && search.value) {
+        e.preventDefault();
+        search.value = '';
+        apply();
+      }
+    });
+  }
+</script>

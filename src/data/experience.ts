@@ -54,9 +54,14 @@ const raw: ExperienceEntry[] = [
       height: 354,
     },
     /**
-     * Both images are UNAMBIGUOUSLY AirNav: the onboarding session has the
-     * AirNav screen in frame, and the second is the AirNav campus with its
-     * control tower. Nothing here is an assumed attribution.
+     * ONE photograph, and it is UNAMBIGUOUSLY AirNav: the onboarding session has
+     * the AirNav Indonesia screen in frame, so the attribution is visible rather
+     * than assumed.
+     *
+     * The campus-and-control-tower shot was removed at the user's request. The
+     * remaining frame is the one that shows the work rather than the building.
+     * More photographs are expected here later — this array takes any count, and
+     * the strip beside the entry adapts.
      */
     photos: [
       {
@@ -64,12 +69,6 @@ const raw: ExperienceEntry[] = [
         alt: 'AirNav Indonesia onboarding session, with the AirNav Indonesia screen visible behind the group',
         width: 1800,
         caption: 'Onboarding session at AirNav Indonesia',
-      },
-      {
-        src: '/images/experience/airnav-building.webp',
-        alt: 'The AirNav Indonesia campus and control tower in Tangerang',
-        width: 1200,
-        caption: 'AirNav Indonesia campus, Tangerang',
       },
     ],
     source: 'profile',
@@ -172,25 +171,21 @@ const raw: ExperienceEntry[] = [
       width: 1200,
       height: 246,
     },
-    photos: [
-      {
-        /*
-          The ACTUAL system, not the building.
-
-          This slot previously held a photograph of an office building captioned
-          "Beauty Innovation Laboratories". Nothing in that frame showed any
-          signage or name, so the caption asserted a link the picture could not
-          support. The deck does attribute this spreadsheet to BeautyLab, and
-          this entry already describes building it — so this image is both
-          relevant and provable, while the building shot was neither.
-        */
-        src: '/images/about/beautylab-system.webp',
-        alt: 'The Beauty Innovation Laboratories customer data spreadsheet, listing brand, product, sample value, payment status and PIC columns',
-        width: 1400,
-        height: 788,
-        caption: 'Customer data management system',
-      },
-    ],
+    /**
+     * NO PHOTOGRAPHS YET, on the user's instruction: "untuk di bagian pengalaman
+     * tidak pakai foto saja (akan ditambahkan suatu saat nanti)".
+     *
+     * This array is left EMPTY rather than filled with a stand-in. The entry
+     * always did carry a system screenshot here, but that image now serves as the
+     * marketing project's own cover and gallery — where it is read at full width
+     * instead of at strip size, which is the only size at which a spreadsheet's
+     * columns are legible. Reusing it here duplicated it for no gain.
+     *
+     * The component renders the logo, the role and the description without a
+     * photo strip, so the page reads as complete. Dropping photographs back in
+     * later is an edit to this array alone.
+     */
+    photos: [],
     source: 'both',
   },
   {

@@ -77,10 +77,26 @@ const PHONE_PATTERNS = [
   /\+6289\d{8,}/,
   /89653051681/,
 ];
-const PLACEHOLDER_DOMAIN = /hamzahnaufal\.example\.com/;
+/*
+  DOMAIN SANITY — the placeholder host must be gone, and the real one present.
+
+  This started as a check that `hamzahnaufal.example.com` never reached VISIBLE
+  body text. That check went dead the moment the domain was replaced everywhere:
+  it kept passing while proving nothing, because a stale literal in a template
+  would have been caught by neither this nor anything else.
+
+  It now asserts both directions. The retired placeholder host must appear
+  NOWHERE in the output — canonical, og, body, sitemap — and every page's
+  canonical must sit on the host the site actually deploys to. A canonical URL
+  pointing at a domain that does not exist is invisible on the page and wrong in
+  every search result, which is exactly the class of defect a checker should own.
+*/
+const RETIRED_DOMAIN = /hamzahnaufal\.example\.com/;
+const LIVE_HOST = 'naufalhamzah.github.io';
 
 let phoneHits = 0;
-let domainHits = [];
+const retiredHits = [];
+const wrongHost = [];
 
 for (const file of htmlFiles) {
   const html = readFileSync(file, 'utf8');
@@ -91,15 +107,23 @@ for (const file of htmlFiles) {
       break;
     }
   }
-  // The placeholder domain is allowed in <link rel=canonical> and og:url meta,
-  // but must never appear as visible body text.
-  const bodyMatch = html.match(/<body[\s\S]*<\/body>/i);
-  if (bodyMatch && PLACEHOLDER_DOMAIN.test(bodyMatch[0])) {
-    domainHits.push(relative(DIST, file));
+
+  if (RETIRED_DOMAIN.test(html)) {
+    retiredHits.push(relative(DIST, file));
+  }
+
+  const canonical = html.match(/<link rel="canonical" href="([^"]+)"/)?.[1];
+  if (canonical && !canonical.includes(LIVE_HOST)) {
+    wrongHost.push(`${relative(DIST, file)} -> ${canonical}`);
   }
 }
-if (domainHits.length) {
-  failures.push(`Placeholder domain in VISIBLE content: ${domainHits.join(', ')}`);
+if (retiredHits.length) {
+  failures.push(
+    `Retired placeholder domain still in the output: ${retiredHits.join(', ')}`,
+  );
+}
+if (wrongHost.length) {
+  failures.push(`canonical URL on the wrong host: ${wrongHost.join('; ')}`);
 }
 
 /* ------------------------------------------------------------ per-page SEO */
