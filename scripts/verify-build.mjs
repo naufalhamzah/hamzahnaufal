@@ -110,6 +110,34 @@ for (const file of htmlFiles) {
     if (!re.test(html)) failures.push(`${rel}: missing ${label}`);
   }
 
+  /*
+    THE SOCIAL CARD MUST BE A RASTER FORMAT.
+
+    A meta tag that points at an `.svg` satisfies every other check in this file
+    and is invisible in a browser, but no scraper rasterises SVG for a link
+    preview — so the site shared a card that never appeared. The repository
+    shipped exactly that for months. Raster-only is the platform requirement,
+    so it is asserted here rather than left to review.
+  */
+  const ogImage = html.match(
+    /<meta property="og:image" content="([^"]+)"/,
+  )?.[1];
+  if (ogImage && !/\.(png|jpe?g|webp)$/i.test(ogImage)) {
+    failures.push(
+      `${rel}: og:image is not a raster format -> ${ogImage} (social scrapers do not render SVG)`,
+    );
+  }
+  /* And the file it names must actually be in the build. */
+  if (ogImage) {
+    const rel1 = ogImage.replace(/^https?:\/\/[^/]+/, '');
+    const stripped = rel1.startsWith(BASE_PATH + '/')
+      ? rel1.slice(BASE_PATH.length)
+      : rel1;
+    if (!existsSync(join(DIST, stripped.replace(/^\//, '')))) {
+      failures.push(`${rel}: og:image file missing from build -> ${ogImage}`);
+    }
+  }
+
   // Exactly one h1
   const h1s = html.match(/<h1[\s>]/g) ?? [];
   if (h1s.length !== 1) failures.push(`${rel}: expected 1 <h1>, found ${h1s.length}`);

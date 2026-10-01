@@ -12,6 +12,12 @@ export const site: SiteMeta = {
   // Used for canonical URLs, the sitemap and Open Graph tags.
   url: 'https://naufalhamzah.github.io',
   locale: 'en',
-  // TODO(you): swap for a purpose-written 1200x630 social preview image.
-  defaultOgImage: '/images/og-default.svg',
+  /*
+    The social preview card. A PNG, not the SVG that used to be here: none of
+    Facebook, WhatsApp, LinkedIn, Slack or X rasterise SVG for a link preview,
+    so an `.svg` here is a valid file that no scraper will ever show. Generated
+    by `node scripts/make-og.mjs`, which reads the name and palette from the
+    same data and tokens the site renders.
+  */
+  defaultOgImage: '/images/og-default.png',
 };

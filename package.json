@@ -12,7 +12,8 @@
     "verify": "node scripts/verify-build.mjs",
     "contrast": "node scripts/contrast.mjs",
     "placeholders": "node scripts/make-placeholders.mjs",
-    "astro": "astro"
+    "astro": "astro",
+    "og": "node scripts/make-og.mjs"
   },
   "dependencies": {
     "@astrojs/react": "^7.0.0",
