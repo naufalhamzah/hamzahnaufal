@@ -27,12 +27,6 @@ jobs:
           node-version: 22
           cache: npm
 
-      # Reads (and validates) the Pages configuration the build is deploying to.
-      # It cannot ENABLE Pages — that needs a token with admin scope — so Pages
-      # must be switched on once by hand: Settings → Pages → Source → GitHub Actions.
-      - name: Configure Pages
-        uses: actions/configure-pages@v6
-
       - name: Install dependencies
         run: npm ci
 
