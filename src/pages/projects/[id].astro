@@ -21,6 +21,7 @@ import ProjectCard from '@/components/ui/ProjectCard.astro';
 import { getProject, projectEntries, relatedProjects } from '@/data/projects';
 import { getImageDims } from '@/data/image-dims';
 import { PROJECT_CATEGORY_LABELS } from '@/types/content';
+import { asset, withBase } from '@/utils/url';
 
 export function getStaticPaths() {
   return projectEntries.map((p) => ({ params: { id: p.id } }));
@@ -88,9 +89,9 @@ const links = [
   <header class="pd-head">
     <div class="shell">
       <nav class="pd-crumbs" aria-label="Breadcrumb">
-        <a href="/" class="pd-crumb">Home</a>
+        <a href={withBase('/')} class="pd-crumb">Home</a>
         <span class="pd-crumb-sep" aria-hidden="true">/</span>
-        <a href="/projects" class="pd-crumb">Projects</a>
+        <a href={withBase('/projects')} class="pd-crumb">Projects</a>
         <span class="pd-crumb-sep" aria-hidden="true">/</span>
         <span class="pd-crumb pd-crumb--current" aria-current="page">{project.title}</span>
       </nav>
@@ -126,7 +127,7 @@ const links = [
     <div class="shell">
       <figure class="pd-figure" style={heroStyle}>
         <img
-          src={project.visual.src}
+          src={asset(project.visual.src)}
           alt={project.visual.alt}
           width={heroDims?.[0] ?? project.visual.width}
           height={heroDims?.[1] ?? project.visual.height}
@@ -255,7 +256,7 @@ const links = [
 
         <div class="pd-side-block">
           <h2 class="label pd-side-h">Back</h2>
-          <a href="/projects" class="pd-back">
+          <a href={withBase('/projects')} class="pd-back">
             <span class="pd-back-arrow" aria-hidden="true">←</span>
             <span>All projects</span>
           </a>

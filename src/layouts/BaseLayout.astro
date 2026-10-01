@@ -17,6 +17,7 @@ import Navbar from '@/components/layout/Navbar.astro';
 import Footer from '@/components/layout/Footer.astro';
 import Lightbox from '@/components/ui/Lightbox.astro';
 import { site } from '@/utils/site';
+import { withBase } from '@/utils/url';
 
 interface Props {
   title: string;
@@ -28,7 +29,9 @@ interface Props {
 const { title, description, ogImage = site.defaultOgImage, isHome = false } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
-const socialImage = new URL(ogImage, Astro.site ?? site.url).href;
+/* `ogImage` arrives as a canonical path and may be a data-layer default, so it
+   is prefixed here rather than at every call site. */
+const socialImage = new URL(withBase(ogImage), Astro.site ?? site.url).href;
 
 /**
  * JSON-LD Person markup, built ONLY from facts present in the source documents.
@@ -44,7 +47,7 @@ const jsonLd = {
   jobTitle: 'Information Systems Graduate',
   description:
     'Information Systems graduate working across data analytics, information systems, business process improvement and digital solutions.',
-  image: new URL('/images/hero/portrait.webp', Astro.site ?? site.url).href,
+  image: new URL(withBase('/images/hero/portrait.webp'), Astro.site ?? site.url).href,
   alumniOf: [{ '@type': 'CollegeOrUniversity', name: 'Universitas Negeri Semarang' }],
   knowsAbout: [
     'Information Systems',
@@ -85,8 +88,8 @@ const jsonLd = {
 
     <meta name="theme-color" content="#0d0c0b" />
 
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
+    <link rel="apple-touch-icon" href={withBase('/favicon.svg')} />
 
     <!-- Pre-paint theme bootstrap: must run before first paint to avoid a light
          flash on a dark-first site, so it stays inline and blocking. It sets the

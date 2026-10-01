@@ -27,6 +27,7 @@
  *                     either alone, and a <button> inside an <a> is invalid HTML.
  */
 import type { MediaAsset } from '@/types/content';
+import { asset } from '@/utils/url';
 
 interface Props {
   images: MediaAsset[];
@@ -165,7 +166,7 @@ const many = images.length > 1;
                   <button
                     type="button"
                     class="sl__item"
-                    data-lightbox-src={img.src}
+                    data-lightbox-src={asset(img.src)}
                     data-lightbox-alt={img.alt}
                     data-lightbox-caption={img.caption ?? img.alt}
                     aria-label={`View larger: ${img.alt}`}
@@ -173,7 +174,7 @@ const many = images.length > 1;
                     {asMockup(img) ? (
                       <span class="sl__device">
                         <img
-                          src={img.src}
+                          src={asset(img.src)}
                           alt={img.alt}
                           width={img.width}
                           height={img.height}
@@ -183,7 +184,7 @@ const many = images.length > 1;
                       </span>
                     ) : (
                       <img
-                        src={img.src}
+                        src={asset(img.src)}
                         alt={img.alt}
                         width={img.width}
                         height={img.height}
@@ -200,7 +201,7 @@ const many = images.length > 1;
                     {asMockup(img) ? (
                       <span class="sl__device">
                         <img
-                          src={img.src}
+                          src={asset(img.src)}
                           alt={img.alt}
                           width={img.width}
                           height={img.height}
@@ -210,7 +211,7 @@ const many = images.length > 1;
                       </span>
                     ) : (
                       <img
-                        src={img.src}
+                        src={asset(img.src)}
                         alt={img.alt}
                         width={img.width}
                         height={img.height}

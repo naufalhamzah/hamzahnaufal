@@ -14,6 +14,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import PageHeader from '@/components/ui/PageHeader.astro';
 import { achievementEntries } from '@/data/achievements';
 import { profile } from '@/data/profile';
+import { asset } from '@/utils/url';
 
 /** Group labels, derived from the data's own `kind` field. */
 const KIND_LABEL: Record<string, string> = {
@@ -65,7 +66,7 @@ const meta = [
                     <button
                       type="button"
                       class="aw__thumb"
-                      data-lightbox-src={a.visual.src}
+                      data-lightbox-src={asset(a.visual.src)}
                       data-lightbox-alt={a.visual.alt}
                       data-lightbox-title={a.title}
                       data-lightbox-caption={[a.year, KIND_LABEL[a.kind]]
@@ -74,7 +75,7 @@ const meta = [
                       aria-label={`View certificate: ${a.title}`}
                     >
                       <img
-                        src={a.visual.src}
+                        src={asset(a.visual.src)}
                         alt={a.visual.alt}
                         width={a.visual.width}
                         height={a.visual.height}

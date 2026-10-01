@@ -22,6 +22,7 @@
  * IMAGE BUDGET: exactly ONE photograph.
  */
 import { profile } from '@/data/profile';
+import { asset, withBase } from '@/utils/url';
 
 /** Split the name so the surname can be set in italic. */
 const parts = profile.name.trim().split(/\s+/);
@@ -91,11 +92,11 @@ const axes = profile.positioning;
         </div>
 
         <div class="hero__acts">
-          <a href="/projects" class="hero__btn hero__btn--solid">
+          <a href={withBase('/projects')} class="hero__btn hero__btn--solid">
             View selected work
             <span aria-hidden="true">→</span>
           </a>
-          <a href="/about" class="hero__btn hero__btn--ghost">About me</a>
+          <a href={withBase('/about')} class="hero__btn hero__btn--ghost">About me</a>
         </div>
       </div>
 
@@ -103,7 +104,7 @@ const axes = profile.positioning;
       <figure class="hero__figure">
         <img
           class="hero__img"
-          src={profile.portrait.src}
+          src={asset(profile.portrait.src)}
           alt={profile.portrait.alt}
           width={profile.portrait.width}
           height={profile.portrait.height}

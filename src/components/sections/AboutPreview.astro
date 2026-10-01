@@ -27,6 +27,7 @@ import { profile } from '@/data/profile';
 import { projectEntries } from '@/data/projects';
 import { experienceSorted } from '@/data/experience';
 import { publicationEntries } from '@/data/publications';
+import { withBase } from '@/utils/url';
 
 /**
  * Figures for the rail, counted from the data layer so they cannot drift out of
@@ -46,7 +47,7 @@ const stats = [
       index="01"
       eyebrow="About"
       title="Where data, process and technology meet"
-      href="/about"
+      href={withBase('/about')}
       linkLabel="See more about me"
     />
 

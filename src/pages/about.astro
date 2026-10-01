@@ -17,6 +17,7 @@ import { educationSorted } from '@/data/education';
 import { organizationsSorted, organizationGroups } from '@/data/organizations';
 import { experienceSorted } from '@/data/experience';
 import { skillGroups } from '@/data/skills';
+import { asset, withBase } from '@/utils/url';
 
 /** Education entries carry their own logos. */
 const education = educationSorted;
@@ -67,18 +68,6 @@ const interests = [
     label: 'Digital Solutions',
     text: 'Product thinking on interface and flow — the three UI/UX case studies in the portfolio come from this side of the work.',
   },
-];
-
-/**
- * CURRENT DIRECTION — where the work is heading, stated from the record.
- * Every phrase below is supported by an entry that exists: the AirNav internship
- * ([P], current), the systems and dashboard projects, and the published research.
- * Nothing is a promise about a future title or employer.
- */
-const direction = [
-  'Deepening the information-systems side of the work — currently at AirNav Indonesia as an Information Technology Administration Staff Intern, learning how air navigation services operate from an IT perspective, and building a web-based application to support company performance.',
-  'Moving further into analytics and reporting: the procurement dashboard and the marketing data system both started as questions about which decision a report should support, and that is the part of the work worth specialising in.',
-  'Keeping the research habit. The two first-author papers applied KNN and Naive Bayes to real evaluation problems — methods worth continuing, because they force a claim to be measurable.',
 ];
 
 /**
@@ -207,7 +196,7 @@ const meta = [
               <div class="ab-ed__logo">
                 {e.logo ? (
                   <img
-                    src={e.logo.src}
+                    src={asset(e.logo.src)}
                     alt={e.logo.alt}
                     width={e.logo.width ?? 120}
                     height={e.logo.height ?? 120}
@@ -282,7 +271,7 @@ const meta = [
     <div class="shell">
       <div class="ab-xp__head">
         <h2 id="ab-xp" class="label">Experience snapshot</h2>
-        <a href="/experience" class="ab-xp__more mono">Full experience →</a>
+        <a href={withBase('/experience')} class="ab-xp__more mono">Full experience →</a>
       </div>
 
       <ol class="ab-xp__list">
@@ -307,7 +296,7 @@ const meta = [
     <div class="shell">
       <div class="ab-sk__head">
         <h2 id="ab-sk" class="label">What I work with</h2>
-        <a href="/skills" class="ab-sk__more mono">All skills →</a>
+        <a href={withBase('/skills')} class="ab-sk__more mono">All skills →</a>
       </div>
 
       <ul class="ab-sk__grid">
@@ -316,25 +305,15 @@ const meta = [
     </div>
   </section>
 
-  <!-- ===================== current direction ===================== -->
-  <section class="ab-dir" aria-labelledby="ab-dir">
-    <div class="shell">
-      <h2 id="ab-dir" class="label ab-dir__h">Current direction</h2>
-      <ol class="ab-dir__list">
-        {direction.map((d) => <li class="ab-dir__item">{d}</li>)}
-      </ol>
-    </div>
-  </section>
-
   <!-- ===================== onward ===================== -->
   <section class="ab-go">
     <div class="shell ab-go__shell">
-      <a href="/experience" class="ab-go__link">
+      <a href={withBase('/experience')} class="ab-go__link">
         <span class="ab-go__label mono">Next</span>
         <span class="ab-go__title">Professional experience</span>
         <span class="ab-go__arrow" aria-hidden="true">→</span>
       </a>
-      <a href="/projects" class="ab-go__link">
+      <a href={withBase('/projects')} class="ab-go__link">
         <span class="ab-go__label mono">Also</span>
         <span class="ab-go__title">Selected projects</span>
         <span class="ab-go__arrow" aria-hidden="true">→</span>
@@ -498,7 +477,6 @@ const meta = [
   }
 
   /* ==========================================================================
-     experience snapshot / skills index / direction
      ========================================================================== */
   .ab-xp,
   .ab-sk {
@@ -609,49 +587,6 @@ const meta = [
     color: var(--fg-subtle);
     text-transform: none;
     letter-spacing: 0.02em;
-  }
-
-  .ab-dir {
-    padding-block: var(--space-section);
-    background-color: var(--band);
-    border-block: var(--hairline) solid var(--border-faint);
-  }
-
-  .ab-dir__h {
-    margin-bottom: clamp(1.25rem, 2.5vw, 1.75rem);
-  }
-
-  /*
-    The direction list is set in the display face at reading size — it is prose,
-    not a checklist, and the larger type is what keeps it from reading as a
-    to-do list. The hanging number gives it the editorial numbering the rest of
-    the page uses.
-  */
-  .ab-dir__list {
-    display: grid;
-    gap: 1.25rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    counter-reset: dir;
-  }
-
-  .ab-dir__item {
-    counter-increment: dir;
-    display: grid;
-    grid-template-columns: 2.25rem minmax(0, 1fr);
-    gap: 0 0.5rem;
-    max-width: 74ch;
-    color: var(--fg-muted);
-  }
-
-  .ab-dir__item::before {
-    content: counter(dir, decimal-leading-zero);
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    letter-spacing: 0.06em;
-    color: var(--accent);
-    padding-top: 0.35em;
   }
 
   /* ==========================================================================

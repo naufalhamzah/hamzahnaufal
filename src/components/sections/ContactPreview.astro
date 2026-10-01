@@ -11,6 +11,7 @@
  * filters disabled entries, so a hidden number cannot leak into the HTML.
  */
 import { activeContactLinks } from '@/data/profile';
+import { withBase } from '@/utils/url';
 
 const email = activeContactLinks.find((l) => l.href.startsWith('mailto:'));
 const socials = activeContactLinks.filter((l) => l !== email);
@@ -65,7 +66,7 @@ const socials = activeContactLinks.filter((l) => l !== email);
           }
         </ul>
 
-        <a href="/contact" class="ct__more mono">
+        <a href={withBase('/contact')} class="ct__more mono">
           Contact page <span aria-hidden="true">→</span>
         </a>
       </div>

@@ -6,6 +6,7 @@
 import { primaryNav, secondaryNav, activePageFor } from '@/utils/navigation';
 import { profile, activeContactLinks } from '@/data/profile';
 import { experienceLogos } from '@/data/experience';
+import { asset, withBase } from '@/utils/url';
 
 const year = new Date().getFullYear();
 const active = activePageFor(Astro.url.pathname);
@@ -32,7 +33,7 @@ const active = activePageFor(Astro.url.pathname);
                 ]}
               >
                 <img
-                  src={job.logo.src}
+                  src={asset(job.logo.src)}
                   alt={job.logo.alt}
                   width={job.logo.width ?? 200}
                   height={job.logo.height ?? 80}
@@ -58,7 +59,7 @@ const active = activePageFor(Astro.url.pathname);
         <ul class="ft__list">
           <li>
             <a
-              href="/"
+              href={withBase('/')}
               class="ft__link"
               aria-current={!active ? 'page' : undefined}>Home</a
             >
@@ -77,7 +78,7 @@ const active = activePageFor(Astro.url.pathname);
             ))
           }
           <li>
-            <a href="/contact" class="ft__link">Contact</a>
+            <a href={withBase('/contact')} class="ft__link">Contact</a>
           </li>
         </ul>
       </nav>

@@ -19,6 +19,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PageHeader from '@/components/ui/PageHeader.astro';
 import { profile, activeContactLinks } from '@/data/profile';
+import { withBase } from '@/utils/url';
 
 const email = activeContactLinks.find((l) => l.href.startsWith('mailto:'));
 const socials = activeContactLinks.filter((l) => l !== email);
@@ -109,11 +110,11 @@ const facts = [
           </dl>
 
           <div class="co__links">
-            <a href="/projects" class="co__link">
+            <a href={withBase('/projects')} class="co__link">
               <span>See the work</span>
               <span aria-hidden="true">→</span>
             </a>
-            <a href="/about" class="co__link">
+            <a href={withBase('/about')} class="co__link">
               <span>Read the background</span>
               <span aria-hidden="true">→</span>
             </a>

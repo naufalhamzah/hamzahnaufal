@@ -13,6 +13,7 @@
 import { primaryNav, secondaryNav, activePageFor } from '@/utils/navigation';
 import { profile } from '@/data/profile';
 import ThemeToggle from './ThemeToggle.astro';
+import { withBase } from '@/utils/url';
 
 const path = Astro.url.pathname;
 const active = activePageFor(path);
@@ -27,7 +28,7 @@ const activeInMore = Boolean(
 <header class="nav" id="site-nav">
   <div class="shell nav__inner">
     <!-- Identity -->
-    <a href="/" class="nav__brand" aria-label={`${profile.name} — home`}>
+    <a href={withBase('/')} class="nav__brand" aria-label={`${profile.name} — home`}>
       <span class="nav__mark" aria-hidden="true">{profile.initials}</span>
       <span class="nav__name">{profile.shortName}</span>
     </a>
@@ -36,7 +37,7 @@ const activeInMore = Boolean(
     <nav class="nav__desk" aria-label="Main">
       <ul class="nav__list">
         <li>
-          <a href="/" class="nav__link" aria-current={isHome ? 'page' : undefined}>Home</a>
+          <a href={withBase('/')} class="nav__link" aria-current={isHome ? 'page' : undefined}>Home</a>
         </li>
         {
           primaryNav.map((page) => (
@@ -93,7 +94,7 @@ const activeInMore = Boolean(
     <div class="nav__acts">
       <ThemeToggle />
 
-      <a href="/contact" class="nav__cta mono">Get in touch</a>
+      <a href={withBase('/contact')} class="nav__cta mono">Get in touch</a>
 
       <button
         type="button"
@@ -114,7 +115,7 @@ const activeInMore = Boolean(
     <nav class="panel__nav" aria-label="Main (mobile)">
       <ol class="panel__list">
         <li>
-          <a href="/" class="panel__link">
+          <a href={withBase('/')} class="panel__link">
             <span class="panel__num mono" aria-hidden="true">00</span>
             <span class="panel__body">
               <span class="panel__label">Home</span>
@@ -142,7 +143,7 @@ const activeInMore = Boolean(
           ))
         }
         <li>
-          <a href="/contact" class="panel__link">
+          <a href={withBase('/contact')} class="panel__link">
             <span class="panel__num mono" aria-hidden="true">09</span>
             <span class="panel__body">
               <span class="panel__label">Contact</span>

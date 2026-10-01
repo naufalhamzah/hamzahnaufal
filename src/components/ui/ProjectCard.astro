@@ -1,4 +1,5 @@
 ---
+import { asset, withBase } from '@/utils/url';
 /**
  * PROJECT CARD — one project.
  *
@@ -44,7 +45,7 @@ const { project, index, variant = 'wide' } = Astro.props;
 
 const num = String(index).padStart(2, '0');
 const primary = project.categories[0];
-const href = `/projects/${project.id}`;
+const href = withBase(`/projects/${project.id}`);
 
 /** Real pixel dimensions for the reserved space and intrinsic attributes. */
 const dims =
@@ -121,7 +122,7 @@ const phoneAr =
               />
             ) : (
               <img
-                src={project.visual.src}
+                src={asset(project.visual.src)}
                 alt={project.visual.alt}
                 width={dims?.[0] ?? project.visual.width}
                 height={dims?.[1] ?? project.visual.height}
@@ -145,7 +146,7 @@ const phoneAr =
           />
         ) : (
           <img
-            src={project.visual.src}
+            src={asset(project.visual.src)}
             alt={project.visual.alt}
             width={dims?.[0] ?? project.visual.width}
             height={dims?.[1] ?? project.visual.height}

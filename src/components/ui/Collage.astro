@@ -20,6 +20,7 @@
  * fixed frame, so nothing is squashed; the first item is treated as the hero.
  */
 import type { MediaAsset } from '@/types/content';
+import { asset } from '@/utils/url';
 
 interface Props {
   images: MediaAsset[];
@@ -209,14 +210,14 @@ const duoRatio = (() => {
                 <button
                   type="button"
                   class:list={['collage__cell', 'collage__cell--slide']}
-                  data-lightbox-src={img.src}
+                  data-lightbox-src={asset(img.src)}
                   data-lightbox-alt={img.alt}
                   data-lightbox-caption={img.caption ?? img.alt}
                   aria-label={`View larger: ${img.alt}`}
                 >
                   <span class="collage__device">
                     <img
-                      src={img.src}
+                      src={asset(img.src)}
                       alt={img.alt}
                       width={img.width}
                       height={img.height}
@@ -262,7 +263,7 @@ const duoRatio = (() => {
                   i === 0 && 'collage__cell--lead',
                   img.fit === 'contain' && 'collage__cell--contain',
                 ]}
-                data-lightbox-src={img.src}
+                data-lightbox-src={asset(img.src)}
                 data-lightbox-alt={img.alt}
                 data-lightbox-caption={img.caption ?? img.alt}
                 aria-label={`View larger: ${img.alt}`}
@@ -270,7 +271,7 @@ const duoRatio = (() => {
                 {asMockup(img) ? (
                   <span class="collage__device">
                     <img
-                      src={img.src}
+                      src={asset(img.src)}
                       alt={img.alt}
                       width={img.width}
                       height={img.height}
@@ -280,7 +281,7 @@ const duoRatio = (() => {
                   </span>
                 ) : (
                   <img
-                    src={img.src}
+                    src={asset(img.src)}
                     alt={img.alt}
                     width={img.width}
                     height={img.height}
@@ -305,13 +306,13 @@ const duoRatio = (() => {
                 'collage__cell--small',
                 img.fit === 'contain' && 'collage__cell--contain',
               ]}
-              data-lightbox-src={img.src}
+              data-lightbox-src={asset(img.src)}
               data-lightbox-alt={img.alt}
               data-lightbox-caption={img.caption ?? img.alt}
               aria-label={`View larger: ${img.alt}`}
             >
               <img
-                src={img.src}
+                src={asset(img.src)}
                 alt={img.alt}
                 width={img.width}
                 height={img.height}

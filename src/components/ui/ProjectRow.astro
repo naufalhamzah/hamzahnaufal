@@ -47,6 +47,7 @@
 import type { ProjectEntry, MediaAsset } from '@/types/content';
 import { PROJECT_CATEGORY_LABELS } from '@/types/content';
 import { getImageDims } from '@/data/image-dims';
+import { asset, withBase } from '@/utils/url';
 
 interface Props {
   project: ProjectEntry;
@@ -59,7 +60,7 @@ interface Props {
 const { project, index, side = 'left' } = Astro.props;
 
 const num = String(index).padStart(2, '0');
-const href = `/projects/${project.id}`;
+const href = withBase(`/projects/${project.id}`);
 const primary = project.categories[0];
 
 /** Every image, hero first, de-duplicated — the hero is never repeated. */
@@ -146,13 +147,13 @@ const thumbFit = (m: MediaAsset) => {
                     <button
                       type="button"
                       class:list={['ph__item', i === 0 && 'ph__item--lead']}
-                      data-lightbox-src={img.src}
+                      data-lightbox-src={asset(img.src)}
                       data-lightbox-alt={img.alt}
                       data-lightbox-caption={img.caption ?? img.alt}
                       aria-label={`View larger: ${img.alt}`}
                     >
                       <img
-                        src={img.src}
+                        src={asset(img.src)}
                         alt={img.alt}
                         width={d?.[0] ?? img.width}
                         height={d?.[1] ?? img.height}
@@ -205,7 +206,7 @@ const thumbFit = (m: MediaAsset) => {
               ]}
             >
               <img
-                src={hero.src}
+                src={asset(hero.src)}
                 alt={hero.alt}
                 width={dims?.[0] ?? hero.width}
                 height={dims?.[1] ?? hero.height}
@@ -226,7 +227,7 @@ const thumbFit = (m: MediaAsset) => {
                   return (
                     <figure class:list={['pr__thumb', thumbFit(img) === 'contain' && 'pr__thumb--contain']}>
                       <img
-                        src={img.src}
+                        src={asset(img.src)}
                         alt={img.alt}
                         width={d?.[0] ?? img.width}
                         height={d?.[1] ?? img.height}

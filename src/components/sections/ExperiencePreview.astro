@@ -10,6 +10,7 @@
  */
 import SectionHead from '@/components/ui/SectionHead.astro';
 import { experienceSorted } from '@/data/experience';
+import { withBase } from '@/utils/url';
 
 /** A short preview: the four most recent roles. */
 const preview = experienceSorted.slice(0, 4);
@@ -22,7 +23,7 @@ const preview = experienceSorted.slice(0, 4);
       eyebrow="Experience"
       title="Where I have worked"
       lede="Professional roles across aviation IT, manufacturing, and beauty-industry data — plus the editorial work alongside them."
-      href="/experience"
+      href={withBase('/experience')}
       linkLabel="See more experience"
       note={`${experienceSorted.length} roles`}
     />

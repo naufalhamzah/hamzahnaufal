@@ -17,6 +17,7 @@ import ShotSlider from '@/components/ui/ShotSlider.astro';
 import { experienceSorted, currentExperience } from '@/data/experience';
 import { organizationsSorted, organizationGroups } from '@/data/organizations';
 import { profile } from '@/data/profile';
+import { asset } from '@/utils/url';
 
 const roles = experienceSorted;
 const orgGroups = organizationGroups.map((g) => ({
@@ -61,7 +62,7 @@ const meta = [
                 {job.logo ? (
                   <span class="xp__logo">
                     <img
-                      src={job.logo.src}
+                      src={asset(job.logo.src)}
                       alt={job.logo.alt}
                       width={job.logo.width ?? 200}
                       height={job.logo.height ?? 80}

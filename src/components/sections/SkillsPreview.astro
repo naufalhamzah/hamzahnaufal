@@ -14,6 +14,7 @@
 import SectionHead from '@/components/ui/SectionHead.astro';
 import SkillTile from '@/components/ui/SkillTile.astro';
 import { skillGroups, totalSkills } from '@/data/skills';
+import { withBase } from '@/utils/url';
 
 /**
  * Curated by name. A new skill added to `skills.ts` appears on /skills
@@ -47,7 +48,7 @@ const selected = SELECTED.map((n) => byName.get(n)).filter(Boolean);
       eyebrow="Skills"
       title="Tools I work with"
       lede="Analytics and visualisation, programming and databases, modelling, process work, design, and everyday tooling."
-      href="/skills"
+      href={withBase('/skills')}
       linkLabel="See more skills"
       note={`${totalSkills} entries`}
     />

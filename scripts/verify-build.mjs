@@ -22,6 +22,22 @@ import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
 const DIST = join(process.cwd(), 'dist');
+
+/*
+  THE DEPLOY BASE — read from the one config that defines it.
+
+  GitHub Pages publishes this repository as a PROJECT site, so the URLs in the
+  built HTML carry a `/naufalhamzah` prefix that the files in `dist/` do not:
+  GitHub adds it at serve time. Every existence check below therefore strips it
+  before looking a path up on disk. Deriving it from `astro.config.mjs` rather
+  than repeating the literal keeps the checker honest if the site ever moves to
+  the domain root (set `BASE_PATH = ''` and these become no-ops).
+*/
+const BASE_PATH = (await import('../astro.config.mjs')).BASE_PATH.replace(
+  /\/+$/,
+  '',
+);
+
 const failures = [];
 const notes = [];
 
@@ -141,9 +157,23 @@ for (const file of htmlFiles) {
     const clean = href.split('#')[0].split('?')[0];
     if (!clean) continue;
 
-    const candidates = clean.endsWith('/')
-      ? [`${clean}index.html`, clean.slice(0, -1)]
-      : [clean, `${clean}/index.html`];
+    /*
+      Strip the deploy base first. GitHub Pages publishes this repository as a
+      PROJECT site, so every generated URL carries the repo name as a prefix
+      (`/naufalhamzah/about`), while the built tree in `dist/` holds `about/`
+      at its root — GitHub adds the prefix when serving, not the build. Checking
+      the prefixed path against `dist/` reported every link on the site as
+      broken, which is a fault in this checker, not in the output.
+    */
+    const route = clean.startsWith(BASE_PATH + '/')
+      ? clean.slice(BASE_PATH.length)
+      : clean === BASE_PATH
+        ? '/'
+        : clean;
+
+    const candidates = route.endsWith('/')
+      ? [`${route}index.html`, route.slice(0, -1)]
+      : [route, `${route}/index.html`];
 
     const ok = candidates.some((c) => existingPaths.has(c));
     if (!ok) {
@@ -162,7 +192,12 @@ for (const file of htmlFiles) {
   const srcs = [...html.matchAll(/<img\b[^>]*\bsrc="([^"]+)"/g)].map((m) => m[1]);
   for (const src of srcs) {
     if (/^(https?:|data:)/.test(src)) continue;
-    const p = join(DIST, src.replace(/^\//, ''));
+    /* Same base-stripping as the link check above — the prefix is added by
+       GitHub Pages at serve time, not written into `dist/`. */
+    const stripped = src.startsWith(BASE_PATH + '/')
+      ? src.slice(BASE_PATH.length)
+      : src;
+    const p = join(DIST, stripped.replace(/^\//, ''));
     if (!existsSync(p)) {
       brokenImages++;
       failures.push(`${relative(DIST, file)}: missing image file -> ${src}`);
@@ -211,7 +246,11 @@ for (const file of htmlFiles) {
       rawRefs++;
       failures.push(`${relative(DIST, file)}: references raw konten asset -> ${src}`);
     }
-    const p = join(DIST, src.replace(/^\//, ''));
+    /* Strip the deploy base before touching disk — see the note at the top. */
+    const stripped = src.startsWith(BASE_PATH + '/')
+      ? src.slice(BASE_PATH.length)
+      : src;
+    const p = join(DIST, stripped.replace(/^\//, ''));
     if (existsSync(p)) {
       const kb = statSync(p).size / 1024;
       if (kb > 400) heavyAssets.push(`${src} (${kb.toFixed(0)} kB)`);
@@ -229,8 +268,13 @@ for (const file of htmlFiles) {
   const html = readFileSync(file, 'utf8');
   const srcs = [...html.matchAll(/<img\b[^>]*\bsrc="([^"]+)"/g)].map((m) => m[1]);
   for (const src of srcs) {
-    if (src.includes('/placeholders/')) placeholderRefs++;
-    else if (src.startsWith('/images/')) realRefs++;
+    /* Compared against the route, not the deployed URL, so the base prefix
+       cannot make every real image count as a placeholder. */
+    const route = src.startsWith(BASE_PATH + '/')
+      ? src.slice(BASE_PATH.length)
+      : src;
+    if (route.includes('/placeholders/')) placeholderRefs++;
+    else if (route.startsWith('/images/')) realRefs++;
   }
 }
 notes.push(`Real images referenced: ${realRefs}`);

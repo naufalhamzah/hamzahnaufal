@@ -22,6 +22,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import PageHeader from '@/components/ui/PageHeader.astro';
 import { galleryEntries, galleryByCollection } from '@/data/gallery';
 import { profile } from '@/data/profile';
+import { asset } from '@/utils/url';
 
 /**
  * Two collections are DEFINED (campus and internship); reading the count of
@@ -89,13 +90,13 @@ const meta = [
                 <button
                   type="button"
                   class:list={['gl__item', i === 0 && 'gl__item--feature']}
-                  data-lightbox-src={g.visual.src}
+                  data-lightbox-src={asset(g.visual.src)}
                   data-lightbox-alt={g.visual.alt}
                   data-lightbox-caption={g.caption}
                   aria-label={`View larger: ${g.visual.alt}`}
                 >
                   <img
-                    src={g.visual.src}
+                    src={asset(g.visual.src)}
                     alt={g.visual.alt}
                     width={g.visual.width}
                     height={g.visual.height}

@@ -24,6 +24,7 @@
 import SectionHead from '@/components/ui/SectionHead.astro';
 import FeaturedRail from '@/components/ui/FeaturedRail.astro';
 import { featuredProjects, projectEntries } from '@/data/projects';
+import { withBase } from '@/utils/url';
 
 /**
  * Master-list indices, so the "01 / 02 / 03" the rail shows is the SAME number
@@ -42,7 +43,7 @@ const indices = featuredProjects.map(
       eyebrow="Selected Work"
       title="Projects I have built and researched"
       lede="A marketing data system built from scratch, a procurement monitoring dashboard, and a funded smart-farming research programme — three different kinds of work."
-      href="/projects"
+      href={withBase('/projects')}
       linkLabel="See more projects"
       note={`${projectEntries.length} total`}
       emphasis

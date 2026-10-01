@@ -10,6 +10,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import PageHeader from '@/components/ui/PageHeader.astro';
 import { publicationsSorted, firstAuthorPublications } from '@/data/publications';
 import { profile } from '@/data/profile';
+import { asset } from '@/utils/url';
 
 const meta = [
   { label: 'Papers', value: String(publicationsSorted.length) },
@@ -46,14 +47,14 @@ const meta = [
                 <button
                   type="button"
                   class="pb__cover-btn"
-                  data-lightbox-src={p.visual.src}
+                  data-lightbox-src={asset(p.visual.src)}
                   data-lightbox-alt={p.visual.alt}
                   data-lightbox-title={p.title}
                   data-lightbox-caption={`${p.venue} · ${p.year}`}
                   aria-label={`View cover: ${p.title}`}
                 >
                   <img
-                    src={p.visual.src}
+                    src={asset(p.visual.src)}
                     alt={p.visual.alt}
                     width={p.visual.width}
                     height={p.visual.height}
@@ -162,14 +163,14 @@ const meta = [
                           <button
                             type="button"
                             class="pb__page"
-                            data-lightbox-src={g.src}
+                            data-lightbox-src={asset(g.src)}
                             data-lightbox-alt={g.alt}
                             data-lightbox-title={p.title}
                             data-lightbox-caption={g.caption ?? g.alt}
                             aria-label={`View page: ${g.alt}`}
                           >
                             <img
-                              src={g.src}
+                              src={asset(g.src)}
                               alt={g.alt}
                               width={g.width}
                               height={g.height}

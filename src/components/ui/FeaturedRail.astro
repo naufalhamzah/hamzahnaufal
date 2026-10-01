@@ -39,6 +39,7 @@ import type { ProjectEntry, MediaAsset } from '@/types/content';
 import { PROJECT_CATEGORY_LABELS } from '@/types/content';
 import { getImageDims } from '@/data/image-dims';
 import ShotSlider from './ShotSlider.astro';
+import { asset, withBase } from '@/utils/url';
 
 interface Props {
   projects: ProjectEntry[];
@@ -67,7 +68,7 @@ const many = projects.length > 1;
         aria-label={`${label} — ${projects.length} projects`}
       >
         {projects.map((project, i) => {
-          const href = `/projects/${project.id}`;
+          const href = withBase(`/projects/${project.id}`);
           const num = String(indices[i] ?? i + 1).padStart(2, '0');
           const primary = project.categories[0];
 
@@ -114,7 +115,7 @@ const many = projects.length > 1;
                       />
                     ) : (
                       <img
-                        src={project.visual.src}
+                        src={asset(project.visual.src)}
                         alt={project.visual.alt}
                         width={dims?.[0] ?? project.visual.width}
                         height={dims?.[1] ?? project.visual.height}

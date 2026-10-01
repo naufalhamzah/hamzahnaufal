@@ -6,6 +6,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { navPages } from '@/utils/navigation';
 import { profile } from '@/data/profile';
+import { withBase } from '@/utils/url';
 ---
 
 <BaseLayout
@@ -25,7 +26,7 @@ import { profile } from '@/data/profile';
 
       <ul class="nf__list">
         <li>
-          <a href="/" class="nf__link">
+          <a href={withBase('/')} class="nf__link">
             <span class="mono nf__num" aria-hidden="true">00</span>
             <span class="nf__label">Home</span>
             <span class="nf__note mono">Professional overview</span>

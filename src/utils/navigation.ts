@@ -16,6 +16,8 @@
  * footer all follow the same decision.
  */
 
+import { withBase, stripBase } from './url';
+
 export interface NavPage {
   /** Route path, e.g. '/projects'. */
   href: string;
@@ -45,51 +47,51 @@ export interface HomeSection {
  */
 const ALL_PAGES: NavPage[] = [
   {
-    href: '/about',
+    href: withBase('/about'),
     label: 'About',
     blurb: 'Background, focus areas and how I work',
     primary: true,
   },
   {
-    href: '/projects',
+    href: withBase('/projects'),
     label: 'Projects',
     blurb: 'Systems, dashboards and research work',
     primary: true,
   },
   {
-    href: '/experience',
+    href: withBase('/experience'),
     label: 'Experience',
     blurb: 'Professional and organisational experience',
     primary: true,
   },
   {
-    href: '/skills',
+    href: withBase('/skills'),
     label: 'Skills',
     blurb: 'Tools and methods I work with',
     primary: true,
   },
   {
-    href: '/publications',
+    href: withBase('/publications'),
     label: 'Publications',
     blurb: 'Peer-reviewed research and articles',
   },
   {
-    href: '/certifications',
+    href: withBase('/certifications'),
     label: 'Certifications',
     blurb: 'Courses, credentials and programme certificates',
   },
   {
-    href: '/achievements',
+    href: withBase('/achievements'),
     label: 'Achievements',
     blurb: 'Awards, competitions and programme funding',
   },
   {
-    href: '/gallery',
+    href: withBase('/gallery'),
     label: 'Gallery',
     blurb: 'Selected moments from activities and events',
   },
   {
-    href: '/contact',
+    href: withBase('/contact'),
     label: 'Contact',
     blurb: 'Get in touch',
     hidden: true, // rendered as the navbar CTA instead of a nav link
@@ -124,7 +126,9 @@ export const homeSections: HomeSection[] = [
  * /projects/marketing-data-system still highlights /projects.
  */
 export function activePageFor(pathname: string): NavPage | undefined {
-  const clean = pathname.replace(/\/+$/, '') || '/';
+  /* `Astro.url.pathname` carries the deploy base, so strip it before matching
+     against the route paths — otherwise no nav item is ever marked current. */
+  const clean = stripBase(pathname).replace(/\/+$/, '') || '/';
   const exact = navPages.find((p) => p.href === clean);
   if (exact) return exact;
   return navPages.find((p) => p.href !== '/' && clean.startsWith(p.href));
