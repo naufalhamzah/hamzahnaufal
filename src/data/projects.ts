@@ -403,32 +403,78 @@ const raw: ProjectEntry[] = [
     outcomes: [],
     tools: ['Figma', 'Canva', 'UI/UX design', 'User flow', 'Prototyping', 'Accessibility'],
     visual: {
-      src: '/images/projects/wellmind-2.webp',
-      alt: 'WellMind app showing the list of licensed mental health professionals',
-      width: 473,
-      height: 972,
+      src: '/images/projects/wellmind-home.webp',
+      alt: 'WellMind home screen with shortcuts for online consultation, psychologist search and a mental health helpline, above recommended psychologists and health articles',
+      width: 1000,
+      height: 2049,
     },
+    /*
+      SEVEN SCREENS, IN THE ORDER A USER MEETS THEM.
+
+      The previous set was three captures of one list, one article and one splash
+      screen — enough to show the app exists, not enough to show what it does.
+      These seven cover the whole product: sign-up, home, the psychologist
+      directory and profile, the location view, and the mood tracker in both its
+      states.
+
+      The file names they arrived with carried no usable order — `Mockup WellMind
+      (4)` is the directory while `(5)` is a single profile, and the unnumbered
+      file is the sign-up screen rather than the home screen — so each name below
+      was read off the rendered image instead.
+
+      The mood tracker is the one feature with TWO screens (writing an entry,
+      reading the log). Both are kept: a single screen would have shown the
+      feature without showing that entries persist.
+    */
     gallery: [
       {
-        src: '/images/projects/wellmind-2.webp',
-        alt: 'WellMind counsellor listing screen',
-        width: 473,
-        height: 972,
-        caption: 'Counsellor listing',
+        src: '/images/projects/wellmind-akun.webp',
+        alt: 'WellMind sign-up screen offering registration by phone number or with a Google account',
+        width: 1000,
+        height: 2049,
+        caption: 'Sign up',
       },
       {
-        src: '/images/projects/wellmind-3.webp',
-        alt: 'WellMind article and education screen',
-        width: 473,
-        height: 972,
-        caption: 'Educational content',
+        src: '/images/projects/wellmind-home.webp',
+        alt: 'WellMind home screen with service shortcuts, recommended psychologists and health articles',
+        width: 1000,
+        height: 2049,
+        caption: 'Home',
       },
       {
-        src: '/images/projects/wellmind-1.webp',
-        alt: 'WellMind splash screen',
-        width: 473,
-        height: 972,
-        caption: 'App entry screen',
+        src: '/images/projects/wellmind-cari.webp',
+        alt: 'WellMind psychologist directory listing practitioners with ratings, consultation counts and fees in rupiah',
+        width: 1000,
+        height: 2049,
+        caption: 'Find a psychologist',
+      },
+      {
+        src: '/images/projects/wellmind-profil.webp',
+        alt: 'WellMind psychologist profile with patient count, years of experience, rating, working hours and a review',
+        width: 1000,
+        height: 2049,
+        caption: 'Psychologist profile',
+      },
+      {
+        src: '/images/projects/wellmind-peta.webp',
+        alt: 'WellMind map view locating a nearby psychology practice with its address, rating, travel time and booking button',
+        width: 1000,
+        height: 2049,
+        caption: 'Psychologists nearby',
+      },
+      {
+        src: '/images/projects/wellmind-mood-isi.webp',
+        alt: 'WellMind mood tracker asking how the user feels today, with mood choices and a free-text note field',
+        width: 1000,
+        height: 2049,
+        caption: 'Mood tracker — new entry',
+      },
+      {
+        src: '/images/projects/wellmind-mood-catatan.webp',
+        alt: 'WellMind mood tracker log listing saved entries by date and month, each tagged with the recorded mood',
+        width: 1000,
+        height: 2049,
+        caption: 'Mood tracker — saved log',
       },
     ],
     link: {

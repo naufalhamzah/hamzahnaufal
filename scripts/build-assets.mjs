@@ -233,9 +233,32 @@ const RECIPES = [
   ['Mockup Guzelev - Home.png', 'projects/guzelev-home.webp', { w: 1000, q: Q.shot, trim: true }],
   ['Mockup Guzelev - Shop.png', 'projects/guzelev-shop.webp', { w: 1000, q: Q.shot, trim: true }],
   ['Mockup Guzelev - AR View.png', 'projects/guzelev-ar.webp', { w: 1000, q: Q.shot, trim: true }],
-  ['Gambaran Project WellMind (1).png', 'projects/wellmind-1.webp', { w: 1000, q: Q.shot , trimWhiteMargin: {} }],
-  ['Gambaran Project WellMind (2).png', 'projects/wellmind-2.webp', { w: 1000, q: Q.shot , trimWhiteMargin: {} }],
-  ['Gambaran Project WellMind (3).png', 'projects/wellmind-3.webp', { w: 1000, q: Q.shot , trimWhiteMargin: {} }],
+  /* ---------------------------- PROJECT: UI/UX --------------------------
+     WELLMIND — superseded. The previous three were 473x972 captures of a list,
+     an article and a splash; these seven are one capture per screen of the
+     actual flow at 2250x3375, so the gallery documents the product instead of
+     sampling it.
+
+     MATTED, NOT WHITE-BACKED: measured, each file carries 311 fully transparent
+     pixels of padding left and right (the same export preset as the Guzelev set),
+     so the step that removes it is `trim` — cropping to the alpha bounding box.
+     `trimWhiteMargin` would be actively wrong here: the white in these files IS
+     the device bezel and the app's own surfaces, and a white-border crop would
+     cut the phone in half.
+
+     Named by SCREEN, not by the number they arrived with. The delivered
+     filenames ran `Mockup WellMind.png` … `(6).png`, and that order is not the
+     order of the flow — (4) is the psychologist list while (5) is a single
+     profile, and (0) is the sign-up screen, not the home screen. Every name here
+     was read off the rendered image.
+     -------------------------------------------------------------------- */
+  ['Mockup WellMind - Buat Akun.png', 'projects/wellmind-akun.webp', { w: 1000, q: Q.shot, trim: true }],
+  ['Mockup WellMind - Home.png', 'projects/wellmind-home.webp', { w: 1000, q: Q.shot, trim: true }],
+  ['Mockup WellMind - Mood Tracker Isi.png', 'projects/wellmind-mood-isi.webp', { w: 1000, q: Q.shot, trim: true }],
+  ['Mockup WellMind - Mood Tracker Catatan.png', 'projects/wellmind-mood-catatan.webp', { w: 1000, q: Q.shot, trim: true }],
+  ['Mockup WellMind - Cari Psikolog.png', 'projects/wellmind-cari.webp', { w: 1000, q: Q.shot, trim: true }],
+  ['Mockup WellMind - Profil Psikolog.png', 'projects/wellmind-profil.webp', { w: 1000, q: Q.shot, trim: true }],
+  ['Mockup WellMind - Psikolog Sekitar.png', 'projects/wellmind-peta.webp', { w: 1000, q: Q.shot, trim: true }],
   ['Gambaran Project Kedai Nyam (1).png', 'projects/kedai-nyam-1.webp', { w: 1500, q: Q.shot , trimWhiteMargin: {} }],
   ['Gambaran Project Kedai Nyam (2).png', 'projects/kedai-nyam-2.webp', { w: 1000, q: Q.shot , trimWhiteMargin: {} }],
   ['Gambaran Project Kedai Nyam (3).png', 'projects/kedai-nyam-3.webp', { w: 1000, q: Q.shot , trimWhiteMargin: {} }],

@@ -470,12 +470,20 @@ const duoRatio = (() => {
      interface inside is unreadable. Equal columns at the phone's own ratio is the
      only composition that keeps a screen legible.
 
-     FLEX, NOT A FIXED COLUMN COUNT, and the difference matters here. A grid of
-     `1fr` tracks makes a row of three phones as wide as the page, which at a
-     0.49 ratio means each one renders ~380x780 — larger than the section heading
-     and taller than the viewport. A flex row with a bounded basis keeps every
-     phone at a readable, CONSISTENT size whether the gallery holds three screens
-     or four, and simply wraps as the page narrows.
+     NO GROWTH, AND THAT IS THE WHOLE POINT.
+
+     A first attempt used `flex: 1 1 12rem` (grow enabled). Measured on a
+     six-screen gallery at desktop width: FIVE cells fitted the first row and grew
+     only to 219x449, while the single leftover cell grew to the 17rem cap and
+     rendered 272x557. Two different sizes in one gallery — the exact
+     inconsistency this site has been fixed for twice before, reintroduced by a
+     flex default.
+
+     `flex: 0 1 <basis>` removes growth, so every cell is its basis size and a
+     short row simply keeps the same measure as a full one. Wrapping then only
+     changes how many fit per row, never how big they are. The basis is tuned per
+     breakpoint so each row holds a sensible number: two on a phone, three or
+     four as the measure opens up.
      -------------------------------------------------------------------- */
   .collage--screens .collage__grid {
     display: flex;
@@ -485,12 +493,24 @@ const duoRatio = (() => {
   }
 
   .collage--screens .collage__cell {
-    /* Grows to fill a short row, but never past 17rem — beyond that a phone
-       screen is bigger than the interface inside it needs to be. */
-    flex: 1 1 12rem;
+    flex: 0 1 9.5rem;
     min-width: 0;
-    max-width: 17rem;
     aspect-ratio: var(--uniform-ratio, 9 / 19.5);
+  }
+
+  @media (min-width: 560px) {
+    .collage--screens .collage__cell {
+      flex-basis: 12rem;
+    }
+  }
+
+  @media (min-width: 1000px) {
+    .collage--screens .collage__cell {
+      /* 17rem is the largest a phone screen should render here: past that the
+         shell is wider than the interface inside it needs to be, and four of
+         them no longer fit a full-measure row. */
+      flex-basis: 17rem;
+    }
   }
 
   /* ---------------- 4+ mixed: lead + 2 stacked, then a row ----------------
