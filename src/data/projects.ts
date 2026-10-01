@@ -16,7 +16,7 @@ import { projectListSchema } from './schemas';
 import type { ProjectEntry } from '@/types/content';
 
 const raw: ProjectEntry[] = [
-  /* ======================= TIER 1 — FEATURED ============================ */
+  /* ==================== SYSTEMS & DATA (the core systems) =============== */
   {
     id: 'marketing-data-system',
     title: 'Marketing Data Management System',
@@ -231,81 +231,7 @@ const raw: ProjectEntry[] = [
       'Dates conflict between documents (Feb–Dec 2024 vs Jun–Nov 2024). Only the year is shown until confirmed.',
   },
 
-  /* ======================= TIER 2 — RESEARCH ============================ */
-  {
-    id: 'knn-creditworthiness',
-    title: 'KNN Creditworthiness Evaluation',
-    subtitle: 'Case study on Bank ABC',
-    categories: ['research', 'data'],
-    role: 'First author',
-    dateRange: '2024',
-    year: '2024',
-    sortKey: '2024-03',
-    tagline:
-      'Applying the K-Nearest Neighbors algorithm to creditworthiness evaluation in the banking sector.',
-    context:
-      'A published study applying K-Nearest Neighbors to creditworthiness evaluation, using a bank case study. Hamzah Naufal Zuhdi is the first author.',
-    approach: [
-      'Applied the K-Nearest Neighbors algorithm to creditworthiness classification',
-      'Evaluated model performance using a confusion matrix',
-      'Wrote the study as first author with Budi Prasetyo',
-    ],
-    outcomes: [
-      'Reported accuracy of 93.33%–95.00% across the tested K values',
-      'Published in IJIRSE Vol. 4 No. 1, Maret 2024, pp. 40–46',
-    ],
-    tools: ['K-Nearest Neighbors', 'Python', 'Confusion matrix', 'Model evaluation', 'Classification', 'Academic writing'],
-    visual: {
-      /*
-        The paper's OWN first page — its header carries the volume, issue, pages
-        and ISSN, so the image is evidence of the record rather than decoration.
-        (An earlier version pointed at the issue COVER, which identifies the issue
-        but not the article.)
-      */
-      src: '/images/publications/ijirse-article-knn.webp',
-      alt: 'First page of the KNN creditworthiness paper, headed IJIRSE Vol. 4 No. 1, Maret 2024, pp. 40–46',
-      fit: 'contain',
-      width: 1194,
-      height: 1686,
-    },
-    featured: false,
-    source: 'portfolio',
-  },
-  {
-    id: 'naive-bayes-ipusnas',
-    title: 'Naive Bayes Sentiment Analysis',
-    subtitle: 'iPusnas app reviews on Google Play Store',
-    categories: ['research', 'data'],
-    role: 'First author',
-    dateRange: '2025',
-    year: '2025',
-    sortKey: '2025-03',
-    tagline:
-      'Sentiment classification of iPusnas application reviews using a Naive Bayes classifier.',
-    context:
-      'A published sentiment analysis of user reviews for the iPusnas digital library application on the Google Play Store, using a Naive Bayes classifier. Hamzah Naufal Zuhdi is the first author.',
-    approach: [
-      'Applied a Naive Bayes classifier to review sentiment',
-      'Evaluated the model with an 80:20 train–test split',
-      'Wrote the study as first author with Budi Prasetyo',
-    ],
-    outcomes: [
-      'Reported a 75% F1-score on an 80:20 data split',
-      'Published in IJIRSE Vol. 5 No. 1, Maret 2025, pp. 12–19',
-    ],
-    tools: ['Naive Bayes', 'Python', 'Sentiment analysis', 'Text preprocessing', 'Train–test split', 'Academic writing'],
-    visual: {
-      src: '/images/publications/ijirse-article-nb.webp',
-      alt: 'First page of the iPusnas sentiment analysis paper, headed IJIRSE Vol. 5 No. 1, Maret 2025, pp. 12–19',
-      fit: 'contain',
-      width: 1194,
-      height: 1686,
-    },
-    featured: false,
-    source: 'portfolio',
-  },
-
-  /* ========================= TIER 3 — UI/UX ============================= */
+  /* ========================= UI/UX PRODUCT DESIGN ======================= */
   {
     id: 'guzelev',
     title: 'Guzelev',
@@ -604,11 +530,10 @@ export const projectsSorted = [...projectEntries].sort((a, b) => {
  *   1. the dashboard    — the most complete case study (a real system, in use)
  *   2. the UI/UX set    — product design across three different products
  *   3. the BeautyLab system — the from-scratch build
- *   4. everything else  — the published research
  *
  * WHY NOT SORT BY DATE OR CATEGORY
  * Sorting by date put the newest first, which buried the UI/UX work entirely.
- * Grouping by category clustered three data/systems projects at the top, so the
+ * Grouping by category clustered the data/systems projects at the top, so the
  * opening row showed one kind of work repeated. This list is the honest answer:
  * a deliberate editorial order, stated as such rather than dressed up as an
  * algorithm. Anything not named here keeps its recency order at the end, so
@@ -629,8 +554,15 @@ export const projectsInterleaved = [
   ),
   // Then everything else, newest first — including any project added later.
   ...projectsSorted.filter((p) => !PRIORITY.includes(p.id)),
-];/**
+];
+
+/**
  * The homepage's three selected projects.
+ *
+ * The PROJECTS list holds work that was BUILT — systems, dashboards and product
+ * design. The two published papers deliberately do NOT appear here: they have
+ * their own `publications.ts` record and their own page, and duplicating them made
+ * the same article appear twice on the site under two different ids.
  *
  * NOT simply "the newest three" and not simply every `featured` entry. Both of
  * those were all systems/data work — the marketing system, the procurement
@@ -639,9 +571,9 @@ export const projectsInterleaved = [
  * appeared at all.
  *
  * The selection below is chosen to show the RANGE of the work: two data systems
- * and one published research programme. `featured` still marks which entries
- * have the depth for a large card; this list decides which of them the homepage
- * actually spends its image budget on.
+ * and one research programme. `featured` still marks which entries have the depth
+ * for a large card; this list decides which of them the homepage actually spends
+ * its image budget on.
  *
  * Order is deliberate, and it is the order the user asked for: the marketing
  * data system, then the procurement monitoring dashboard, then the smart-farming
