@@ -24,19 +24,30 @@ import { join, relative } from 'node:path';
 const DIST = join(process.cwd(), 'dist');
 
 /*
-  THE DEPLOY BASE — read from the one config that defines it.
+  THE DEPLOY BASE — DETECTED FROM THE BUILD, NOT DECLARED HERE.
 
-  GitHub Pages publishes this repository as a PROJECT site, so the URLs in the
-  built HTML carry a `/naufalhamzah` prefix that the files in `dist/` do not:
-  GitHub adds it at serve time. Every existence check below therefore strips it
-  before looking a path up on disk. Deriving it from `astro.config.mjs` rather
-  than repeating the literal keeps the checker honest if the site ever moves to
-  the domain root (set `BASE_PATH = ''` and these become no-ops).
+  GitHub Pages publishes this repository as a PROJECT site, so a production
+  build prefixes every URL with `/naufalhamzah` while the files in `dist/` sit at
+  its root; GitHub adds the prefix at serve time. Every existence check below
+  therefore has to strip it before looking a path up on disk.
+
+  The base cannot be read from `astro.config.mjs`, because that value depends on
+  the environment: it is set when building for a deploy and empty for a local
+  build. Reading the config made this checker disagree with the `dist/` it was
+  inspecting — a production build was reported as having no images at all.
+
+  So it is read back from the output. Astro prefixes its own bundled assets
+  unconditionally, so the first stylesheet URL states the base the build was made
+  with. Self-describing beats repeating a value, and it stays correct for a local
+  build (no prefix, base '') and a deploy build (prefix present) alike.
 */
-const BASE_PATH = (await import('../astro.config.mjs')).BASE_PATH.replace(
-  /\/+$/,
-  '',
-);
+const BASE_PATH = (() => {
+  const entry = join(DIST, 'index.html');
+  if (!existsSync(entry)) return '';
+  const html = readFileSync(entry, 'utf8');
+  const m = html.match(/(?:href|src)="([^"]*)\/_astro\//);
+  return m ? m[1].replace(/\/+$/, '') : '';
+})();
 
 const failures = [];
 const notes = [];
