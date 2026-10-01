@@ -13,7 +13,8 @@
     "contrast": "node scripts/contrast.mjs",
     "astro": "astro",
     "og": "node scripts/make-og.mjs",
-    "test": "node scripts/test-skills-filter.mjs"
+    "test": "node scripts/test-skills-filter.mjs",
+    "favicon": "node scripts/make-favicon.mjs"
   },
   "dependencies": {
     "@astrojs/react": "^7.0.0",

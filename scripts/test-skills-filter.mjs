@@ -62,11 +62,19 @@ const check = (label, got, want) => {
   console.log(`  ${ok ? 'PASS' : 'FAIL'}  ${label}${ok ? '' : `  (got ${got}, want ${want})`}`);
 };
 
+/*
+  The tile count is READ from the page, not written down. Hardcoding it made this
+  test fail the first time a skill was removed — a test that breaks when the data
+  changes is testing the data, not the behaviour, and the noise hides real
+  failures.
+*/
+const TOTAL = items().length;
+
 console.log('skills filter');
-console.log(`  items=${items().length} groups=${groups().length} chips=${document.querySelectorAll('[data-sk-filter]').length}`);
+console.log(`  items=${TOTAL} groups=${groups().length} chips=${document.querySelectorAll('[data-sk-filter]').length}`);
 
 /* 1 — default state shows everything. */
-check('default: all 49 shown', shown().length, 49);
+check('default: every tile shown', shown().length, TOTAL);
 check('default: no status text', status(), '');
 
 /* 2 — category chip narrows to that group only. */
@@ -76,7 +84,7 @@ check('chip: status names the scope', status().includes('data analytics'), true)
 
 /* 3 — search composes WITH the chip. */
 type('sql');
-check('search+chip: narrowed further', shown().length < 49, true);
+check('search+chip: narrowed further', shown().length < TOTAL, true);
 check('search+chip: every match contains "sql"', shown().every((i) => i.dataset.skName.includes('sql')), true);
 
 /* 4 — a term that matches nothing shows the empty note and hides all groups. */
@@ -88,7 +96,7 @@ check('no match: empty note visible', document.getElementById('sk-empty').hidden
 /* 5 — clearing restores, and "All" returns the whole list. */
 type('');
 click('[data-sk-filter="all"]');
-check('reset: all 49 back', shown().length, 49);
+check('reset: every tile back', shown().length, TOTAL);
 check('reset: empty note hidden again', document.getElementById('sk-empty').hidden, true);
 
 console.log(fails === 0 ? '\n✓ filter behaves correctly' : `\n✗ ${fails} check(s) failed`);

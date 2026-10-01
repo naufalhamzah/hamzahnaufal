@@ -239,13 +239,6 @@ const LOCAL: Record<string, SkillIcon> = {
     path:
       'M3.4 4h17.2v11.2H3.4V4zm1.8 1.8v7.6h13.6V5.8H5.2zm-1.6 11.4h17.6v1.6H3.6v-1.6zm3.2 2.6h10.4v1.6H6.8v-1.6z',
   },
-  // Printer & peripherals — a printer
-  printer: {
-    kind: 'local',
-    hex: null,
-    path:
-      'M6.4 2.8h11.2v5.4H6.4V2.8zm1.8 1.8v1.8h7.6V4.6H8.2zM3.4 9.4h17.2v7.2h-3.2v4.2H6.6v-4.2H3.4V9.4zm1.8 1.8v3.6h1.4v1H8.4v-1.8h7.2v1.8h1.8v-1h1.4v-3.6H5.2zm7 1h1.6v1.6h-1.6v-1.6z',
-  },
   // Device troubleshooting — a wrench
   wrench: {
     kind: 'local',
@@ -267,12 +260,18 @@ const LOCAL: Record<string, SkillIcon> = {
     path:
       'M2.4 4.4h9.2v6.2H2.4V4.4zm1.5 1.5v3.2h6.2V5.9H3.9zM12.8 3.2h8.8v7.4h-8.8V3.2zm1.5 1.5v4.4h5.8V4.7h-5.8zM2.4 12.4h9.2v7.4H2.4v-7.4zm1.5 1.5v4.4h6.2v-4.4H3.9zM13.6 12.6h7.2v6.6h-7.2v-6.6zm1.5 1.5v3.6h4.2v-3.6h-4.2z',
   },
-  // CapCut — simple play/clip mark
+  /*
+    CapCut — a ring with a play mark: the video-editor category.
+    simple-icons ships no CapCut mark, and the brief's rule for these fallbacks is
+    a GENERIC category glyph rather than a counterfeit trademark, so this reads as
+    "video editing" without imitating the product's own logo. It replaces a bar
+    chart, which said "analytics" and had nothing to do with the tool.
+  */
   capcut: {
     kind: 'local',
     hex: null,
     path:
-      'M4.2 3.6h9.1v4.2H8.4v3.6h4.9v4.2H8.4v4.8H4.2V3.6zm10.5 6.4h2.5v10.4h-2.5V10zm4.1 -2.2h1v12.6h-1V7.8z',
+      'M21.8 12A9.8 9.8 0 1 1 2.2 12A9.8 9.8 0 1 1 21.8 12ZM18.2 12A6.2 6.2 0 1 0 5.8 12A6.2 6.2 0 1 0 18.2 12ZM10.7 8.8 15.9 12l-5.2 3.2z',
   },
 };
 

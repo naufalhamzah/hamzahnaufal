@@ -95,7 +95,6 @@ const raw: SkillGroup[] = [
     items: [
       { name: 'Windows environment', icon: 'windows' },
       { name: 'Computer hardware setup', icon: 'pc' },
-      { name: 'Printer & peripheral setup', icon: 'printer' },
       { name: 'Device troubleshooting', icon: 'wrench' },
       { name: 'Microsoft Office Suite', icon: 'officesuite' },
     ],
