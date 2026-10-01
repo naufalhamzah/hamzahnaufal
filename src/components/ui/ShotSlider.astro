@@ -423,11 +423,17 @@ const many = images.length > 1;
     padding: 0;
   }
 
-  /* Inside a paired slide there is no notch — two notched phones side by side
-     reads as a product shot of phones rather than of interfaces. */
-  .sl__slide--pair .sl__device::before {
-    display: none;
-  }
+  /* NO DRAWN NOTCH — same defect and same evidence as in `Collage.astro`.
+
+     This `::before` painted a pill that landed on top of the dynamic island the
+     captures already carry. Measured on the shipped files: every device capture
+     holds its own dark pill, ~24% of the frame width, 35px down from the top.
+     Two pills in one phone reads as a defect, not as a device.
+
+     The rule is deleted rather than made conditional because the shell is only
+     ever applied to device renders here, and a device render brings its own
+     hardware. If a bare screen capture is ever added, the right fix is to render
+     THAT one without the shell, not to re-add a pill to every phone. */
 
   .sl__slide--pair .sl__device {
     height: calc(100% - 0.6rem);

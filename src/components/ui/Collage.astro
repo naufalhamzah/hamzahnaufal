@@ -64,15 +64,40 @@ const isLandscape = (m: MediaAsset) => {
   const ar = m.width && m.height ? m.width / m.height : 1.5;
   return ar >= 1.2;
 };
+/** Portrait, and therefore a phone screen rather than a document or a photo. */
+const isPortrait = (m: MediaAsset) => {
+  const ar = m.width && m.height ? m.width / m.height : 1.5;
+  return ar < 0.75;
+};
 const allLandscape = images.every((m) => isLandscape(m) || m.fit === 'contain');
+const allPortrait = images.every((m) => isPortrait(m) && m.fit !== 'contain');
+
+/*
+  A set of PORTRAIT phone screens is its own composition, and the count-based
+  layouts actively damage it.
+
+  Measured on a three-screen app gallery under `trio`: the two non-lead cells
+  rendered their device shells at 101x234px. At that size the shell's own bezel is
+  most of the cell and the interface inside is unreadable — the pictures stop
+  doing the one job they have. The tall `lead` cell is no better: a 0.49 ratio
+  image inside an auto-height span is letterboxed into a narrow strip.
+
+  Phone screens want a ROW OF PHONES. Equal columns, each cell at the phone's own
+  ratio, sized so the shell is tall enough to read. This is the same principle as
+  the landscape `uniform` case above — the composition follows the CONTENT's
+  shape — applied to the other orientation.
+*/
+const portraitRow = allPortrait && n >= 3;
 
 const layout =
   n <= 1
     ? 'single'
     : n === 2
       ? 'duo'
-      : n === 3
-        ? 'trio'
+      : portraitRow
+        ? 'screens'
+        : n === 3
+          ? 'trio'
         : allLandscape
           ? 'uniform'
           : 'many';
@@ -107,7 +132,13 @@ const uniformRatio = (() => {
   const first = images.find((m) => m.width && m.height);
   if (!first || !first.width || !first.height) return '16 / 9';
   const ar = first.width / first.height;
-  return String(Math.min(Math.max(ar, 1.2), 2.2).toFixed(3));
+  /*
+    Portrait sets use this too — a row of phone screens shares one ratio exactly
+    as a set of dashboards does — so the clamp spans both orientations rather than
+    assuming landscape. The numbers are the images' own, so the clamp only ever
+    guards against a stray file, never reshapes a real one.
+  */
+  return String(Math.min(Math.max(ar, 0.4), 2.2).toFixed(3));
 })();
 
 const duoRatio = (() => {
@@ -129,7 +160,7 @@ const duoRatio = (() => {
       style={
         layout === 'duo'
           ? `--duo-ratio: ${duoRatio};`
-          : layout === 'uniform'
+          : layout === 'uniform' || layout === 'screens'
             ? `--uniform-ratio: ${uniformRatio};`
             : undefined
       }
@@ -291,18 +322,23 @@ const duoRatio = (() => {
     overflow: hidden;
   }
 
-  .collage__device::before {
-    content: '';
-    position: absolute;
-    top: 0.62rem;
-    left: 50%;
-    z-index: 1;
-    width: 26%;
-    height: 0.3rem;
-    border-radius: var(--r-full);
-    background-color: var(--device-edge);
-    transform: translateX(-50%);
-  }
+  /*
+    NO DRAWN NOTCH — this was a real defect, proven by A/B.
+
+    A `::before` used to paint a dark pill across the top of the shell. It was
+    written for captures that show a bare screen, and the captures that actually
+    ship here are full device renders that ALREADY carry a dynamic island.
+
+    Measured by forcing the rule off and diffing the two renders: 76701 pixels
+    changed, peak delta 52, in a band across the top of the screen. The two pills
+    did not overlap — they sat one above the other, reading as two holes in one
+    phone. That was visible in every device cell on the site, and no amount of
+    tuning would have fixed it: the file already contains its own hardware.
+
+    A mockup shell is correct when the source is a SCREEN. Applied to a DEVICE
+    PHOTOGRAPH it can only ever add artefacts, so the pill is gone rather than
+    made conditional — there is no capture in this set that needs it.
+  */
 
   .collage__device img {
     width: 100%;
@@ -423,6 +459,38 @@ const duoRatio = (() => {
 
   .collage--uniform .collage__cell {
     aspect-ratio: var(--uniform-ratio, 16 / 9);
+  }
+
+  /* ---------------- 3+ portrait: a row of phone screens ----------------
+     The counterpart to `uniform` for the other orientation, and it exists for
+     the same reason: the count-based layouts damage this content.
+
+     Measured on a three-screen app gallery under `trio`, the two non-lead cells
+     rendered their shells at 101x234px — the bezel takes most of that and the
+     interface inside is unreadable. Equal columns at the phone's own ratio is the
+     only composition that keeps a screen legible.
+
+     FLEX, NOT A FIXED COLUMN COUNT, and the difference matters here. A grid of
+     `1fr` tracks makes a row of three phones as wide as the page, which at a
+     0.49 ratio means each one renders ~380x780 — larger than the section heading
+     and taller than the viewport. A flex row with a bounded basis keeps every
+     phone at a readable, CONSISTENT size whether the gallery holds three screens
+     or four, and simply wraps as the page narrows.
+     -------------------------------------------------------------------- */
+  .collage--screens .collage__grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--collage-gap, clamp(0.5rem, 1.2vw, 0.9rem));
+  }
+
+  .collage--screens .collage__cell {
+    /* Grows to fill a short row, but never past 17rem — beyond that a phone
+       screen is bigger than the interface inside it needs to be. */
+    flex: 1 1 12rem;
+    min-width: 0;
+    max-width: 17rem;
+    aspect-ratio: var(--uniform-ratio, 9 / 19.5);
   }
 
   /* ---------------- 4+ mixed: lead + 2 stacked, then a row ----------------

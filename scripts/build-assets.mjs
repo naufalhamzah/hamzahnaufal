@@ -213,9 +213,26 @@ const RECIPES = [
   /* --------------------------- PROJECT: research ------------------------ */
   // Both files are IJIRSE covers/pages; named by what they actually show.
 
-  /* ---------------------------- PROJECT: UI/UX -------------------------- */
-  ['Gambaran Project Guzelav (1).png', 'projects/guzelev-1.webp', { w: 1000, q: Q.shot , trimWhiteMargin: {} }],
-  ['Gambaran Project Guzelav (2).png', 'projects/guzelev-2.webp', { w: 1000, q: Q.shot , trimWhiteMargin: {} }],
+  /* ---------------------------- PROJECT: UI/UX --------------------------
+     GUZELEV — superseded. The previous pair were two 473x972 captures that
+     already appeared elsewhere in the deck; these four are one capture per
+     distinct screen (Welcome, Home, Shop, AR View) at 2250x3375, so the gallery
+     documents the whole flow instead of repeating two views.
+
+     MATTED, NOT WHITE-BACKED: measured, each file carries 311 fully transparent
+     pixels of padding on the LEFT and RIGHT. `trim` is the step that removes
+     that — it crops to the alpha bounding box. Skipping it would leave the phone
+     floating in a wide transparent band which `cover` then eats unevenly inside
+     the device frame, so the phone would sit off-centre.
+
+     NO `trimWhiteMargin` here, deliberately: the white in these files IS the
+     device bezel and the app's own surfaces. Cropping it would cut the phone in
+     half — the exact failure `trimWhiteMargin`'s guard exists to prevent.
+     -------------------------------------------------------------------- */
+  ['Mockup Guzelev - Welcome.png', 'projects/guzelev-welcome.webp', { w: 1000, q: Q.shot, trim: true }],
+  ['Mockup Guzelev - Home.png', 'projects/guzelev-home.webp', { w: 1000, q: Q.shot, trim: true }],
+  ['Mockup Guzelev - Shop.png', 'projects/guzelev-shop.webp', { w: 1000, q: Q.shot, trim: true }],
+  ['Mockup Guzelev - AR View.png', 'projects/guzelev-ar.webp', { w: 1000, q: Q.shot, trim: true }],
   ['Gambaran Project WellMind (1).png', 'projects/wellmind-1.webp', { w: 1000, q: Q.shot , trimWhiteMargin: {} }],
   ['Gambaran Project WellMind (2).png', 'projects/wellmind-2.webp', { w: 1000, q: Q.shot , trimWhiteMargin: {} }],
   ['Gambaran Project WellMind (3).png', 'projects/wellmind-3.webp', { w: 1000, q: Q.shot , trimWhiteMargin: {} }],

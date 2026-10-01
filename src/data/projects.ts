@@ -326,30 +326,56 @@ const raw: ProjectEntry[] = [
     outcomes: [],
     tools: ['Figma', 'UI/UX design', 'Wireframing', 'Prototyping', 'Augmented Reality concept'],
     visual: {
-      src: '/images/projects/guzelev-2.webp',
-      alt: 'Guzelev home decor app screen showing product browsing in the mobile interface',
-      width: 473,
-      height: 972,
+      src: '/images/projects/guzelev-home.webp',
+      alt: 'Guzelev home screen showing saved interior projects with progress states and room visualisation shortcuts',
+      width: 1000,
+      height: 2049,
     },
+    /*
+      FOUR SCREENS, ONE PER STAGE OF THE FLOW.
+
+      The previous pair were two captures of the same product-browsing list, so
+      the gallery showed the same screen twice. These four are distinct: entry,
+      home, catalogue, and the augmented-reality viewer — the last of which is the
+      only visual evidence on the site for the AR claim in the description, so it
+      earns its place rather than padding the set.
+
+      The hero `visual` above is also the first gallery entry; the detail page
+      filters that one out so no screen is shown twice on the same page.
+    */
     gallery: [
       {
-        src: '/images/projects/guzelev-2.webp',
-        alt: 'Guzelev app product listing screen',
-        width: 473,
-        height: 972,
-        caption: 'Product browsing',
+        src: '/images/projects/guzelev-welcome.webp',
+        alt: 'Guzelev welcome screen with the app name and sign-in options',
+        width: 1000,
+        height: 2049,
+        caption: 'Welcome screen',
       },
       {
-        src: '/images/projects/guzelev-1.webp',
-        alt: 'Guzelev app detail and planner screen',
-        width: 473,
-        height: 972,
-        caption: 'Detail and planner view',
+        src: '/images/projects/guzelev-home.webp',
+        alt: 'Guzelev home screen showing saved interior projects and room visualisation shortcuts',
+        width: 1000,
+        height: 2049,
+        caption: 'Home — saved projects',
+      },
+      {
+        src: '/images/projects/guzelev-shop.webp',
+        alt: 'Guzelev shop screen listing furniture by room with prices in rupiah',
+        width: 1000,
+        height: 2049,
+        caption: 'Shop — furniture catalogue',
+      },
+      {
+        src: '/images/projects/guzelev-ar.webp',
+        alt: 'Guzelev AR view placing a lamp inside a photographed room, with colour options to choose from',
+        width: 1000,
+        height: 2049,
+        caption: 'AR view — colour selection',
       },
     ],
     link: {
-      label: 'View design',
-      href: 'https://bit.ly/Guzelev-Project',
+      label: 'View prototype',
+      href: 'https://www.figma.com/proto/TdaI4t3acPhu1JsKx5vw8y/Projek-Akhir-Guzelev?node-id=115-92&t=YGus7S8cKDWkV1OR-1&scaling=scale-down&page-id=115%3A88&starting-point-node-id=115%3A92&show-proto-sidebar=1',
       external: true,
     },
     featured: false,
