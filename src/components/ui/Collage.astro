@@ -95,11 +95,18 @@ const rest = layout === 'many' ? images.slice(3) : [];
 /**
  * For a uniform grid the frame ratio is the images' own — they share one, so any
  * of them decides it. Clamped only to guard against a stray non-landscape file.
+ *
+ * Typed through a local rather than with `!` non-null assertions: `astro check`
+ * fails to parse a frontmatter containing them, and when the parse fails the
+ * compiler does not stop — it silently falls through and reads the whole `<style>`
+ * block as TypeScript, reporting ~200 bogus errors ("Cannot find name 'grid'").
+ * The types are narrowed by the guard above instead, which is just as safe and
+ * keeps the diagnostic channel meaningful.
  */
 const uniformRatio = (() => {
   const first = images.find((m) => m.width && m.height);
-  if (!first) return '16 / 9';
-  const ar = first.width! / first.height!;
+  if (!first || !first.width || !first.height) return '16 / 9';
+  const ar = first.width / first.height;
   return String(Math.min(Math.max(ar, 1.2), 2.2).toFixed(3));
 })();
 

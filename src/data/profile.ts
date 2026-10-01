@@ -26,13 +26,28 @@ export interface Profile {
   name: string;
   shortName: string;
   initials: string;
-  /** One-line professional identity, from [P]'s headline. */
+  /**
+   * One-line professional identity, from [P]'s headline.
+   * Set in accent italic directly under the name — the primary claim.
+   */
   headline: string;
   /** Short positioning tags shown under the name. */
   positioning: string[];
-  /** The phrase set in very large display type in the hero. */
+  /**
+   * The small eyebrow word above the name, in the hero. Content, not chrome —
+   * which is why it lives here rather than being typed into the component.
+   */
   displayWord: string;
   location: string;
+  /**
+   * The quiet status line at the FOOT of the hero, paired with `location`.
+   *
+   * It must NOT repeat `headline`. It used to hold the identical string, so the
+   * hero printed "Information Systems Graduate" twice within one screen — once as
+   * the accent role line, once in the bottom-right rule — which reads as a
+   * copy-paste slip, not as emphasis. What belongs here is the record fact the
+   * hero does not otherwise carry.
+   */
   currentStatus: string;
   currentRole: string;
   /** About narrative — one paragraph per array entry. */
@@ -67,7 +82,12 @@ const rawProfile: Profile = {
   displayWord: 'Portfolio',
 
   location: 'Tangerang, Indonesia',
-  currentStatus: 'Information Systems Graduate',
+  /*
+    The hero's bottom-right rule. It carries the record fact the hero does not
+    otherwise state — the degree and where it is from — instead of repeating
+    `headline` verbatim, which it did before.
+  */
+  currentStatus: "Bachelor's Degree, Information Systems",
   /** Shown on the Experience page only — never as the site's identity. */
   currentRole: 'Information Technology Administration Staff Intern',
 

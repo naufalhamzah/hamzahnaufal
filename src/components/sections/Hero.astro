@@ -27,6 +27,12 @@ import { profile } from '@/data/profile';
 const parts = profile.name.trim().split(/\s+/);
 const first = parts.slice(0, -1).join(' ');
 const last = parts[parts.length - 1] ?? '';
+
+/**
+ * The four focus axes, numbered. `profile.positioning` is the single source, so
+ * this is a re-presentation of an existing fact rather than a new claim.
+ */
+const axes = profile.positioning;
 ---
 
 <section class="hero" id="top">
@@ -34,7 +40,19 @@ const last = parts[parts.length - 1] ?? '';
     <div class="hero__grid">
       <!-- ---------------- type ---------------- -->
       <div class="hero__type">
-        <p class="hero__eyebrow label">Portfolio</p>
+        <div class="hero__top">
+          <p class="hero__eyebrow label">{profile.displayWord}</p>
+
+          {/*
+            A live marker, not a badge. Nothing here changes, so it is not a live
+            region — announcing a static string would be noise. The dot is
+            decoration and hidden from assistive tech; the text carries the fact.
+          */}
+          <p class="hero__now mono">
+            <span class="hero__dot" aria-hidden="true"></span>
+            {profile.currentRole}
+          </p>
+        </div>
 
         <h1 class="hero__name">
           <span class="hero__name-line">{first}</span>
@@ -43,9 +61,34 @@ const last = parts[parts.length - 1] ?? '';
 
         <p class="hero__role">{profile.headline}</p>
 
-        <p class="hero__fields mono">{profile.positioning.join('   ·   ')}</p>
+        {/*
+          THE LOWER BLOCK — this is what fills the dead space.
 
-        <p class="hero__lede">{profile.summary[0]}</p>
+          The lead paragraph used to sit alone in a 644px column while occupying
+          only 424px of it, leaving ~220px blank to its right and a gap under the
+          role line that read as an unfinished layout. The four focus axes now sit
+          in that space as a numbered register, divided from the prose by a
+          hairline, so the two read as one composed block.
+        */}
+        <div class="hero__lower">
+          <p class="hero__lede">{profile.summary[0]}</p>
+
+          <div class="hero__axes">
+            <p class="hero__axes-h label">Focus</p>
+            <ol class="hero__axes-list">
+              {
+                axes.map((a, i) => (
+                  <li class="hero__axis">
+                    <span class="hero__axis-n mono" aria-hidden="true">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    <span class="hero__axis-t">{a}</span>
+                  </li>
+                ))
+              }
+            </ol>
+          </div>
+        </div>
 
         <div class="hero__acts">
           <a href="/projects" class="hero__btn hero__btn--solid">
@@ -87,7 +130,16 @@ const last = parts[parts.length - 1] ?? '';
     position: relative;
     /* The portrait is allowed to break the top edge, so the section clips. */
     overflow: hidden;
-    padding-top: clamp(2.25rem, 5vw, 4rem);
+    /*
+      TIGHTENED from clamp(2.25rem, 5vw, 4rem).
+
+      Measured before: the section ran 915px tall in a 900px viewport, which put
+      the meta rule — location and status — just below the fold. A rule that is
+      half visible reads as a mistake rather than a design. Reclaiming ~90px
+      across the vertical rhythm brings the whole hero, meta included, into one
+      screen.
+    */
+    padding-top: clamp(1.75rem, 4vw, 3rem);
   }
 
   .hero__grid {
@@ -136,18 +188,79 @@ const last = parts[parts.length - 1] ?? '';
     }
   }
 
-  .hero__eyebrow {
-    margin-bottom: clamp(1.25rem, 2.6vw, 1.75rem);
+  /* ---------------- top rule: eyebrow + live status ---------------- */
+  .hero__top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem 1.25rem;
+    margin-bottom: clamp(0.9rem, 2vw, 1.35rem);
   }
 
+  .hero__eyebrow {
+    /* The label carries its own leading rule; no extra margin needed. */
+    margin-bottom: 0;
+  }
+
+  .hero__now {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.28rem 0.7rem 0.28rem 0.6rem;
+    border: var(--hairline) solid var(--border);
+    border-radius: var(--r-full);
+    background-color: color-mix(in srgb, var(--surface-2) 60%, transparent);
+    color: var(--fg-muted);
+    text-transform: none;
+    letter-spacing: 0.03em;
+    font-size: var(--text-2xs);
+  }
+
+  /*
+    The dot: a small accent point with a soft halo that breathes. Slow — 3s — so
+    it reads as a heartbeat rather than an alarm, and it is the only motion in
+    the hero on load.
+  */
+  .hero__dot {
+    position: relative;
+    width: 0.42rem;
+    height: 0.42rem;
+    flex: none;
+    border-radius: var(--r-full);
+    background-color: var(--accent);
+  }
+
+  .hero__dot::after {
+    content: '';
+    position: absolute;
+    inset: -0.22rem;
+    border-radius: var(--r-full);
+    background-color: var(--accent);
+    opacity: 0.28;
+    animation: hero-pulse 3s var(--ease-inout) infinite;
+  }
+
+  @keyframes hero-pulse {
+    0%,
+    100% {
+      transform: scale(0.7);
+      opacity: 0.3;
+    }
+    50% {
+      transform: scale(1.15);
+      opacity: 0.08;
+    }
+  }
+
+  /* ---- the name ---- */
   .hero__name {
     font-family: var(--font-display);
     /* The largest type on the site. This is the hierarchy anchor; everything
        else is measured against it. */
     font-size: var(--text-display);
     font-weight: 500;
-    line-height: 0.96;
-    letter-spacing: -0.032em;
+    line-height: 0.94;
+    letter-spacing: -0.034em;
     color: var(--fg-strong);
   }
 
@@ -174,32 +287,105 @@ const last = parts[parts.length - 1] ?? '';
     background-color: var(--accent);
   }
 
+  /*
+    The gap under the name needs NEGATIVE help: `line-height: 0.94` on a
+    3-line display heading leaves each line's descender box below the baseline,
+    so the visual gap between "Zuhdi" and the role line measured ~50px where the
+    margin asked for 14px. Pulling the role up by its own leading restores the
+    intended rhythm without changing the name's tight leading.
+  */
   .hero__role {
-    margin-top: clamp(1.1rem, 2.4vw, 1.6rem);
+    margin-top: clamp(0.15rem, 0.6vw, 0.4rem);
     font-family: var(--font-display);
     font-size: var(--text-xl);
     font-style: italic;
     color: var(--accent);
   }
 
-  .hero__fields {
-    margin-top: 0.9rem;
-    color: var(--fg-faint);
-    text-transform: none;
-    letter-spacing: 0.06em;
+  /* ---- lower block: lede beside the numbered axes ---- */
+  /*
+    This is the change that fills the dead space. The lede alone left ~220px of
+    empty column to its right; the axes sit there now, divided by a hairline so
+    the two columns read as one composed block rather than two fragments.
+  */
+  .hero__lower {
+    display: grid;
+    gap: clamp(1.25rem, 2.5vw, 2rem);
+    grid-template-columns: 1fr;
+    margin-top: clamp(1.1rem, 2.2vw, 1.5rem);
+  }
+
+  @media (min-width: 700px) {
+    .hero__lower {
+      grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+      gap: clamp(1.5rem, 3vw, 2.5rem);
+      align-items: start;
+    }
   }
 
   .hero__lede {
-    margin-top: clamp(1.15rem, 2.4vw, 1.6rem);
-    max-width: 42ch;
+    max-width: 46ch;
     color: var(--fg-muted);
+  }
+
+  @media (min-width: 700px) and (max-width: 939px) {
+    /* In this single-column band the lede has the full width; keep it readable. */
+    .hero__lede {
+      max-width: 58ch;
+    }
+  }
+
+  .hero__axes {
+    padding-inline-start: clamp(1rem, 2.5vw, 1.5rem);
+    border-inline-start: var(--hairline) solid var(--border-faint);
+  }
+
+  @media (max-width: 699px) {
+    .hero__axes {
+      padding-inline-start: 0;
+      padding-top: 1rem;
+      border-inline-start: 0;
+      border-top: var(--hairline) solid var(--border-faint);
+    }
+  }
+
+  .hero__axes-h {
+    display: block;
+    margin-bottom: 0.7rem;
+  }
+
+  .hero__axes-list {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .hero__axis {
+    display: grid;
+    grid-template-columns: 1.6rem minmax(0, 1fr);
+    gap: 0.4rem;
+    align-items: baseline;
+    font-size: var(--text-sm);
+    color: var(--fg);
+  }
+
+  .hero__axis-n {
+    color: var(--accent);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.06em;
+  }
+
+  .hero__axis-t {
+    text-wrap: balance;
   }
 
   .hero__acts {
     display: flex;
     flex-wrap: wrap;
     gap: 0.7rem;
-    margin-top: clamp(1.75rem, 3.2vw, 2.25rem);
+    margin-top: clamp(1.4rem, 2.8vw, 1.9rem);
   }
 
   .hero__btn {
@@ -261,8 +447,6 @@ const last = parts[parts.length - 1] ?? '';
       · `drop-shadow` — which follows the ALPHA SILHOUETTE, so the shadow the
         subject casts is their own shape (shoulders, arm, sash). This is what
         seats them in the page instead of pasting them on it.
-      · a soft radial pool behind the figure, so the subject emerges from a lift
-        in the background rather than starting at a hard edge.
       · a FADE-OUT at the bottom (see mask-image below) so the cut does not end
         in a hard horizontal edge.
   */
@@ -272,18 +456,15 @@ const last = parts[parts.length - 1] ?? '';
     isolation: isolate;
   }
 
-  /* The pool: a soft elliptical lift in the background, sized to the figure and
-     sitting BEHIND it. It has no edge to see, so the subject appears lit from
-     within the page rather than placed on top of it.
+  /* NOTE: there is deliberately NO background pool behind this figure.
+     An earlier version drew a soft elliptical lift so the subject would emerge
+     from the page rather than sit on it. Measured with a row sample across the
+     frame, it showed as a 4-unit step in colour exactly at the frame edge
+     followed by a gentle ramp inward — which is a shape the eye can find. It
+     read as a beige plate, not as depth. Removed. Depth now comes only from the
+     silhouette shadows on the image itself. */
 
-     Two failure modes to avoid, both seen in earlier attempts:
-       · too STRONG at the centre (the full matte colour) showed up as a visible
-         beige ellipse floating behind the subject — a shape, not a lift;
-       · too WEAK left the figure looking pasted onto a flat page.
-     The falloff is therefore narrow and quick: a modest lift close to the
-     subject that reaches fully transparent well before the edge, so there is no
-     boundary anywhere for the eye to catch. */
-    @media (min-width: 940px) {
+  @media (min-width: 940px) {
     .hero__figure {
       /* Pulled up so the cut-out breaks past the section's top padding and the
          composition feels cropped rather than contained. */
@@ -294,8 +475,43 @@ const last = parts[parts.length - 1] ?? '';
   .hero__img {
     position: relative;
     display: block;
-    width: 100%;
+    /*
+      SIZED AS A REPLACED ELEMENT, NOT AS A BOX.
+
+      The naive version — `width: 100%` plus a `max-height` — does not shrink the
+      portrait, it LETTERBOXES it: the box stays 612px wide because the width was
+      forced, the height gets capped at 700px, and `object-fit: contain` then
+      paints a 525px-wide image inside a 612px-wide box. Measured: box ratio 0.874
+      against a natural 0.75. The portrait ended up smaller than before, with
+      invisible padding on both sides.
+
+      An <img> with `width: auto`, `max-width: 100%` and `max-height` behaves the
+      way the eye expects — the browser fits the largest rectangle that satisfies
+      BOTH caps while preserving the intrinsic ratio, so the box always equals the
+      image. Nothing is letterboxed and nothing is distorted.
+
+      THE HEIGHT CAP, and why it is here rather than on the <figure>:
+      the figure is taller than the type column in every measured viewport, so the
+      portrait — not the text — was setting the hero's height. Margin-tightening
+      did not fix it: after two rounds the meta rule still landed at y=922 in a
+      900px window, sliced by the fold. A `max-height` on the <figure> would have
+      been silently ignored anyway, because a percentage/auto resolution against an
+      auto-height grid item has nothing to resolve against — the same trap that
+      once let a footer logo grow to 361px. An absolute length resolves everywhere.
+
+      The portrait may never be taller than the space a screen actually offers
+      once the nav above and the meta rule below are paid for. On a tall window the
+      column width governs and this never engages; on a short one the figure scales
+      down and the whole hero stays inside a single screen. `svh` rather than `vh`,
+      because on mobile Safari the visible height changes as browser chrome slides.
+    */
+    width: auto;
     height: auto;
+    max-width: 100%;
+    max-height: calc(100svh - 9.5rem);
+    /* Scaled down, it stays centred in its column rather than jumping to the
+       left edge of a wider track. */
+    margin-inline: auto;
     /*
       NO OUTLINE ON THE IMAGE.
 
@@ -402,7 +618,15 @@ const last = parts[parts.length - 1] ?? '';
     display: flex;
     align-items: center;
     gap: 1rem;
-    margin-top: clamp(2.5rem, 5vw, 4rem);
+    /*
+      Tightened twice. First from clamp(2.5rem, 5vw, 4rem) to 3.5vw, then again
+      here: measured, the meta rule still landed at y=897 in a 900px viewport —
+      technically visible, visually sliced. The figure is taller than the type
+      column, so it is the figure that sets this section's height; the meta rides
+      down with it. Keeping the whole hero inside one screen means the rule has to
+      sit close under the columns.
+    */
+    margin-top: clamp(1.25rem, 2.5vw, 2rem);
     padding-top: 1.1rem;
     border-top: var(--hairline) solid var(--border);
   }
@@ -428,11 +652,13 @@ const last = parts[parts.length - 1] ?? '';
       max-width: 13rem;
     }
 
-    /* The pool scales with the figure; slightly tighter so it does not halo. */
+    /* The surname's trailing rule shortens on narrow screens so it never wraps
+       onto a line of its own. */
     .hero__name-line--last em::after {
       width: clamp(1.25rem, 12vw, 3.5rem);
     }
 
+    /* The lede is in a single column here, so it can breathe wider. */
     .hero__lede {
       max-width: none;
     }
@@ -447,6 +673,22 @@ const last = parts[parts.length - 1] ?? '';
 
     .hero__meta-rule {
       display: none;
+    }
+  }
+
+  /* ---------------- reduced motion ---------------- */
+  @media (prefers-reduced-motion: reduce) {
+    /* The pulse is decoration. A visitor who asked for less motion gets a still
+       dot rather than a disabled one — the status fact is in the text either
+       way, so nothing is lost. */
+    .hero__dot::after {
+      animation: none;
+      opacity: 0.22;
+      transform: scale(1);
+    }
+
+    .hero__btn--solid:hover {
+      transform: none;
     }
   }
 </style>
