@@ -99,7 +99,16 @@ const {
 const asMockup = (m: MediaAsset) => {
   if (!mockup) return false;
   const ar = m.width && m.height ? m.width / m.height : 1.5;
-  return ar < 0.75;
+  /*
+    A DOCUMENT IS NOT A PHONE, even when it is portrait.
+
+    The threshold alone caught the Ampoen journal page (ratio 0.734) and wrapped
+    it in the drawn 9:19.5 device box, which rendered the page at about 30% of
+    the frame's width — the user's "gambar terlalu kecil", measured. Documents
+    declare `fit: 'contain'`, and that flag is exactly what tells the two apart:
+    a phone screen is a device, a page is a page.
+  */
+  return ar < 0.75 && m.fit !== 'contain';
 };
 
 /**
@@ -111,7 +120,8 @@ const asMockup = (m: MediaAsset) => {
  */
 const isNarrow = (m: MediaAsset) => {
   const ar = m.width && m.height ? m.width / m.height : 1.5;
-  return ar < 0.75;
+  /* A document is never paired as if it were a phone screenshot. */
+  return ar < 0.75 && m.fit !== 'contain';
 };
 
 const slides: MediaAsset[][] = [];

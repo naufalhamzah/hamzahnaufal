@@ -31,12 +31,12 @@ import type { GalleryEntry } from '@/types/content';
    "what has he done on the job" are different questions, and a single
    undifferentiated wall answers neither.
 
-   Every photograph currently held is CAMPUS: committees, field programmes and
-   classroom visits. That was verified by looking at each frame, not by trusting
-   the filenames — they are all committee jackets, the FMIPA building, and
-   programme banners. There is no office photograph in the set, so the
-   internship collection is declared but EMPTY rather than padded with campus
-   shots relabelled as work.
+   Every photograph currently held is CAMPUS: committees, field programmes,
+   classroom visits, and PPK Ormawa field work. That was verified by looking at
+   each frame, not by trusting the filenames — they are committee jackets, the
+   FMIPA building, programme banners, and the UNNES crest on a meeting-room wall.
+   There is no office photograph in the set, so the internship collection is
+   declared but EMPTY rather than padded with campus shots relabelled as work.
 
    The internship collection is wired up and waiting: dropping office
    photographs into public/images/gallery/ and tagging them `internship` below
@@ -68,9 +68,10 @@ const shot = (
   group: string,
   /*
     Defaults to `campus`, which is correct for every photograph currently held —
-    all 18 were individually inspected and every one is university activity
-    (committee jackets, the FMIPA building, programme banners). The default keeps
-    the call sites readable; the internship collection sets it explicitly.
+    all 19 were individually inspected and every one is university activity
+    (committee jackets, the FMIPA building, programme banners, PPK Ormawa field
+    work). The default keeps the call sites readable; the internship collection
+    sets it explicitly.
   */
   collection: GalleryEntry['collection'] = 'campus',
 ): GalleryEntry => ({
@@ -193,6 +194,16 @@ const raw: GalleryEntry[] = [
     'Five students in uniform in front of a screen showing organisation logos',
     'Team photo in front of a presentation screen',
     'Committees & events',
+  ),
+  /*
+    Three photographs added Aug 2026. Alt text below describes what is visible in
+    each frame, not an inferred event — the same rule the rest of this file follows.
+  */
+  shot(
+    'moment-19.webp',
+    'Students in yellow jackets holding up phones in a meeting room, seated behind a large conference table, with a gold emblem mounted on the wood-panelled wall behind them',
+    'Project presentation in a meeting room, committee members at the table',
+    'Campus & field',
   ),
 ];
 

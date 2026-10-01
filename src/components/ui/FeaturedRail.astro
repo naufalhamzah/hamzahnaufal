@@ -91,13 +91,23 @@ const many = projects.length > 1;
             <li class="rail__slide" data-slide>
               <article class="fwc">
                 <div class="fwc__inner">
-                  <figure class="fwc__frame">
+                  <figure
+                    class:list={[
+                      'fwc__frame',
+                      project.visual.fit === 'contain' && 'fwc__frame--contain',
+                    ]}
+                  >
                     {shots.length > 1 ? (
+                      /*
+                        No `fit` override — each image answers for itself, from its
+                        own `fit` flag. Forcing `contain` here letterboxed every
+                        photograph in the rail, which is the "gambar terlalu kecil"
+                        the user reported on the Smart Farming card.
+                      */
                       <ShotSlider
                         images={shots}
                         ratio={FRAME_RATIO}
                         lightbox={false}
-                        fit="contain"
                         pairNarrow
                         mockup
                         label={project.title}
@@ -372,12 +382,25 @@ const many = projects.length > 1;
     border-radius: 0;
   }
 
+  /*
+    FILL BY DEFAULT. This hardcoded `contain` plus a 0.9rem inset, so a 4:3
+    photograph — the Smart Farming cover the user was looking at — filled 83% of
+    the 16:10 frame before the inset took another bite. `fit: 'contain'` in the
+    data is what marks the pieces that must be shown whole; those get the matte,
+    everything else fills.
+  */
+  .fwc__frame--contain img {
+    object-fit: contain;
+    object-position: center;
+    padding: 0.9rem;
+  }
+
   .fwc__frame img {
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: contain;
-    padding: 0.9rem;
+    object-fit: cover;
+    object-position: center top;
     filter: var(--photo-filter);
     transition: transform var(--t-slow) var(--ease);
   }

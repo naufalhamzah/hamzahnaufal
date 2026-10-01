@@ -202,7 +202,26 @@ const RECIPES = [
   }],
   */
 
-  /* ------------------------ PROJECT: smart farming ---------------------- */
+  /* ------------------------ PROJECT: smart farming ----------------------
+     THE COVER IS NOW THE FIELD PHOTOGRAPH, not the journal cover.
+
+     The user's report: "gambar terlalu kecil. gunakan gambar ramaian aja buat
+     covernya." They were describing the effect of the old cover honestly — a
+     0.73-ratio journal page in a `contain` frame fills barely a third of the
+     width, so the card read as a small white page floating in a large frame.
+
+     The team-and-villagers photograph is landscape (1.33), which fills the frame
+     edge to edge, and it shows the programme's actual context — the people and
+     the village — which the article cover never could. The article cover keeps
+     its place as the LAST gallery entry, where it still documents the publication.
+
+     The irrigation photograph is the one image that shows the SYSTEM itself: a
+     solar panel and the control enclosure standing in the maize field, which is
+     exactly what "Renewable-energy automatic irrigation" claims. Previously that
+     claim had no visual evidence anywhere on the site.
+     -------------------------------------------------------------------- */
+  ['Momen PPKO Ormawa - Tim dan Warga.jpg', 'projects/smart-farming-team.webp', { w: 1600, q: Q.photo }],
+  ['Momen PPKO Ormawa - Irigasi Tenaga Surya.jpg', 'projects/smart-farming-irrigation.webp', { w: 1600, q: Q.photo }],
   // This file is the JOURNAL ARTICLE COVER (Ampoen Vol. 2 No. 2), not a field
   // photograph — the name is kept accurate so alt text and usage stay honest.
   ['Pengalaman PPK Ormawa dan Publikasi (2).png', 'projects/smart-farming-article.webp', {
@@ -408,6 +427,24 @@ const GALLERY = [
     `Foto momen organisasi (${i + 1}).png`,
     `gallery/moment-${String(i + 15).padStart(2, '0')}.webp`,
   ]),
+  /*
+    Added Aug 2026. Named `moment-19+` so they extend the existing run rather
+    than renumbering it — ids in `gallery.ts` are derived from the filename, so
+    renumbering would silently re-point every existing entry.
+
+    The first frame LOOKS like an office and was initially read as one. The gold
+    mark on the wall behind the group is NOT the UNNES crest: it was compared
+    side by side against `logos/unnes.webp` and the shapes differ (that crest has
+    segmented wings around a red-and-white flame; this mark is a rounded sheaf
+    with a small red-and-white ornament). No institution is therefore named for
+    it — the frame is filed on what is visible, which is a meeting-room
+    presentation.
+
+    The other two are PPK Ormawa field photographs. Their banner is legible in
+    frame — "HIMA ILKOM UNNES 2024" with the programme title — so naming the
+    programme there is reading the image, not assuming beyond it.
+  */
+  ['Momen Presentasi Proyek.jpg', 'gallery/moment-19.webp'],
 ];
 
 /** Facts about each gallery photo, so alt text is honest rather than generic. */

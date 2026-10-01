@@ -99,6 +99,18 @@ const phoneAr =
 const dims =
   getImageDims(hero.src) ??
   (hero.width && hero.height ? ([hero.width, hero.height] as [number, number]) : null);
+
+/**
+ * How a SUPPORTING image fills its 16:9 cell.
+ *
+ * Fill for a landscape photograph or screenshot; letterbox for anything that has
+ * to be seen whole — a document (`fit: 'contain'`) or a portrait device render,
+ * which `cover` would slice down the middle of the phone.
+ */
+const thumbFit = (m: MediaAsset) => {
+  const ar = m.width && m.height ? m.width / m.height : 1.5;
+  return ar >= 1.2 && m.fit !== 'contain' ? 'cover' : 'contain';
+};
 ---
 
 <article class:list={['pr', `pr--${side}`, phones && 'pr--phones']}>
@@ -186,7 +198,12 @@ const dims =
           </div>
         ) : (
           <>
-            <figure class="pr__frame">
+            <figure
+              class:list={[
+                'pr__frame',
+                hero.fit === 'contain' && 'pr__frame--contain',
+              ]}
+            >
               <img
                 src={hero.src}
                 alt={hero.alt}
@@ -207,7 +224,7 @@ const dims =
                       ? ([img.width, img.height] as [number, number])
                       : null);
                   return (
-                    <figure class="pr__thumb">
+                    <figure class:list={['pr__thumb', thumbFit(img) === 'contain' && 'pr__thumb--contain']}>
                       <img
                         src={img.src}
                         alt={img.alt}
@@ -335,16 +352,33 @@ const dims =
   }
 
   /* Documents are letterboxed, not cropped — their meaning is at the edges. */
+  /*
+    FILL BY DEFAULT — LETTERBOX ONLY WHAT MUST BE SEEN WHOLE.
+
+    Both selectors used to hardcode `contain` with an inset, which meant every
+    hero was letterboxed whatever it was: a 4:3 photograph of a group filled 83%
+    of a 16:10 frame and the matte took the rest, and the small inset removed a
+    bite more. The rule that actually distinguishes the two cases is already in
+    the data — `fit: 'contain'` marks a document or a screen whose edges carry
+    meaning. Everything else is a photograph and should fill the frame.
+  */
   .pr__frame img,
   .pr__thumb img {
     display: block;
     width: 100%;
     height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    filter: var(--photo-filter);
+    transition: transform var(--t-slow) var(--ease);
+  }
+
+  /* The letterbox, applied only where the image declares itself a document. */
+  .pr__frame--contain img,
+  .pr__thumb--contain img {
     object-fit: contain;
     object-position: center;
     padding: 0.7rem;
-    filter: var(--photo-filter);
-    transition: transform var(--t-slow) var(--ease);
   }
 
   .pr:hover .pr__frame img {

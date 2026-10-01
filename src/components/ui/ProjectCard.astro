@@ -101,7 +101,12 @@ const phoneAr =
 >
   <div class="pc__inner">
     <!-- ---------------- visual ---------------- -->
-    <div class:list={['pc__frame', !phones && 'pc__frame--contain']}>
+    <div
+      class:list={[
+        'pc__frame',
+        !phones && project.visual.fit === 'contain' && 'pc__frame--contain',
+      ]}
+    >
       {
         phones ? (
           /* The device stands on its own — see the note in the frontmatter. */
@@ -126,11 +131,15 @@ const phoneAr =
             )}
           </div>
         ) : many ? (
+          /*
+            No `fit` override: each image answers for itself. It used to force
+            `contain` on every slide, which letterboxed photographs as well as
+            documents — see the note on `.pc__frame img`.
+          */
           <ShotSlider
             images={shots}
             ratio={FRAME_RATIO}
             lightbox={false}
-            fit="contain"
             pairNarrow
             mockup
           />

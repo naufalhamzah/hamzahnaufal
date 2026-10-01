@@ -41,7 +41,8 @@ const { images, caption, dense = false, mockup = false } = Astro.props;
 const asMockup = (m: MediaAsset) => {
   if (!mockup) return false;
   const ar = m.width && m.height ? m.width / m.height : 1.5;
-  return ar < 0.75;
+  /* Same rule as ShotSlider: a portrait DOCUMENT is not a phone render. */
+  return ar < 0.75 && m.fit !== 'contain';
 };
 
 const n = images.length;

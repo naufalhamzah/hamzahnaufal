@@ -51,6 +51,7 @@ const raw: ProjectEntry[] = [
       alt: 'The marketing data management spreadsheet, showing customer records with brand, no-HP reference, drive link, product detail, customer type, sample value, payment status and PIC columns',
       width: 1700,
       height: 956,
+      fit: 'contain',
     },
     gallery: [
       {
@@ -59,6 +60,7 @@ const raw: ProjectEntry[] = [
         width: 1700,
         height: 956,
         caption: 'Customer and proposal tracking sheet',
+              fit: 'contain',
       },
       {
         src: '/images/projects/marketing-script-1.webp',
@@ -66,6 +68,7 @@ const raw: ProjectEntry[] = [
         width: 1500,
         height: 844,
         caption: 'Automation logic in Google Apps Script',
+              fit: 'contain',
       },
     ],
     linkPending: 'Open the marketing system',
@@ -118,6 +121,7 @@ const raw: ProjectEntry[] = [
       alt: 'Procurement monitoring dashboard in Google Looker Studio — summary cards, monthly value trend, procurement-type donut, monthly volume bars and vendor breakdowns',
       width: 1600,
       height: 900,
+      fit: 'contain',
     },
     gallery: [
       {
@@ -126,6 +130,7 @@ const raw: ProjectEntry[] = [
         width: 1600,
         height: 900,
         caption: 'Overview — monthly trend and breakdowns',
+              fit: 'contain',
       },
       {
         src: '/images/projects/pln-dashboard-2.webp',
@@ -133,6 +138,7 @@ const raw: ProjectEntry[] = [
         width: 1600,
         height: 900,
         caption: '2025 recapitulation — cumulative value',
+              fit: 'contain',
       },
       {
         src: '/images/projects/pln-dashboard-3.webp',
@@ -140,6 +146,7 @@ const raw: ProjectEntry[] = [
         width: 1600,
         height: 900,
         caption: '2024 recapitulation — 366 records, Rp18.58B',
+              fit: 'contain',
       },
       {
         src: '/images/projects/pln-dashboard-4.webp',
@@ -147,6 +154,7 @@ const raw: ProjectEntry[] = [
         width: 1600,
         height: 900,
         caption: 'Annual summary — 2024 against 2025',
+              fit: 'contain',
       },
       {
         src: '/images/projects/pln-dashboard-5.webp',
@@ -154,6 +162,7 @@ const raw: ProjectEntry[] = [
         width: 1600,
         height: 900,
         caption: 'Vendor summary — ranked by total value',
+              fit: 'contain',
       },
     ],
     /*
@@ -201,13 +210,43 @@ const raw: ProjectEntry[] = [
     ],
     tools: ['IoT-based smart farming', 'Automatic irrigation system', 'ESP32 / ESP8266', 'Sensor integration', 'SIMPELDES', 'Renewable energy', 'Scientific writing'],
     visual: {
-      src: '/images/projects/smart-farming-article.webp',
-      alt: 'Cover page of the Ampoen journal article on Smart Farming in Desa Gonoharjo, listing the author team and the article DOI',
-      fit: 'contain',
-      width: 1200,
-      height: 1635,
+      /*
+        THE COVER IS THE PEOPLE, NOT THE PAPER.
+
+        This used to point at the journal cover, which is a 0.73-ratio page shown
+        `contain` — it filled about a third of the frame's width and read as a small
+        white document floating in a large box. The team-and-villagers photograph is
+        landscape and fills the frame, and it shows what the programme actually was:
+        students and villagers together at the site.
+      */
+      src: '/images/projects/smart-farming-team.webp',
+      alt: 'PPK Ormawa team and villagers standing together in front of a PPKO programme banner at the village hall, holding a fist forward',
+      width: 1600,
+      height: 1200,
     },
     gallery: [
+      {
+        src: '/images/projects/smart-farming-team.webp',
+        alt: 'PPK Ormawa team and villagers in front of a PPKO programme banner at the village hall',
+        width: 1600,
+        height: 1200,
+        caption: 'Team and villagers — programme banner at the village hall',
+      },
+      {
+        /*
+          THE ONLY IMAGE THAT SHOWS THE SYSTEM ITSELF.
+
+          Everything else about this project is text and a journal page; this frame
+          is the solar panel and control enclosure standing in the maize field, which
+          is what makes the "renewable-energy automatic irrigation" claim visible
+          rather than merely stated.
+        */
+        src: '/images/projects/smart-farming-irrigation.webp',
+        alt: 'Solar panel and control enclosure mounted on a pole among tall maize plants, with team members working at its base',
+        width: 1600,
+        height: 1068,
+        caption: 'The irrigation unit — solar panel and controller in the field',
+      },
       {
         src: '/images/projects/smart-farming-article.webp',
         alt: 'Cover page of the published Smart Farming article in Ampoen journal',
@@ -215,13 +254,6 @@ const raw: ProjectEntry[] = [
         width: 1200,
         height: 1635,
         caption: 'Published article — Ampoen Vol. 2 No. 2',
-      },
-      {
-        src: '/images/experience/ppk-ormawa.webp',
-        alt: 'PPK Ormawa team photograph at the village site',
-        width: 1500,
-        height: 999,
-        caption: 'Field programme',
       },
     ],
     link: {

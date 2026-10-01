@@ -7,7 +7,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 // NOTE: update `site` to the real domain before deploying.
 // It is used for canonical URLs, sitemap and Open Graph tags.
-export const SITE_URL = 'https://hamzahnaufal.example.com';
+export const SITE_URL = 'https://naufalhamzah.github.io';
 
 export default defineConfig({
   site: SITE_URL,
