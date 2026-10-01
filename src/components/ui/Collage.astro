@@ -502,16 +502,42 @@ const duoRatio = (() => {
   }
 
   /*
-    A captioned DEVICE cell needs extra room at the foot.
+    THE DEVICE FILLS ITS CELL INSTEAD OF OVERFLOWING IT.
 
-    The caption is an overlay, and it was landing across the lower third of the
-    phone shell — the screenshot's own interface and the caption were competing
-    for the same pixels. The shell is shortened by the caption's height so the
-    two never overlap, which matters more here than on a photo because the bottom
-    of a phone screen is where the navigation bar lives.
+    This was the "tumpuk tumpukkan" defect: two phones rendered 899px tall inside
+    301px cells and spilled over the cell below, so the gallery looked like a pile
+    rather than a grid.
+
+    The cause was a shape mismatch the stylesheet never resolved. The device had
+    `height: auto` plus `aspect-ratio: 0.488` but NO width, so as a block element it
+    took the cell's full 438px width and derived its height from the ratio — 438 /
+    0.488 = 897px. The cell is 438x301. `overflow: visible` then let the excess
+    paint straight over the neighbouring cell.
+
+    The fix is to size the device from its CELL, not from the cell's width: a flex
+    column gives the caption its natural height and hands the remainder to the
+    device, which then derives its WIDTH from the ratio. Every device now fits, at
+    any cell size, without the stylesheet knowing the ratio up front.
   */
+  .collage__cell:has(.collage__device) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
   .collage__cell:has(.collage__device) .collage__device {
-    height: calc(100% - 3.2rem);
+    /*
+      `flex: 1 1 auto` with `min-height: 0` is what makes this work: the device
+      claims the space left after the caption, and `min-height: 0` stops the flex
+      item's automatic minimum size from forcing its full intrinsic height back.
+    */
+    flex: 1 1 auto;
+    min-height: 0;
+    height: auto;
+    width: auto;
+    max-width: 100%;
+    aspect-ratio: var(--device-ratio, 9 / 19.5);
   }
 
   /*

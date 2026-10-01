@@ -259,9 +259,29 @@ const RECIPES = [
   ['Mockup WellMind - Cari Psikolog.png', 'projects/wellmind-cari.webp', { w: 1000, q: Q.shot, trim: true }],
   ['Mockup WellMind - Profil Psikolog.png', 'projects/wellmind-profil.webp', { w: 1000, q: Q.shot, trim: true }],
   ['Mockup WellMind - Psikolog Sekitar.png', 'projects/wellmind-peta.webp', { w: 1000, q: Q.shot, trim: true }],
+  /* ---------------------------- PROJECT: UI/UX --------------------------
+     KEDAI NYAM — the two MOBILE captures get `knockOutWhite`, the two desktop
+     ones do not.
+
+     Measured: `kedai-nyam-2/3.webp` are fully OPAQUE (alpha 255 everywhere) and
+     their corner pixels are pure white — a device render flattened onto a white
+     plate, unlike the Guzelev and WellMind sets which ship as cut-outs with a
+     transparent surround. On the dark theme those four white corners drew a
+     visible rectangle around a phone, which is the "background putih" the user
+     reported.
+
+     `knockOutWhite` is the right tool, and NOT `trimWhiteMargin`: it flood-fills
+     from the BORDER, so it removes only white CONNECTED to the edge (measured
+     2.4% of the frame — the four corners and the sliver beside the bezel) and
+     leaves the 33.5% of white INSIDE the screen untouched. A colour threshold
+     across the whole image would have punched holes through the app's own UI.
+
+     The desktop screenshots (1 and 4) keep their white: it is the dashboard's own
+     table and panels, edge to edge, with no plate to remove.
+     -------------------------------------------------------------------- */
   ['Gambaran Project Kedai Nyam (1).png', 'projects/kedai-nyam-1.webp', { w: 1500, q: Q.shot , trimWhiteMargin: {} }],
-  ['Gambaran Project Kedai Nyam (2).png', 'projects/kedai-nyam-2.webp', { w: 1000, q: Q.shot , trimWhiteMargin: {} }],
-  ['Gambaran Project Kedai Nyam (3).png', 'projects/kedai-nyam-3.webp', { w: 1000, q: Q.shot , trimWhiteMargin: {} }],
+  ['Gambaran Project Kedai Nyam (2).png', 'projects/kedai-nyam-2.webp', { w: 1000, q: Q.shot, knockOutWhite: true }],
+  ['Gambaran Project Kedai Nyam (3).png', 'projects/kedai-nyam-3.webp', { w: 1000, q: Q.shot, knockOutWhite: true }],
   ['Gambaran Project Kedai Nyam (4).png', 'projects/kedai-nyam-4.webp', { w: 1500, q: Q.shot , trimWhiteMargin: {} }],
 
   /* ---------------------------- PUBLICATIONS ----------------------------

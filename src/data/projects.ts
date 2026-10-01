@@ -224,7 +224,17 @@ const raw: ProjectEntry[] = [
         caption: 'Field programme',
       },
     ],
-    linkPending: 'Open the SIMPELDES village system',
+    link: {
+      /*
+        The ARTICLE page of the Ampoen paper, not the journal root — the same
+        verified URL the Publications record uses. Its Highwire meta tags carry
+        this paper's exact title, volume 2, issue 2, pages 980–993, and
+        'Hamzah Naufal Zuhdi' as the fifth of fifteen authors.
+      */
+      label: 'View article',
+      href: 'https://jurnal.serambimekkah.ac.id/index.php/ampoen/article/view/2365',
+      external: true,
+    },
     featured: true,
     source: 'both',
     todo:
@@ -437,13 +447,29 @@ const raw: ProjectEntry[] = [
       alt: 'Kedai Nyam desktop dashboard with sales summary and transaction figures',
       width: 689,
       height: 491,
+      fit: 'contain',
     },
+    /*
+      THE DESKTOP SCREENS ARE DOCUMENTS — letterboxed, not cropped.
+
+      Measured in the `trio` composition: the lead cell is 700x616 (ratio 1.136)
+      while the desktop capture is 1.538, so `cover` removed **13.1% of the width
+      from each side** — enough to cut the dashboard's own sidebar down to "al
+      Zuhdi" and to hide a table column. That is the same failure this site already
+      fixed for journal pages and certificates: a screenshot whose meaning lives at
+      its edges must show whole, and the matte is what makes the letterbox read as
+      a plate rather than as a mis-sized image.
+
+      The two MOBILE captures keep `cover`: they carry their own device bezel, so
+      there is nothing at their edges but the frame.
+    */
     gallery: [
       {
         src: '/images/projects/kedai-nyam-1.webp',
         alt: 'Kedai Nyam desktop sales summary dashboard',
         width: 689,
         height: 491,
+        fit: 'contain',
         caption: 'Desktop — sales summary',
       },
       {
@@ -451,6 +477,7 @@ const raw: ProjectEntry[] = [
         alt: 'Kedai Nyam desktop transaction and report table',
         width: 689,
         height: 448,
+        fit: 'contain',
         caption: 'Desktop — transaction report',
       },
       {
