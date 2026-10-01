@@ -45,8 +45,37 @@ const asMockup = (m: MediaAsset) => {
 };
 
 const n = images.length;
-/** Pick the composition from the count. */
-const layout = n <= 1 ? 'single' : n === 2 ? 'duo' : n === 3 ? 'trio' : 'many';
+
+/**
+ * Pick the composition from the count — AND from the shapes.
+ *
+ * The count alone was the old rule, and it produced a bad result for one common
+ * case: a set of four LANDSCAPE screenshots fell into the lead-plus-stack
+ * composition, which gives the lead a tall frame (row-span 2, ratio auto). A 16:9
+ * dashboard in a 1.32 frame gets its sides cropped by `cover` — the user's
+ * "G PENGADAAN ... TAHUN 2025" was the left edge of a dashboard that had been
+ * sliced off, and the figures it exists to show were half gone.
+ *
+ * So a set whose images all share a landscape orientation gets a UNIFORM grid
+ * instead: equal cells, all at the images' own ratio, none of them tall. The
+ * composition then varies the LAYOUT without fighting the CONTENT.
+ */
+const isLandscape = (m: MediaAsset) => {
+  const ar = m.width && m.height ? m.width / m.height : 1.5;
+  return ar >= 1.2;
+};
+const allLandscape = images.every((m) => isLandscape(m) || m.fit === 'contain');
+
+const layout =
+  n <= 1
+    ? 'single'
+    : n === 2
+      ? 'duo'
+      : n === 3
+        ? 'trio'
+        : allLandscape
+          ? 'uniform'
+          : 'many';
 /** Everything after the first three goes into the trailing row. */
 const rest = layout === 'many' ? images.slice(3) : [];
 
@@ -63,6 +92,17 @@ const rest = layout === 'many' ? images.slice(3) : [];
  * heavily anyway. Documents are excluded — they are letterboxed, so their frame
  * shape does not matter.
  */
+/**
+ * For a uniform grid the frame ratio is the images' own — they share one, so any
+ * of them decides it. Clamped only to guard against a stray non-landscape file.
+ */
+const uniformRatio = (() => {
+  const first = images.find((m) => m.width && m.height);
+  if (!first) return '16 / 9';
+  const ar = first.width! / first.height!;
+  return String(Math.min(Math.max(ar, 1.2), 2.2).toFixed(3));
+})();
+
 const duoRatio = (() => {
   if (layout !== 'duo') return '4 / 3';
   const ars = images
@@ -79,7 +119,13 @@ const duoRatio = (() => {
   n > 0 && (
     <figure
       class:list={['collage', `collage--${layout}`, dense && 'collage--dense']}
-      style={layout === 'duo' ? `--duo-ratio: ${duoRatio};` : undefined}
+      style={
+        layout === 'duo'
+          ? `--duo-ratio: ${duoRatio};`
+          : layout === 'uniform'
+            ? `--uniform-ratio: ${uniformRatio};`
+            : undefined
+      }
     >
       <div class="collage__grid">
         {images.slice(0, layout === 'many' ? 3 : n).map((img, i) => (
@@ -349,7 +395,43 @@ const duoRatio = (() => {
     aspect-ratio: auto;
   }
 
-  /* ---------------- 4+ : lead + 2 stacked, then a row ---------------- */
+  /* ---------------- 4+ landscape: a uniform 2-column grid ----------------
+     Every cell the same size, every cell at the image's own 16:9. No lead, no
+     stack, no crop — because with a set of dashboards there is no "hero": each
+     one is a full screen of information and shrinking any of them loses figures.
+
+     Two up rather than three or four: at 1160px of measure a 2-column cell is
+     ~570px wide, which renders a dashboard's axis labels legibly. Four-up would
+     put each at ~275px, back where this started.
+     -------------------------------------------------------------------- */
+  .collage--uniform .collage__grid {
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 760px) {
+    .collage--uniform .collage__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .collage--uniform .collage__cell {
+    aspect-ratio: var(--uniform-ratio, 16 / 9);
+  }
+
+  /* ---------------- 4+ mixed: lead + 2 stacked, then a row ----------------
+     The trailing row is where this used to fall apart. `auto-fit` with a 190px
+     minimum packs as many columns as the width allows, so with three leftovers it
+     produced three cells of roughly 229x143 — which is unusable for a dashboard
+     screenshot whose whole point is its figures. Measured on the five-image
+     procurement project: the lead rendered 1090px wide and the small ones 229px,
+     a 4.8x difference within one gallery.
+
+     A dashboard is a DOCUMENT: it carries information at every scale, so a
+     thumbnail of it communicates nothing. The rule is now a floor — cells are at
+     least ~340px wide, and a row that cannot fit three at that size wraps to two
+     or one instead of shrinking further. Fewer, larger frames beat a dense grid
+     nobody can read.
+     --------------------------------------------------------------------- */
   .collage--many .collage__grid {
     grid-template-columns: 1.7fr 1fr;
     grid-template-rows: repeat(2, minmax(0, 1fr));
@@ -367,12 +449,25 @@ const duoRatio = (() => {
     display: grid;
     gap: var(--collage-gap, clamp(0.5rem, 1.2vw, 0.9rem));
     margin-top: var(--collage-gap, clamp(0.5rem, 1.2vw, 0.9rem));
-    /* auto-fit keeps 1–6 trailing images balanced without a media query */
-    grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr));
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 720px) {
+    .collage__rest {
+      grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr));
+    }
   }
 
   .collage__cell--small {
     aspect-ratio: 3 / 2;
+  }
+
+  /*
+    A document in a small cell is letterboxed rather than cropped, and gets a
+    little more inset so its own page edge does not sit flush against the frame's.
+  */
+  .collage__cell--small.collage__cell--contain img {
+    padding: 0.8rem;
   }
 
   .collage__note {

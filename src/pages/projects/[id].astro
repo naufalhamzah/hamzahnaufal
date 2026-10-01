@@ -190,15 +190,6 @@ const links = [
         }
 
         {
-          gallery.length > 0 && (
-            <div class="pd-block">
-              <h2 class="pd-h label">Screens &amp; gallery</h2>
-              <Collage images={gallery} mockup />
-            </div>
-          )
-        }
-
-        {
           project.todo && (
             <div class="pd-block">
               <p class="pd-todo mono">
@@ -273,6 +264,32 @@ const links = [
     </div>
   </section>
 
+  <!-- ===================== gallery (full width) =====================
+       Deliberately OUTSIDE the two-column body shell.
+
+       It used to live inside the 1.6fr text column, which left the gallery about
+       620px wide and shrank its smaller cells to 231x145 — unreadable for a
+       dashboard, whose whole purpose is its figures. A gallery is display
+       material, not prose: it belongs at the full measure of the page, where the
+       images can be looked at rather than merely counted.
+       ---------------------------------------------------------------- -->
+  {
+    gallery.length > 0 && (
+      <section class="pd-gal" aria-labelledby="pd-gallery">
+        <div class="shell">
+          <div class="pd-gal__head">
+            <h2 id="pd-gallery" class="label">Screens &amp; gallery</h2>
+            <p class="pd-gal__count mono">
+              {gallery.length} {gallery.length === 1 ? 'image' : 'images'}
+            </p>
+          </div>
+          <Collage images={gallery} mockup />
+        </div>
+      </section>
+    )
+  }
+
+
   <!-- ===================== related ===================== -->
   {
     relatedNumbered.length > 0 && (
@@ -291,6 +308,29 @@ const links = [
 </BaseLayout>
 
 <style>
+  /* ==========================================================================
+     gallery (full width)
+     ========================================================================== */
+  .pd-gal {
+    padding-block: var(--space-section);
+    border-top: var(--hairline) solid var(--border);
+  }
+
+  .pd-gal__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    margin-bottom: clamp(1.25rem, 2.5vw, 1.75rem);
+    padding-bottom: 1rem;
+    border-bottom: var(--hairline) solid var(--border-faint);
+  }
+
+  .pd-gal__count {
+    color: var(--fg-faint);
+  }
+
   /* ==========================================================================
      header
      ========================================================================== */

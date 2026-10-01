@@ -104,40 +104,56 @@ const raw: ProjectEntry[] = [
      * screenshots; each is a distinct view, so the gallery shows the breadth
      * of the dashboard rather than four near-identical frames.
      */
+    /*
+      VISUALS — five distinct VIEWS of the dashboard, not five frames of the same
+      screen. Each caption states which view it is, because that is what a reader
+      needs in order to read the picture: the 2024 and 2025 pages share a layout
+      and are only distinguishable by the period and the figures.
+
+      All five are 1600x900 (1600:900, exactly 16:9), so they fill the frame
+      without letterboxing and without a crop.
+    */
     visual: {
       src: '/images/projects/pln-dashboard-1.webp',
-      alt: 'Procurement monitoring dashboard in Google Looker Studio — top-level cards and monthly trend line',
-      width: 748,
-      height: 422,
+      alt: 'Procurement monitoring dashboard in Google Looker Studio — summary cards, monthly value trend, procurement-type donut, monthly volume bars and vendor breakdowns',
+      width: 1600,
+      height: 900,
     },
     gallery: [
       {
         src: '/images/projects/pln-dashboard-1.webp',
-        alt: 'Dashboard overview with summary cards and a monthly procurement trend line',
-        width: 748,
-        height: 422,
-        caption: 'Overview and monthly trend',
+        alt: 'Dashboard overview with summary cards, a monthly procurement value trend, and breakdowns by procurement type, month and vendor',
+        width: 1600,
+        height: 900,
+        caption: 'Overview — monthly trend and breakdowns',
       },
       {
         src: '/images/projects/pln-dashboard-2.webp',
-        alt: 'Dashboard view combining a trend line with procurement status and bar breakdowns',
-        width: 748,
-        height: 422,
-        caption: 'Status breakdown and volume',
+        alt: 'Recapitulation for 2025 showing cumulative procurement value rising to Rp11.65B across the year',
+        width: 1600,
+        height: 900,
+        caption: '2025 recapitulation — cumulative value',
       },
       {
         src: '/images/projects/pln-dashboard-3.webp',
-        alt: 'Dashboard view with a procurement timeline, bar chart and donut chart by category',
-        width: 748,
-        height: 422,
-        caption: 'Trend, volume and category mix',
+        alt: 'Recapitulation for 2024 showing 366 procurement records, four vendors and Rp18.58B in total value across twelve months',
+        width: 1600,
+        height: 900,
+        caption: '2024 recapitulation — 366 records, Rp18.58B',
       },
       {
         src: '/images/projects/pln-dashboard-4.webp',
-        alt: 'Vendor performance detail view listing vendors with procurement figures',
-        width: 748,
-        height: 422,
-        caption: 'Vendor performance detail',
+        alt: 'Annual summary comparing 2024 and 2025 procurement value, with monthly volume and type composition',
+        width: 1600,
+        height: 900,
+        caption: 'Annual summary — 2024 against 2025',
+      },
+      {
+        src: '/images/projects/pln-dashboard-5.webp',
+        alt: 'Procurement vendor summary table ranking four vendors by total work orders and value, led by PT Maju Jaya',
+        width: 1600,
+        height: 900,
+        caption: 'Vendor summary — ranked by total value',
       },
     ],
     /*

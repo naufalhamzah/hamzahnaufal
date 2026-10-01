@@ -148,31 +148,59 @@ const RECIPES = [
     trimWhiteMargin: {}
   }],
 
-  /* --------- PROJECT: PLN dashboard — the NEWER assets replace old ------- */
+  /* --------- PROJECT: PLN dashboard — the NEWER assets replace old -------
+     SUPERSEDED AGAIN, and the reason matters: the previous four were 748x422
+     screen captures with the rounded card still in the file, so they needed the
+     white band shaved off the bottom and right and the corner notches clipped
+     (see clipRoundedCorners in convert()).
+
+     These five are full 1920x1080 exports. Measured before wiring them in: every
+     edge is 0.0% white, all four corners are clean, and the interior white is
+     0.14-0.99%. So they need NEITHER the trim nor the corner clip — the option is
+     deliberately left off rather than applied out of habit, because a clip on a
+     clean file only risks eating real pixels.
+
+     They also cover a range the old set did not: 2024 versus 2025, an annual
+     summary, and the vendor table — not four near-identical frames.
+
+     The old sources stay in konten/ and the old recipe lines are kept below,
+     commented, so the previous framing can be restored without re-finding the
+     files. Nothing is deleted.
+     ----------------------------------------------------------------------- */
+  ['Dashboard Pengadaan 2025 - Ikhtisar.png', 'projects/pln-dashboard-1.webp', {
+    w: 1600, q: Q.shot,
+  }],
+  ['Dashboard Pengadaan 2025 - Rekapitulasi.png', 'projects/pln-dashboard-2.webp', {
+    w: 1600, q: Q.shot,
+  }],
+  ['Dashboard Pengadaan 2024 - Rekapitulasi.png', 'projects/pln-dashboard-3.webp', {
+    w: 1600, q: Q.shot,
+  }],
+  ['Dashboard Pengadaan - Ringkasan Tahunan.png', 'projects/pln-dashboard-4.webp', {
+    w: 1600, q: Q.shot,
+  }],
+  ['Dashboard Pengadaan - Ringkasan Vendor.png', 'projects/pln-dashboard-5.webp', {
+    w: 1600, q: Q.shot,
+  }],
+
+  /*
+    PREVIOUS SET (748x422 Looker Studio captures) — superseded, kept for rollback.
+    They carried a white band along the bottom and right plus rounded-corner
+    notches, which is why they needed clipRoundedCorners.
+
   ['Gambaran Project Dashboard PLN  (1).png', 'projects/pln-dashboard-1.webp', {
-    w: 1300, q: Q.shot,
-    // Looker Studio exports these with the corners of a rounded card still in the
-    // file. See the clipRoundedCorners note in convert().
-    clipRoundedCorners: {},
+    w: 1300, q: Q.shot, clipRoundedCorners: {},
   }],
   ['Gambaran Project Dashboard PLN  (2).png', 'projects/pln-dashboard-2.webp', {
-    w: 1300, q: Q.shot,
-    // Looker Studio exports these with the corners of a rounded card still in the
-    // file. See the clipRoundedCorners note in convert().
-    clipRoundedCorners: {},
+    w: 1300, q: Q.shot, clipRoundedCorners: {},
   }],
   ['Gambaran Project Dashboard PLN  (3).png', 'projects/pln-dashboard-3.webp', {
-    w: 1300, q: Q.shot,
-    // Looker Studio exports these with the corners of a rounded card still in the
-    // file. See the clipRoundedCorners note in convert().
-    clipRoundedCorners: {},
+    w: 1300, q: Q.shot, clipRoundedCorners: {},
   }],
   ['Gambaran Project Dashboard PLN  (4).png', 'projects/pln-dashboard-4.webp', {
-    w: 1300, q: Q.shot,
-    // Looker Studio exports these with the corners of a rounded card still in the
-    // file. See the clipRoundedCorners note in convert().
-    clipRoundedCorners: {},
+    w: 1300, q: Q.shot, clipRoundedCorners: {},
   }],
+  */
 
   /* ------------------------ PROJECT: smart farming ---------------------- */
   // This file is the JOURNAL ARTICLE COVER (Ampoen Vol. 2 No. 2), not a field
