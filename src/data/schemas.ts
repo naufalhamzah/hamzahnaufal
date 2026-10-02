@@ -45,6 +45,18 @@ export const mediaAssetSchema = z.object({
     .string()
     .startsWith('/', 'Image src must be a public path beginning with "/"'),
   alt: z.string().min(3, 'Every image needs descriptive alt text'),
+  /**
+   * A VECTOR twin of the same artwork, when one exists.
+   *
+   * `src` stays the raster fallback that every renderer understands; `srcVector`
+   * names the .svg the UI prefers. A flat image's edge is a stair-step and, once
+   * it has been through a JPEG, a halo too — both are baked in at every size the
+   * mark is drawn, whereas a path has neither. The field is optional so a mark
+   * with no vector twin keeps working unchanged, and it is a data field rather
+   * than a naming convention so a component can never "guess" a sibling URL that
+   * was not built.
+   */
+  srcVector: z.string().startsWith('/').optional(),
   width: z.number().int().positive().optional(),
   height: z.number().int().positive().optional(),
   caption: z.string().optional(),

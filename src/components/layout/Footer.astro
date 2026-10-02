@@ -33,7 +33,8 @@ const active = activePageFor(Astro.url.pathname);
                 ]}
               >
                 <img
-                  src={asset(job.logo.src)}
+                  /* Prefer the vector twin when the mark has one — see MediaAsset.srcVector. */
+                  src={asset(job.logo.srcVector ?? job.logo.src)}
                   alt={job.logo.alt}
                   width={job.logo.width ?? 200}
                   height={job.logo.height ?? 80}

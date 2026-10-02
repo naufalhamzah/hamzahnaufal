@@ -4,6 +4,11 @@
  *
  * Real pixel dimensions for every image the pipeline produced. Used to reserve
  * layout space (aspect-ratio) so images cause no layout shift.
+ *
+ * TRACED VECTOR MARKS: a mark rebuilt as paths (see VECTOR_MARKS) is listed here
+ * by its RASTER fallback's size, while the page renders the .svg twin named by
+ * `srcVector` in the data layer. Both describe the same square, so the reserved
+ * space is correct either way — that is why the vector needs no entry of its own.
  */
 export const imageDims: Record<string, [number, number]> = {
   '/images/hero/portrait.webp': [1400, 1866],
@@ -43,7 +48,6 @@ export const imageDims: Record<string, [number, number]> = {
   '/images/publications/ijirse-article-nb.webp': [1194, 1686],
   '/images/publications/ampoen-cover.webp': [690, 1006],
   '/images/publications/ampoen-article.webp': [1224, 1661],
-  '/images/logos/airnav.webp': [357, 354],
   '/images/logos/beauty-lab.webp': [1200, 246],
   '/images/logos/pln-pusharlis.webp': [1200, 369],
   '/images/logos/jaist.webp': [1400, 238],
@@ -86,4 +90,5 @@ export const imageDims: Record<string, [number, number]> = {
   '/images/certificates/cert-pkmmtj-2024.webp': [1500, 1061],
   '/images/certificates/cert-silver-medal-onn.webp': [1500, 1061],
   '/images/certificates/cert-finalist-pab-ukmp.webp': [1500, 1061],
+  '/images/logos/airnav.webp': [512, 512],
 };

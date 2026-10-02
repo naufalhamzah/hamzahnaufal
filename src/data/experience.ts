@@ -49,9 +49,22 @@ const raw: ExperienceEntry[] = [
     tools: ['Web application development'],
     logo: {
       src: '/images/logos/airnav.webp',
+      /*
+        The vector twin. `src` is the raster fallback the asset pipeline writes
+        from this SVG; the site renders the SVG wherever it can, so the mark's
+        edges are curves rather than the supplied JPEG's stair-steps and halo.
+        Both files come from `scripts/airnav-logo.py` + `npm run assets`.
+      */
+      srcVector: '/images/logos/airnav.svg',
       alt: 'AirNav Indonesia logo',
-      width: 357,
-      height: 354,
+      /*
+        The VECTOR's own size — a square 352-unit viewBox. It was 357x354, which
+        was the raster's size and would have told the browser to reserve a 1:1 box
+        that is 1.4% wider than the artwork; the trace made the mark exactly round,
+        and those numbers are now what the file actually is.
+      */
+      width: 352,
+      height: 352,
     },
     /**
      * ONE photograph, and it is UNAMBIGUOUSLY AirNav: the onboarding session has
@@ -164,7 +177,7 @@ const raw: ExperienceEntry[] = [
       'Completed the system in less than one month, aligned with the company’s operational needs',
       'Ensured the system’s sustainability — implementation, adaptation and day-to-day use — as the person with the deepest understanding of its workflow and structure',
     ],
-    tools: ['Google Sheets', 'JavaScript'],
+    tools: ['Google Sheets', 'JavaScript', 'Marketing data management'],
     logo: {
       src: '/images/logos/beauty-lab.webp',
       alt: 'Beauty Innovation Laboratories logo',

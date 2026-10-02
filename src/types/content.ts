@@ -119,6 +119,14 @@ export interface MediaAsset {
   src: string;
   /** Meaningful alt text — required, never empty. */
   alt: string;
+  /**
+   * Optional VECTOR twin of the same artwork (an .svg built by the asset
+   * pipeline). The UI prefers it over `src` so a flat mark's stair-stepped and
+   * haloed edge is replaced by real curves at every size; `src` remains the
+   * fallback for the contexts that cannot take an SVG. Optional, so a mark with
+   * no vector twin renders exactly as before.
+   */
+  srcVector?: string;
   /** Native pixel width, so layouts can reserve space and avoid shift. */
   width?: number;
   height?: number;

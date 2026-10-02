@@ -118,6 +118,32 @@ npm run assets     # writes optimised WebP + refreshes the generated dimension m
 Real pixel dimensions are emitted to `src/data/asset-dims.generated.ts`, which is
 what lets cards reserve the correct space and avoid layout shift.
 
+### Vector marks
+
+An employer mark that arrives as a flat image carries that image's edge at every
+size it is drawn — stair-steps, plus a compression halo once it has been through a
+JPEG. The AirNav roundel is therefore **traced to paths** instead of sampled:
+
+```bash
+python scripts/airnav-logo.py   # konten/Logo AirNav.jfif -> konten/_rendered/airnav-roundel.svg
+npm run assets                  # -> public/images/logos/airnav.svg (+ .webp fallback)
+```
+
+The trace is a build step, not a one-off asset: the script rebuilds the disc as an
+exact circle (taken from the ink's bounding box, because the JPEG's own boundary
+is not a usable edge) and traces the ribbon, swooshes and lettering from colour
+masks. **Nothing is redrawn by hand** — the geometry is the supplied artwork's own.
+
+The pipeline then writes two files: the minified `airnav.svg`, which the page
+renders, and `airnav.webp`, a raster fallback. Which one a component uses comes
+from the data layer, not from a naming convention: a `MediaAsset` may carry an
+optional `srcVector`, and the components prefer it when present. Adding a second
+traced mark is a two-line change (`VECTOR_MARKS` in `scripts/build-assets.mjs` plus
+`srcVector` on that entry in `src/data/`).
+
+Requires `pillow`, `numpy` and `potrace` (`pip install potracer`) for the trace;
+`svgo` is a dev dependency and does the SVG minification.
+
 ---
 
 ## Design system

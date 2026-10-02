@@ -62,7 +62,9 @@ const meta = [
                 {job.logo ? (
                   <span class="xp__logo">
                     <img
-                      src={asset(job.logo.src)}
+                      /* Prefer the vector twin when the mark has one, so its edges
+                         are curves instead of a flat file's stair-steps. */
+                      src={asset(job.logo.srcVector ?? job.logo.src)}
                       alt={job.logo.alt}
                       width={job.logo.width ?? 200}
                       height={job.logo.height ?? 80}

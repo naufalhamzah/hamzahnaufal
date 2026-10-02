@@ -29,7 +29,8 @@
  */
 
 import sharp from 'sharp';
-import { mkdirSync, existsSync, statSync, writeFileSync } from 'node:fs';
+import { optimize } from 'svgo';
+import { mkdirSync, existsSync, statSync, writeFileSync, readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -40,6 +41,13 @@ const REND = join(SRC, '_rendered');
 const OUT = join(ROOT, 'public', 'images');
 
 const Q = { photo: 80, shot: 84, doc: 86, cert: 86, logo: 92, gallery: 76 };
+/** SVG marks are rendered at this density when rasterised — see VECTOR_MARKS. */
+const SVG_DENSITY = 1400;
+
+/* Build counters — declared up here because the recipe section below (the traced
+   vector marks) logs a success of its own before the conversion loop runs. */
+let ok = 0, fail = 0, bytesIn = 0, bytesOut = 0;
+const manifest = [];
 
 /** [source, outputPath, options] */
 const RECIPES = [
@@ -381,35 +389,17 @@ const RECIPES = [
 
   /* ---------------------- EMPLOYER LOGOS (from konten) ------------------ */
   /*
-    AirNav — ROUNDEL ONLY, the second line of type dropped.
+    AirNav — NOT HERE. It is a TRACED VECTOR mark, so it is built in the
+    `VECTOR_MARKS` section below from the SVG that `scripts/airnav-logo.py`
+    produces, not sampled from `Logo AirNav.jfif` as a raster.
 
-    The supplied mark stacks a roundel and, below it, "AirNav Indonesia" in a dark
-    grey set for a white page. Measured: 51% of that second line's pixels are
-    darker than L<110, which is invisible against the dark theme's band (L≈22) —
-    and it also sits OUTSIDE the roundel, so it renders at a smaller size than the
-    rest of the mark and turns to mush at footer scale even where it is visible.
-
-    Nothing is lost by cropping to the roundel: "AirNav" is already lettered
-    inside it, and the alt text still names the organisation in full. What the
-    crop removes is a line that read as a smudge in one theme and a weak grey in
-    the other.
-
-    `crop` runs BEFORE `trim`, so the fractions describe the full source. The
-    roundel ends at 0.8164 of the height (measured from the alpha row profile:
-    content y 12..367, then a 9px gap, then the type).
+    The old raster recipe cropped the supplied JPEG to the roundel and dropped the
+    stacked "AirNav Indonesia" line (measured: 51% of that line's pixels fell below
+    L<110, invisible against the dark band's L≈22, and it sat outside the roundel
+    so it rendered smaller than the rest of the mark). The roundel crop was right;
+    what it could not fix was the disc's edge, which carried the JPEG's
+    stair-steps and a 1-2px halo into every size the site drew it at.
   */
-  [
-    'Logo AirNav.jfif',
-    'logos/airnav.webp',
-    {
-      w: 800,
-      q: Q.logo,
-      logo: true,
-      knockOutWhite: true,
-      crop: { left: 0, top: 0, width: 1, ratio: 1 / 0.8164 },
-      trim: true
-    },
-  ],
   ['Logo Beauty Lab.png', 'logos/beauty-lab.webp', { w: 1200, q: Q.logo, logo: true, trim: true }],
   ['Logo PLN Pusharlis.png', 'logos/pln-pusharlis.webp', { w: 1200, q: Q.logo, logo: true, trim: true }],
   ['Logo Jaist.png', 'logos/jaist.webp', { w: 1400, q: Q.logo, logo: true, trim: true }],
@@ -512,33 +502,103 @@ for (const [file, stem] of CERTS) {
   RECIPES.push([source, `certificates/${stem}.webp`, { w: 1500, q: Q.cert, abs: true }]);
 }
 
+/* ========================= VECTOR MARKS (svg) ========================= */
+/*
+  Marks that are TRACED, not sampled.
+
+  `scripts/airnav-logo.py` rebuilds the AirNav roundel as paths from the supplied
+  JPEG: the disc is reconstructed as an exact circle from the ink's bounding box,
+  and the ribbon, swooshes and lettering are traced from colour masks. A flat
+  image's edge is a stair-step plus a compression halo, and both are baked into
+  the file at every size it is drawn; a path has neither, so the mark stays sharp
+  wherever it is rendered. Nothing is redrawn by hand — the geometry is the
+  supplied artwork's own, which is why the trace is a build step and not a
+  one-off asset.
+
+  `q` stays at the logo quality. The mark is drawn with a transparent field, so
+  there is no flatten step and the raster sits on either theme's band unchanged.
+
+  The minified SVG is also written straight to `public/images/logos/`, which is
+  the file the SITE actually renders; the webp is the fallback for the few
+  contexts that cannot take an SVG.
+*/
+const VECTOR_MARKS = [
+  ['airnav-roundel.svg', 'logos/airnav.webp', { w: 512, q: Q.logo, logo: true, svgOut: 'logos/airnav.svg' }],
+];
+
+for (const [file, out, opts] of VECTOR_MARKS) {
+  const abs = join(REND, file);
+  if (!existsSync(abs)) {
+    console.log(`  SKIP (not traced yet): ${file} — run \`python scripts/airnav-logo.py\``);
+    fail++;
+    continue;
+  }
+  const minified = svgMinify(readFileSync(abs, 'utf8'));
+  if (opts.svgOut) {
+    const svgPath = join(OUT, opts.svgOut);
+    mkdirSync(dirname(svgPath), { recursive: true });
+    writeFileSync(svgPath, minified);
+    console.log(`  ✓ ${opts.svgOut.padEnd(48)} ${(minified.length / 1024).toFixed(1)} kB (vector)`);
+    ok++;
+  }
+  RECIPES.push([abs, out, { ...opts, abs: true, fromBuffer: Buffer.from(minified) }]);
+}
+
 /* ================================== RUN ================================= */
 if (!existsSync(SRC)) {
   console.error(`Source folder not found: ${SRC}`);
   process.exit(1);
 }
 
-let ok = 0, fail = 0, bytesIn = 0, bytesOut = 0;
-const manifest = [];
+/**
+ * Minify an SVG string with svgo. Returns the input unchanged if svgo fails, so
+ * an optimiser problem can never break the asset build.
+ */
+function svgMinify(svg) {
+  try {
+    const { data } = optimize(svg, {
+      multipass: true,
+      floatPrecision: 2,
+      plugins: [{ name: 'preset-default' }],
+    });
+    return data;
+  } catch (e) {
+    console.log(`  ! svgo failed, using unoptimised svg: ${e.message}`);
+    return svg;
+  }
+}
 
 async function convert(from, rel, opts) {
   const to = join(OUT, rel);
   mkdirSync(dirname(to), { recursive: true });
 
-  if (!existsSync(from)) {
+  /*
+    A recipe may carry its own `fromBuffer` instead of a file on disk — that is
+    how the traced SVG marks enter the pipeline: the geometry is traced by
+    scripts/airnav-logo.py, minified here in memory, and never needs a raster
+    intermediate on disk.
+  */
+  if (!opts.fromBuffer && !existsSync(from)) {
     console.log(`  SKIP (no source): ${rel}`);
     fail++;
     return;
   }
 
-  const inBytes = statSync(from).size;
+  const inBytes = opts.fromBuffer ? opts.fromBuffer.length : statSync(from).size;
   bytesIn += inBytes;
 
   try {
-    const meta = await sharp(from, { failOn: 'none' }).metadata();
+    const input = opts.fromBuffer ?? from;
+    /*
+      An SVG has no pixels to sample, so sharp's own default rasterisation (72
+      dpi, a few hundred px for a 352-unit viewBox) would decide the fallback
+      quality. Density is set here so the raster is rendered well ABOVE the size it
+      is written at and then downsampled — same reason the trace supersamples.
+    */
+    const meta = await sharp(input, { failOn: 'none', density: SVG_DENSITY }).metadata();
     let targetW = Math.min(opts.w, meta.width ?? opts.w);
 
-    let pipe = sharp(from, { failOn: 'none' }).rotate();
+    let pipe = sharp(input, { failOn: 'none', density: SVG_DENSITY }).rotate();
 
     /*
       crop: { left, top, width, height } as FRACTIONS of the original frame.
@@ -1058,6 +1118,11 @@ const generatedTs = `/**
  *
  * Real pixel dimensions for every image the pipeline produced. Used to reserve
  * layout space (aspect-ratio) so images cause no layout shift.
+ *
+ * TRACED VECTOR MARKS: a mark rebuilt as paths (see VECTOR_MARKS) is listed here
+ * by its RASTER fallback's size, while the page renders the .svg twin named by
+ * \`srcVector\` in the data layer. Both describe the same square, so the reserved
+ * space is correct either way — that is why the vector needs no entry of its own.
  */
 export const imageDims: Record<string, [number, number]> = {
 ${manifest.map((a) => `  '${a.out}': [${a.w}, ${a.h}],`).join('\n')}
