@@ -89,7 +89,7 @@ const rawProfile: Profile = {
   */
   currentStatus: "Bachelor's Degree, Information Systems",
   /** Shown on the Experience page only — never as the site's identity. */
-  currentRole: 'Information Technology Administration Staff Intern',
+  currentRole: 'Information Technology Administration  at AirNav Indonesia',
 
   /**
    * About narrative. Rewritten for this pass: shorter sentences, concrete
