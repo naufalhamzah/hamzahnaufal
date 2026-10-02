@@ -152,14 +152,19 @@ const raw: ExperienceEntry[] = [
     ],
     source: 'portfolio',
     /*
-      The TODO that used to sit here ("confirm whether the role is still active")
-      is resolved: the end date came from the user directly. The remaining note is
-      only that the START month comes from the deck, because the profile export
-      does not list this role at all — worth keeping visible so nobody later
-      assumes both dates came from the same source.
+      SOURCING NOTE — kept as a code comment rather than a `todo`.
+
+      A `todo` used to render a visible "Note" badge on this entry, reading that
+      the start month comes from the portfolio deck while the profile export does
+      not list the role at all. The author has confirmed the entry is correct as
+      it stands, so the badge is gone: a role whose dates the author has verified
+      should not carry a warning aimed at the reader.
+
+      The provenance is still worth recording HERE, because it is a real property
+      of the data — the two supplied documents do not agree on this role's
+      existence, and whoever edits next should know which source produced the
+      start month rather than assuming both dates came from the profile export.
     */
-    todo:
-      'Start month is from the portfolio deck; the profile export does not list this role. End date confirmed by the author.',
   },
   {
     id: 'beauty-innovation',
