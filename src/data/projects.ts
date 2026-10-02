@@ -315,17 +315,17 @@ const raw: ProjectEntry[] = [
     categories: ['uiux'],
     role: 'UI/UX Designer',
     /*
-      SEMESTER 2, confirmed by the author.
+      SEMESTER 4, confirmed by the author.
 
       The project has no documented date of its own — it was coursework — so the
-      semester is what the record supports. `sortKey` is derived from the academic
-      calendar (intake August 2022, so semester 2 falls in 2023) and is used ONLY
-      for ordering in the grid; the label a reader sees is the semester, never the
-      derived month.
+      semester is what the record supports. `sortKey` and `year` are derived from
+      the academic calendar (intake August 2022, so semester 4 runs Feb–Jun 2024)
+      and are used ONLY for ordering in the grid and for the year filter; the
+      label a reader sees is the semester, never the derived month.
     */
-    dateRange: 'Semester 2',
-    sortKey: '2023-06',
-    year: '2023',
+    dateRange: 'Semester 4',
+    sortKey: '2024-04',
+    year: '2024',
     tagline:
       'A home decor shopping app with a 5D Planner and Augmented Reality visualisation, designed in Figma.',
     context:
@@ -399,8 +399,15 @@ const raw: ProjectEntry[] = [
     subtitle: 'Mental Health Consultation App — UI/UX Design',
     categories: ['uiux'],
     role: 'UI/UX Designer',
-    sortKey: '2024-02',
-    year: '2024',
+    /*
+      SEMESTER 2, confirmed by the author — same coursework treatment as Guzelev
+      and Kedai Nyam: the semester is the documented fact, and `sortKey`/`year`
+      are derived from the academic calendar (intake August 2022, so semester 2
+      runs Feb–Jun 2023) for grid ordering and the year filter only.
+    */
+    dateRange: 'Semester 2',
+    sortKey: '2023-04',
+    year: '2023',
     tagline:
       'An online mental health consultation platform offering chat and video counselling with licensed professionals.',
     context:
@@ -494,8 +501,6 @@ const raw: ProjectEntry[] = [
     },
     featured: false,
     source: 'portfolio',
-    todo:
-      'No date documented for this course project. Only the year is shown and it is inferred from the course period.',
   },
   {
     id: 'kedai-nyam',
@@ -503,10 +508,14 @@ const raw: ProjectEntry[] = [
     subtitle: 'Snack Store App — UI/UX Design',
     categories: ['uiux'],
     role: 'UI/UX Designer',
-    /* SEMESTER 4, confirmed by the author — same derivation as Guzelev above. */
-    dateRange: 'Semester 4',
-    sortKey: '2024-06',
-    year: '2024',
+    /*
+      SEMESTER 3, confirmed by the author — same coursework treatment as Guzelev
+      and WellMind: the semester is the documented fact, `sortKey`/`year` are
+      derived from the academic calendar (semester 3 runs Sep 2023–Jan 2024).
+    */
+    dateRange: 'Semester 3',
+    sortKey: '2023-10',
+    year: '2023',
     tagline:
       'A two-sided snack store app: a desktop version for managers and staff, and a mobile version for consumers.',
     context:
