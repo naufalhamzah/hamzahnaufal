@@ -31,18 +31,36 @@ const UKM = 'UKM Penelitian Universitas Negeri Semarang';
  * The shared photo pool. Roles point into this by id, so the same image can be
  * reused without duplicating alt text or dimensions.
  */
+/**
+ * THE SAME PHOTOGRAPHS THE GALLERY USES — deliberately, not by accident.
+ *
+ * These used to live again under `public/images/organizations/`, as 17 separate
+ * files (`committee-01..13`, `org-01..04`). Comparing them against the gallery
+ * set showed all 17 were PIXEL-FOR-PIXEL the same photographs as
+ * `gallery/moment-02..18` — a second copy of files the site already ships, kept
+ * because this file pointed at its own directory. Nothing rendered them, so the
+ * duplication was invisible.
+ *
+ * They now point at the gallery files. One photograph, one file, and the same
+ * image appearing in a role's collage and in the gallery is intentional: both
+ * places are describing the same event, and the gallery caption is the one that
+ * states what is visible.
+ */
 const photo = (
   n: number,
   alt: string,
   kind: 'kepanitiaan' | 'organisasi' = 'kepanitiaan',
 ): { id: string; asset: MediaAsset } => {
   const num = String(n).padStart(2, '0');
+  /* Committee photographs are gallery moments 02..14; organisation photographs
+     are 15..18. The offsets are the mapping verified against the pixels. */
+  const moment = kind === 'kepanitiaan' ? n + 1 : n + 14;
   return {
     id: `${kind}-${num}`,
     asset: {
-      src: `/images/organizations/${kind === 'kepanitiaan' ? 'committee' : 'org'}-${num}.webp`,
+      src: `/images/gallery/moment-${String(moment).padStart(2, '0')}.webp`,
       alt,
-      width: 1200,
+      width: 1400,
     },
   };
 };

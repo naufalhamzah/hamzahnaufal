@@ -14,6 +14,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PageHeader from '@/components/ui/PageHeader.astro';
 import ShotSlider from '@/components/ui/ShotSlider.astro';
+import Collage from '@/components/ui/Collage.astro';
 import { experienceSorted, currentExperience } from '@/data/experience';
 import { organizationsSorted, organizationGroups } from '@/data/organizations';
 import { profile } from '@/data/profile';
@@ -150,7 +151,7 @@ const meta = [
 
             <ol class="xp-org__list">
               {groupRoles.map((r) => (
-                <li class="xp-org__row">
+                <li class:list={['xp-org__row', r.photos && r.photos.length > 0 && 'xp-org__row--media']}>
                   <p class="xp-org__when mono">{r.dateRange}</p>
                   <div class="xp-org__body">
                     <p class="xp-org__role">{r.role}</p>
@@ -159,6 +160,15 @@ const meta = [
                       <p class="xp-org__tools mono">{r.tools.join(' · ')}</p>
                     )}
                   </div>
+
+                  {/* The role's photographs, where the data has them. Composed
+                      from the count that exists, so a role with one photo and a
+                      role with four both lay out without a rule per case. */}
+                  {r.photos && r.photos.length > 0 && (
+                    <div class="xp-org__media">
+                      <Collage images={r.photos} dense />
+                    </div>
+                  )}
                 </li>
               ))}
             </ol>
@@ -490,10 +500,36 @@ const meta = [
     border-bottom: var(--hairline) solid var(--border-faint);
   }
 
+  /*
+    A role with photographs takes a third column.
+
+    The collage sits BESIDE the role rather than under it, which is what the user
+    asked for ("kolasekan beberapa untuk ditaruh di samping pengalaman organisasi
+    dan kepanitiaan"). It is a separate grid track rather than a float, so the
+    text column keeps its own measure and the images align down the list.
+
+    Roles WITHOUT photographs keep the two-column shape — hence the modifier on
+    the row rather than a rule on every row.
+  */
   @media (min-width: 760px) {
     .xp-org__row {
       grid-template-columns: minmax(0, 13rem) minmax(0, 1fr);
       align-items: baseline;
+    }
+
+    .xp-org__row--media {
+      grid-template-columns: minmax(0, 13rem) minmax(0, 1fr) minmax(0, 18rem);
+      align-items: start;
+    }
+  }
+
+  .xp-org__media {
+    margin-top: 0.4rem;
+  }
+
+  @media (min-width: 760px) {
+    .xp-org__media {
+      margin-top: 0;
     }
   }
 

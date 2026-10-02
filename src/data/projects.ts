@@ -83,7 +83,15 @@ const raw: ProjectEntry[] = [
         fit: 'contain',
       },
     ],
-    linkPending: 'Open the marketing system',
+    /*
+      NO PUBLIC LINK, deliberately.
+
+      A `linkPending` slot used to sit here, which rendered a greyed button
+      reading "Open the marketing system — Soon". The system is CREDENTIALED
+      internal business data — customer records, proposal pipeline, payment
+      status — so there is nothing public to point at and there will not be. A
+      disabled button implies a URL is coming; the honest thing is no button.
+    */
     featured: true,
     source: 'both',
   },
@@ -200,7 +208,16 @@ const raw: ProjectEntry[] = [
     subtitle: 'SIMPELDES · PPK Ormawa HIMA ILKOM UNNES 2024',
     categories: ['research', 'systems'],
     role: 'Research & Publication Team',
-    dateRange: '2024',
+    /*
+      PERIOD CONFIRMED BY THE AUTHOR: February – December 2024.
+
+      A `todo` note sat on this entry because two supplied documents disagreed
+      (Feb–Dec 2024 against Jun–Nov 2024) and only the year was published until
+      someone could settle it. The author has, so the real range ships and the
+      warning is gone. `sortKey` keeps the programme's midpoint, so the position
+      in the project grid does not move.
+    */
+    dateRange: 'February – December 2024',
     year: '2024',
     sortKey: '2024-06',
     organisation: 'PPK Ormawa HIMA ILKOM UNNES 2024',
@@ -288,8 +305,6 @@ const raw: ProjectEntry[] = [
     },
     featured: true,
     source: 'both',
-    todo:
-      'Dates conflict between documents (Feb–Dec 2024 vs Jun–Nov 2024). Only the year is shown until confirmed.',
   },
 
   /* ========================= UI/UX PRODUCT DESIGN ======================= */
@@ -299,8 +314,18 @@ const raw: ProjectEntry[] = [
     subtitle: 'Home Decor App — UI/UX Design',
     categories: ['uiux'],
     role: 'UI/UX Designer',
-    sortKey: '2024-01',
-    year: '2024',
+    /*
+      SEMESTER 2, confirmed by the author.
+
+      The project has no documented date of its own — it was coursework — so the
+      semester is what the record supports. `sortKey` is derived from the academic
+      calendar (intake August 2022, so semester 2 falls in 2023) and is used ONLY
+      for ordering in the grid; the label a reader sees is the semester, never the
+      derived month.
+    */
+    dateRange: 'Semester 2',
+    sortKey: '2023-06',
+    year: '2023',
     tagline:
       'A home decor shopping app with a 5D Planner and Augmented Reality visualisation, designed in Figma.',
     context:
@@ -367,8 +392,6 @@ const raw: ProjectEntry[] = [
     },
     featured: false,
     source: 'portfolio',
-    todo:
-      'No date documented for this course project. Only the year is shown and it is inferred from the course period.',
   },
   {
     id: 'wellmind',
@@ -480,7 +503,9 @@ const raw: ProjectEntry[] = [
     subtitle: 'Snack Store App — UI/UX Design',
     categories: ['uiux'],
     role: 'UI/UX Designer',
-    sortKey: '2024-03',
+    /* SEMESTER 4, confirmed by the author — same derivation as Guzelev above. */
+    dateRange: 'Semester 4',
+    sortKey: '2024-06',
     year: '2024',
     tagline:
       'A two-sided snack store app: a desktop version for managers and staff, and a mobile version for consumers.',
@@ -560,8 +585,6 @@ const raw: ProjectEntry[] = [
     ],
     featured: false,
     source: 'portfolio',
-    todo:
-      'No date documented for this course project. Only the year is shown and it is inferred from the course period.',
   },
 ];
 
