@@ -167,6 +167,11 @@
   --solid-bg-hover: var(--wine-600);
   --on-solid: #fff6f2;
   --on-accent: #fff6f2;
+  /* The monogram's flourish. It sits ON the --solid-bg tile, drawn over a
+     --on-solid letter, so it needs a value that separates from the tile without
+     competing with the letter: wine-300 measures 4.42:1 against wine-700, while
+     the artwork's own rose managed only 2.12:1 and read as a smudge. */
+  --on-solid-soft: var(--wine-300);
 
   /* ---- depth ---- */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
@@ -263,6 +268,9 @@
   --solid-bg-hover: var(--wine-600);
   --on-solid: #fff6f2;
   --on-accent: #fff6f2;
+  /* Same value as the dark theme: the tile itself is wine-700 on both themes,
+     so the flourish's contrast against it does not change. */
+  --on-solid-soft: var(--wine-300);
 
   --shadow-sm: 0 1px 2px rgba(62, 46, 30, 0.07);
   --shadow-md: 0 10px 30px -16px rgba(62, 46, 30, 0.2);

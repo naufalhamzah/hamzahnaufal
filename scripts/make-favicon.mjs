@@ -42,10 +42,11 @@ const token = (name, fallback) => {
 
 const bg = token('wine-700', '#6d2531');
 const fg = token('on-solid', '#fff6f2');
+const accent = token('wine-300', '#dd929b');
 
-const svg = monogramSvg({ bg, fg, size: 32 });
+const svg = monogramSvg({ bg, fg, accent, size: 32 });
 writeFileSync(join(ROOT, 'public/favicon.svg'), svg);
 
 console.log('✓ public/favicon.svg');
-console.log('  bg ' + bg + '   fg ' + fg);
+console.log('  bg ' + bg + '   fg ' + fg + '   accent ' + accent);
 console.log('  tile ' + monogram.tile.size + 'px, radius ' + monogram.tile.rx);

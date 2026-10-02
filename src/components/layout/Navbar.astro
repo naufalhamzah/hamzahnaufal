@@ -32,9 +32,10 @@ const activeInMore = Boolean(
          the nav mark can never drift apart. -->
     <a href={withBase('/')} class="nav__brand" aria-label={`${profile.name} — home`}>
       <span class="nav__mark" aria-hidden="true">
-        <svg viewBox="0 0 32 32" width="32" height="32" focusable="false">
+        <svg viewBox={`0 0 ${monogram.tile.size} ${monogram.tile.size}`} width="32" height="32" focusable="false">
           <rect width={monogram.tile.size} height={monogram.tile.size} rx={monogram.tile.rx} />
-          <path d={monogram.path} class="nav__mark-glyph" />
+          <path d={monogram.h} class="nav__mark-glyph" />
+          <path d={monogram.flourish} class="nav__mark-flourish" />
         </svg>
       </span>
       <span class="nav__name">{profile.shortName}</span>
@@ -221,6 +222,12 @@ const activeInMore = Boolean(
 
   .nav__mark-glyph {
     fill: var(--on-solid);
+  }
+
+  /* The flourish is drawn OVER the letter, exactly as in the source artwork, so
+     the crossing reads as one mark rather than as two shapes side by side. */
+  .nav__mark-flourish {
+    fill: var(--on-solid-soft);
   }
 
   .nav__brand:hover .nav__mark svg rect {
