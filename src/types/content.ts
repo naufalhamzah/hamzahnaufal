@@ -345,6 +345,54 @@ export interface SkillGroup {
  * employer (recognisable signage, branding) may also appear in that
  * experience's own `photos`.
  */
+/**
+ * GALLERY / MOMENTS + INTERNSHIP JOURNAL
+ * ============================================================================
+ * The journal is the dated work record kept during the internship — what was
+ * done, learned or discussed, written when there is something worth recording
+ * rather than every day. It is a professional document first (it is the record
+ * that goes to a supervisor), so the schema treats every entry as a dated report
+ * rather than as a blog post.
+ */
+
+/** One dated journal entry. */
+export interface JournalEntry {
+  id: string;
+  /** ISO date of the entry, `YYYY-MM-DD`. */
+  date: string;
+  /**
+   * Display form of the date — e.g. 'October 1, 2026', or a span such as
+   * 'September 30 – October 2, 2026' for an entry covering several days.
+   *
+   * Kept separate from `date` on purpose: `date` sorts and anchors, this one
+   * reads. Deriving one from the other would force a span into a single day.
+   */
+  dateLabel: string;
+  /** Sort key, `YYYY-MM-DD`. A span sorts by its LAST day. */
+  sortKey: string;
+  /** The entry title, as written in the record. */
+  title: string;
+  /**
+   * Paragraphs, verbatim from the record.
+   *
+   * `**like this**` is inline emphasis carried over from the source and rendered
+   * as <strong>. Keeping the markers in the string means the text stays exactly
+   * as written rather than being paraphrased into a structure.
+   */
+  body: string[];
+  /**
+   * Zero or more photographs for this entry.
+   *
+   * This is what makes an entry flexible: the field is OPTIONAL, so an entry
+   * added today has no images and one updated later gains them by editing data
+   * only. The page renders whatever count it finds, so one image, four images or
+   * none all lay out correctly.
+   */
+  media?: MediaAsset[];
+  /** Short labels naming what the entry is about. */
+  themes?: string[];
+}
+
 export interface GalleryEntry {
   id: string;
   visual: MediaAsset;

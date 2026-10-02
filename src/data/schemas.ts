@@ -304,6 +304,33 @@ export const skillGroupSchema = z.object({
 export const skillGroupListSchema = z.array(skillGroupSchema);
 
 /* -------------------------------------------------------------------------- */
+/* Internship Journal                                                         */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * One dated journal entry.
+ *
+ * `date` and `dateLabel` are BOTH required and both derived from the record, not
+ * from each other: one entry covers a span of days, and forcing that into a
+ * single ISO date would have meant choosing which of the two days to drop.
+ *
+ * `media` is optional so an entry can be written today with no photographs and
+ * gain them later without a schema change.
+ */
+export const journalEntrySchema = z.object({
+  id: z.string().min(1),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'date must be YYYY-MM-DD'),
+  dateLabel: z.string().min(1),
+  sortKey: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'sortKey must be YYYY-MM-DD'),
+  title: z.string().min(1),
+  body: z.array(z.string().min(1)).min(1, 'An entry with no paragraphs is not an entry'),
+  media: z.array(mediaAssetSchema).optional(),
+  themes: z.array(z.string().min(1)).optional(),
+});
+
+export const journalListSchema = z.array(journalEntrySchema);
+
+/* -------------------------------------------------------------------------- */
 /* Gallery / Moments                                                          */
 /* -------------------------------------------------------------------------- */
 

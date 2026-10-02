@@ -43,7 +43,11 @@ export interface HomeSection {
  * Order defines the desktop bar, the mobile panel and the footer.
  *
  * PRIMARY ROW  About · Projects · Experience · Skills        (+ More + CTA)
- * MORE MENU    Publications · Certifications · Achievements · Gallery
+ * MORE MENU    My Journal · Publications · Certifications · Achievements · Gallery
+ *
+ * My Journal sits FIRST under "More" because it is the only entry there that is a
+ * living record rather than a finished credential — it is the page most likely to
+ * have changed since a reader last visited.
  */
 const ALL_PAGES: NavPage[] = [
   {
@@ -69,6 +73,12 @@ const ALL_PAGES: NavPage[] = [
     label: 'Skills',
     blurb: 'Tools and methods I work with',
     primary: true,
+  },
+  {
+    href: withBase('/journal'),
+    label: 'My Journal',
+    short: 'Journal',
+    blurb: 'Dated record from my internship at AirNav Indonesia',
   },
   {
     href: withBase('/publications'),

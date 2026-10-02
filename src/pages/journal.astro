@@ -1,0 +1,147 @@
+---
+/**
+ * JOURNAL — the internship work record at AirNav Indonesia.
+ * ============================================================================
+ * WHAT THIS PAGE IS FOR
+ * The record kept during the internship, written on the days there was something
+ * worth writing down: a new thing learned, a discussion joined, something built.
+ * It is not a daily log — the gaps between entries are part of what it is.
+ *
+ * It is also the document that gets reported to a supervisor, which shapes the
+ * design decisions below: dates lead every entry, the text is reproduced without
+ * paraphrase, and the reading order is chronological.
+ *
+ * ORDERING IS NEWEST FIRST
+ * The most recent entry is the one a reader (or the supervisor) wants first. The
+ * ordering is derived in `src/data/journal.ts`, so it cannot drift from the data.
+ *
+ * PHOTOGRAPHS ARE OPTIONAL PER ENTRY
+ * An entry may have none, one, or several. The component composes the layout from
+ * the count that exists, so adding images later is a data edit with no change
+ * here. Nothing on the page assumes an entry has pictures.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/ui/PageHeader.astro';
+import JournalEntry from '@/components/ui/JournalEntry.astro';
+import { journalByMonth, journalPeriod } from '@/data/journal';
+import { profile } from '@/data/profile';
+
+/**
+ * The header rail — only what a reader needs and the intro block does NOT
+ * already say.
+ *
+ * Each value is DERIVED from the entries, so the panel can never state a period
+ * the data does not support. The rows were cut back twice: once because a
+ * sentence ("Added as moments are documented") sat in a slot the eye reads as a
+ * value, and again because a Topics list duplicated what the entry themes already
+ * show beside each entry, and "Entries" repeated the intro block below.
+ */
+const meta = [
+  { label: 'Period', value: journalPeriod },
+  { label: 'Placement', value: 'AirNav Indonesia · Information Technology' },
+];
+---
+
+<BaseLayout
+  title={`My Journal — ${profile.name}`}
+  description="An internship journal from AirNav Indonesia — dated entries recording what was learned, which project discussions were joined, and what was built during the Information Technology internship."
+>
+  <PageHeader
+    index="09"
+    eyebrow="My Journal"
+    title="My Journal"
+    standfirst="A curated record of my internship at AirNav Indonesia, documenting key experiences, technical learnings, project developments, and professional growth in information technology. Each entry captures meaningful progress, from understanding aviation operations to contributing to technology-driven solutions."
+    meta={meta}
+  />
+
+  <section class="jr" aria-label="Internship journal entries">
+    <div class="shell">
+      {
+        journalByMonth.map((month) => (
+          <section class="jr__month" aria-labelledby={`jr-${month.key}`}>
+            <header class="jr__month-head">
+              <h2 id={`jr-${month.key}`} class="jr__month-label label">
+                {month.label}
+              </h2>
+              <p class="jr__month-count mono">
+                {month.entries.length}{' '}
+                {month.entries.length === 1 ? 'entry' : 'entries'}
+              </p>
+            </header>
+
+            <div class="jr__list">
+              {month.entries.map((entry) => <JournalEntry entry={entry} />)}
+            </div>
+          </section>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- ===================== closing note ===================== -->
+  <section class="jr-note">
+    <div class="shell">
+      <p class="jr-note__p">
+        <span class="jr-note__tag mono">About this journal</span>
+        Entries are added when there is something to record — a new concept, a
+        project discussion, a step forward — rather than on a fixed schedule, so
+        the gaps between dates are intentional. The record covers{' '}
+        {journalPeriod}, and photographs are added to an entry as the moment is
+        documented.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* ---------------- the dated record ---------------- */
+  .jr {
+    padding-block: clamp(1.5rem, 3vw, 2.5rem) var(--space-section);
+  }
+
+  .jr__month + .jr__month {
+    margin-top: clamp(2.5rem, 5vw, 3.5rem);
+  }
+
+  .jr__month-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    padding-bottom: clamp(1rem, 2vw, 1.5rem);
+    border-bottom: var(--hairline) solid var(--border-strong);
+  }
+
+  .jr__month-label {
+    color: var(--accent);
+  }
+
+  .jr__month-count {
+    color: var(--fg-faint);
+  }
+
+  /* The first entry under a month heading should not repeat the heading's own
+     rule, so the month's first child loses its top border. */
+  .jr__list > :global(.jr__entry:first-child) {
+    border-top: 0;
+  }
+
+  /* ---------------- closing note ---------------- */
+  .jr-note {
+    padding-block: clamp(2rem, 4vw, 3rem);
+    border-top: var(--hairline) solid var(--border);
+  }
+
+  .jr-note__p {
+    max-width: 70ch;
+    font-size: var(--text-sm);
+    color: var(--fg-faint);
+  }
+
+  .jr-note__tag {
+    display: inline-block;
+    margin-inline-end: 0.6rem;
+    color: var(--accent);
+  }
+</style>
