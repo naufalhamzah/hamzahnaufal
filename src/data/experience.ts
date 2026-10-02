@@ -190,7 +190,7 @@ const raw: ExperienceEntry[] = [
   },
   {
     id: 'pln',
-    company: 'PT PLN (Persero)',
+    company: 'PT PLN (Persero) PUSHARLIS UP2W I',
     companyFull:
       'PT PLN (Persero) Pusharlis — Unit Pelaksana Produksi dan Workshop (UP2W) I',
     role: 'IT Support',
