@@ -1,22 +1,18 @@
 /**
- * PROJECTS
- * ============================================================================
  * SOURCE: [P] = Profile.pdf, [D] = PORTOFOLIO HAMZAH (3).pdf
  * IMAGES: real screenshots from ./konten, optimised into /public/images/projects
  *
- * Outcome policy: `outcomes` contains ONLY statements the documents actually
- * make. No metrics, no KPIs, no impact figures have been invented.
+ * `outcomes` contains ONLY statements the documents actually make — no metrics,
+ * KPIs or impact figures are invented.
  *
  * TO ADD A PROJECT: append one object below. Its card, its gallery and its
- * /projects/<id>/ case-study page are all generated automatically.
- * ============================================================================
+ * /projects/<id>/ case-study page are generated automatically.
  */
 
 import { projectListSchema } from './schemas';
 import type { ProjectEntry } from '@/types/content';
 
 const raw: ProjectEntry[] = [
-  /* ==================== SYSTEMS & DATA (the core systems) =============== */
   {
     id: 'marketing-data-system',
     title: 'Marketing Data Management System',
@@ -48,15 +44,8 @@ const raw: ProjectEntry[] = [
     tools: ['Google Sheets', 'Google Apps Script', 'JavaScript', 'Data modelling', 'Workflow automation', 'Data validation'],
     /*
       THE COVER IS THE CODE, at the user's request: "pakai gambar codingannya saja
-      untuk cover". It is also the more informative of the two frames to lead
-      with — a system described as "built from scratch" is best evidenced by the
-      functions that do the building, and the script names its own domain
-      (`findRowById`, `findRowByNameMaster`, `findRowByForm`), so a reader can see
-      what it does without reading a caption.
-
-      The spreadsheet follows as the second gallery image, where it shows the
-      other half of the work: what the automation produces. Both are 16:10 and
-      free of browser chrome, so neither is cropped again by its frame.
+      untuk cover". The script names its own domain, so a reader sees what it does
+      without a caption; the spreadsheet follows as the second gallery image.
     */
     visual: {
       src: '/images/projects/marketing-script-1.webp',
@@ -84,13 +73,9 @@ const raw: ProjectEntry[] = [
       },
     ],
     /*
-      NO PUBLIC LINK, deliberately.
-
-      A `linkPending` slot used to sit here, which rendered a greyed button
-      reading "Open the marketing system — Soon". The system is CREDENTIALED
-      internal business data — customer records, proposal pipeline, payment
-      status — so there is nothing public to point at and there will not be. A
-      disabled button implies a URL is coming; the honest thing is no button.
+      NO PUBLIC LINK, deliberately: the system is CREDENTIALED internal business
+      data — customer records, proposal pipeline, payment status — so there is
+      nothing public to point at.
     */
     featured: true,
     source: 'both',
@@ -122,19 +107,11 @@ const raw: ProjectEntry[] = [
       'Made the evaluation process faster, more accurate and more efficient',
     ],
     tools: ['Google Looker Studio', 'Google Sheets', 'Data visualisation', 'Dashboard design', 'Data integration', 'Business process mapping'],
-    /**
-     * VISUALS — the four newest dashboard captures replace the earlier
-     * screenshots; each is a distinct view, so the gallery shows the breadth
-     * of the dashboard rather than four near-identical frames.
-     */
     /*
       VISUALS — five distinct VIEWS of the dashboard, not five frames of the same
-      screen. Each caption states which view it is, because that is what a reader
-      needs in order to read the picture: the 2024 and 2025 pages share a layout
-      and are only distinguishable by the period and the figures.
-
-      All five are 1600x900 (1600:900, exactly 16:9), so they fill the frame
-      without letterboxing and without a crop.
+      screen. Each caption states which view it is (the 2024 and 2025 pages share
+      a layout and differ only by period and figures). All five are 1600x900
+      (exactly 16:9), so they fill the frame without letterboxing or a crop.
     */
     visual: {
       src: '/images/projects/pln-dashboard-1.webp',
@@ -186,13 +163,8 @@ const raw: ProjectEntry[] = [
       },
     ],
     /*
-      LINK — the direct Looker Studio URL, verified 200.
-
-      This replaced a bit.ly shortener that already resolved to the same report.
-      A shortener adds a third party between the visitor and the dashboard (and
-      its own failure mode: an expired or rate-limited link), for no benefit on a
-      site that renders the full URL nowhere. The report is publicly viewable at
-      the address below.
+      LINK — the direct Looker Studio URL, verified 200. A bit.ly shortener was
+      dropped: it adds a third party and its own failure mode for no benefit.
     */
     link: {
       label: 'Open the dashboard',
@@ -209,13 +181,9 @@ const raw: ProjectEntry[] = [
     categories: ['research', 'systems'],
     role: 'Research & Publication Team',
     /*
-      PERIOD CONFIRMED BY THE AUTHOR: February – December 2024.
-
-      A `todo` note sat on this entry because two supplied documents disagreed
-      (Feb–Dec 2024 against Jun–Nov 2024) and only the year was published until
-      someone could settle it. The author has, so the real range ships and the
-      warning is gone. `sortKey` keeps the programme's midpoint, so the position
-      in the project grid does not move.
+      PERIOD CONFIRMED BY THE AUTHOR: February – December 2024. The two supplied
+      documents disagreed (Feb–Dec vs Jun–Nov), so only the year was published
+      until he settled it. `sortKey` keeps the programme's midpoint.
     */
     dateRange: 'February – December 2024',
     year: '2024',
@@ -240,20 +208,11 @@ const raw: ProjectEntry[] = [
     tools: ['IoT-based smart farming', 'Automatic irrigation system', 'ESP32 / ESP8266', 'Sensor integration', 'SIMPELDES', 'Renewable energy', 'Scientific writing'],
     visual: {
       /*
-        THE COVER IS THE PUBLISHED ARTICLE'S TITLE BLOCK — a CROP of the paper's
-        first page, zoomed onto the title so the document fills the frame.
-
-        The whole page never worked here: at 0.73 ratio against a 1.6 frame it
-        occupied about 21% of the width even when filling the height, so the card
-        read as a small white document floating in a large box. Cropping is what
-        makes the same page fill the frame.
-
-        The window is wider than the title alone on purpose — it runs from the
-        JURNAL AMPOEN masthead down past the author list and the DOI, so the crop
-        is legible as a real publication and the author line naming "Hamzah
-        N.Zuhdi" is visible in it. Generated by the asset pipeline; the fractions
-        were measured off the source and the rendered result was checked by eye,
-        with no line clipped at any edge.
+        THE COVER IS A CROP of the published article's title block, zoomed so the
+        document fills the frame (the whole page at 0.73 ratio occupied ~21% of a
+        1.6 frame's width). The window runs from the JURNAL AMPOEN masthead past
+        the author list and the DOI, so it reads as a real publication. Generated
+        by the asset pipeline; fractions measured off the source.
       */
       src: '/images/projects/smart-farming-title.webp',
       alt: 'Title block of the published Smart Farming article in Jurnal Ampoen — Vol. 2 No. 2, 2024, pages 980–993 — with its author list including Hamzah N. Zuhdi',
@@ -270,12 +229,10 @@ const raw: ProjectEntry[] = [
       },
       {
         /*
-          THE ONLY IMAGE THAT SHOWS THE SYSTEM ITSELF.
-
-          Everything else about this project is text and a journal page; this frame
-          is the solar panel and control enclosure standing in the maize field, which
-          is what makes the "renewable-energy automatic irrigation" claim visible
-          rather than merely stated.
+          THE ONLY IMAGE THAT SHOWS THE SYSTEM ITSELF — the solar panel and
+          control enclosure standing in the maize field, which makes the
+          "renewable-energy automatic irrigation" claim visible rather than
+          merely stated.
         */
         src: '/images/projects/smart-farming-irrigation.webp',
         alt: 'Solar panel and control enclosure mounted on a pole among tall maize plants, with team members working at its base',
@@ -307,7 +264,6 @@ const raw: ProjectEntry[] = [
     source: 'both',
   },
 
-  /* ========================= UI/UX PRODUCT DESIGN ======================= */
   {
     id: 'guzelev',
     title: 'Guzelev',
@@ -315,13 +271,10 @@ const raw: ProjectEntry[] = [
     categories: ['uiux'],
     role: 'UI/UX Designer',
     /*
-      SEMESTER 4, confirmed by the author.
-
-      The project has no documented date of its own — it was coursework — so the
-      semester is what the record supports. `sortKey` and `year` are derived from
-      the academic calendar (intake August 2022, so semester 4 runs Feb–Jun 2024)
-      and are used ONLY for ordering in the grid and for the year filter; the
-      label a reader sees is the semester, never the derived month.
+      SEMESTER 4, confirmed by the author — coursework with no documented date of
+      its own. `sortKey`/`year` are derived from the academic calendar (intake
+      August 2022, so semester 4 = Feb–Jun 2024) and used ONLY for grid ordering
+      and the year filter; the label a reader sees is the semester.
     */
     dateRange: 'Semester 4',
     sortKey: '2024-04',
@@ -344,16 +297,10 @@ const raw: ProjectEntry[] = [
       height: 2049,
     },
     /*
-      FOUR SCREENS, ONE PER STAGE OF THE FLOW.
-
-      The previous pair were two captures of the same product-browsing list, so
-      the gallery showed the same screen twice. These four are distinct: entry,
-      home, catalogue, and the augmented-reality viewer — the last of which is the
-      only visual evidence on the site for the AR claim in the description, so it
-      earns its place rather than padding the set.
-
-      The hero `visual` above is also the first gallery entry; the detail page
-      filters that one out so no screen is shown twice on the same page.
+      FOUR SCREENS, one per stage of the flow: entry, home, catalogue and the
+      augmented-reality viewer (the only visual evidence for the AR claim). The
+      hero `visual` above is also the first entry; the detail page filters it out
+      so no screen shows twice on one page.
     */
     gallery: [
       {
@@ -426,22 +373,14 @@ const raw: ProjectEntry[] = [
       height: 2049,
     },
     /*
-      SEVEN SCREENS, IN THE ORDER A USER MEETS THEM.
+      SEVEN SCREENS, in the order a user meets them, covering sign-up, home, the
+      psychologist directory and profile, the location view, and the mood tracker
+      in both states (writing an entry and reading the log — both kept, so the
+      feature's persistence is visible).
 
-      The previous set was three captures of one list, one article and one splash
-      screen — enough to show the app exists, not enough to show what it does.
-      These seven cover the whole product: sign-up, home, the psychologist
-      directory and profile, the location view, and the mood tracker in both its
-      states.
-
-      The file names they arrived with carried no usable order — `Mockup WellMind
-      (4)` is the directory while `(5)` is a single profile, and the unnumbered
-      file is the sign-up screen rather than the home screen — so each name below
-      was read off the rendered image instead.
-
-      The mood tracker is the one feature with TWO screens (writing an entry,
-      reading the log). Both are kept: a single screen would have shown the
-      feature without showing that entries persist.
+      The supplied file numbers carried no usable order (`Mockup WellMind (4)` is
+      the directory, `(5)` a profile, and the unnumbered file is the sign-up
+      screen), so each name below was read off the rendered image.
     */
     gallery: [
       {
@@ -535,18 +474,11 @@ const raw: ProjectEntry[] = [
       fit: 'contain',
     },
     /*
-      THE DESKTOP SCREENS ARE DOCUMENTS — letterboxed, not cropped.
-
-      Measured in the `trio` composition: the lead cell is 700x616 (ratio 1.136)
-      while the desktop capture is 1.538, so `cover` removed **13.1% of the width
-      from each side** — enough to cut the dashboard's own sidebar down to "al
-      Zuhdi" and to hide a table column. That is the same failure this site already
-      fixed for journal pages and certificates: a screenshot whose meaning lives at
-      its edges must show whole, and the matte is what makes the letterbox read as
-      a plate rather than as a mis-sized image.
-
-      The two MOBILE captures keep `cover`: they carry their own device bezel, so
-      there is nothing at their edges but the frame.
+      THE DESKTOP SCREENS ARE DOCUMENTS — letterboxed, not cropped. Measured in
+      the `trio` composition: the lead cell is 700x616 (ratio 1.136) while the
+      desktop capture is 1.538, so `cover` cut 13.1% from each side — enough to
+      hide a table column. A screenshot whose meaning lives at its edges must show
+      whole. The two MOBILE captures keep `cover` (they carry their own bezel).
     */
     gallery: [
       {
@@ -599,55 +531,20 @@ const raw: ProjectEntry[] = [
 
 export const projectEntries: ProjectEntry[] = projectListSchema.parse(raw);
 
-/** Featured first, then newest. */
-/**
- * Grid order — chosen so the FIRST FEW CARDS ARE NOT ALL THE SAME KIND.
- *
- * The previous sort was "featured first, then newest". That put the marketing
- * data system at the head of the grid and then ran straight into the procurement
- * dashboard — two data/systems projects back to back — while the three UI/UX
- * case studies sat at the very bottom, which is the opposite of what a visitor
- * should meet first: the grid looked like one kind of work repeated.
- *
- * The rule now alternates by PRIMARY CATEGORY, so the opening row shows the
- * RANGE of the work rather than its most recent slice, and no category is buried
- * at the end. Within a category the newest still comes first, so nothing about
- * the relative importance of the entries changes — only the interleaving.
- *
- * Featured is no longer a leading sort key. It still exists and still drives the
- * homepage's selection, but in the full grid it is one signal among several and
- * letting it lead is what produced the clustering.
- */
+/** Newest first. */
 export const projectsSorted = [...projectEntries].sort((a, b) => {
-  // Newest first within a category.
   return b.sortKey.localeCompare(a.sortKey);
 });
 
 /**
- * The same set, re-ordered so consecutive cards differ in primary category.
- *
- * Implemented as a round-robin over per-category queues: take the newest
- * remaining project from the category with the most entries left, then the next
- * category, and so on. That keeps the output deterministic (no randomness) and
- * leaves the relative recency ordering intact inside each category.
- */
-/**
- * Grid order for /projects.
- *
- * The order is EXPLICIT, not derived from dates or categories. It follows the
- * priority the work should be read in:
- *
- *   1. the dashboard    — the most complete case study (a real system, in use)
- *   2. the UI/UX set    — product design across three different products
- *   3. the BeautyLab system — the from-scratch build
- *
- * WHY NOT SORT BY DATE OR CATEGORY
- * Sorting by date put the newest first, which buried the UI/UX work entirely.
- * Grouping by category clustered the data/systems projects at the top, so the
- * opening row showed one kind of work repeated. This list is the honest answer:
- * a deliberate editorial order, stated as such rather than dressed up as an
- * algorithm. Anything not named here keeps its recency order at the end, so
- * ADDING a project does not require touching this function.
+ * Grid order for /projects — an EXPLICIT editorial priority, not derived from
+ * dates or categories:
+ *   1. the dashboard         (the most complete case study)
+ *   2. the UI/UX set
+ *   3. the BeautyLab system
+ * Sorting by date buried the UI/UX work; grouping by category clustered the
+ * data/systems projects. Anything not named here keeps its recency order at the
+ * end, so ADDING a project does not require touching this function.
  */
 const PRIORITY = [
   'procurement-dashboard',
@@ -667,39 +564,17 @@ export const projectsInterleaved = [
 ];
 
 /**
- * The homepage's three selected projects.
+ * The homepage's three selected projects — chosen to show the RANGE of the work
+ * (two data systems and one product-design case study), in the order the user
+ * asked for. `featured` marks entries with the depth for a large card; this list
+ * decides which of them the homepage actually spends its image budget on.
  *
- * The PROJECTS list holds work that was BUILT — systems, dashboards and product
- * design. The two published papers deliberately do NOT appear here: they have
- * their own `publications.ts` record and their own page, and duplicating them made
- * the same article appear twice on the site under two different ids.
- *
- * NOT simply "the newest three" and not simply every `featured` entry. Both of
- * those were all systems/data work — the marketing system, the procurement
- * dashboard and the smart-farming programme — which meant the homepage showed
- * one kind of project three times while the three UI/UX case studies never
- * appeared at all.
- *
- * The selection below is chosen to show the RANGE of the work: two data systems
- * and one research programme. `featured` still marks which entries have the depth
- * for a large card; this list decides which of them the homepage actually spends
- * its image budget on.
- *
- * Order is deliberate, and it is the order the user asked for: the procurement
- * dashboard first, then the marketing data system, then one UI/UX case study.
- * All three render server-side in the rail, so no ordering decision here changes
- * what is crawlable.
- *
- * WHY WELLMIND IS THE THIRD SLOT RATHER THAN A THIRD DATA PROJECT
- * The three entries here used to be two systems and one research programme,
- * which showed the visitor three variations of the same kind of work. The user
- * asked for the grid's three disciplines in order — data, systems, design — so
- * the third slot carries a product-design case study instead, and the range of
- * the work is visible from the first screen rather than from the fourth page.
+ * The two published papers deliberately do NOT appear here — they have their own
+ * `publications.ts` record and page, and duplicating them made the same article
+ * appear twice under two ids.
  *
  * Smart Farming leaves this selection but not the site: it keeps its own project
- * page, its gallery and its place in the full grid, which is where a research
- * programme belongs once the rail is carrying the three headline builds.
+ * page, gallery and place in the full grid.
  */
 export const featuredProjects = [
   'procurement-dashboard',

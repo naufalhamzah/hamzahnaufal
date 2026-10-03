@@ -2,20 +2,14 @@
 /**
  * JOURNAL ENTRY — one dated record, rendered flexibly.
  *
- * THE IMAGE SLOT IS THE POINT OF THIS COMPONENT.
- * An entry may carry zero photographs today and gain two next week — the user
- * asked for exactly that ("beberapa momen mungkin saya akan tambahkan
- * foto/gambar, jadi buat dia fleksibel"). So the layout is chosen from the COUNT
- * that actually exists, and each case is composed rather than a fixed grid with
- * holes in it:
+ * THE IMAGE SLOT IS THE POINT OF THIS COMPONENT: the layout is chosen from the
+ * count of images that actually exists, so an entry may carry zero photographs
+ * today and gain two next week.
  *
  *   0 images   text only — no empty frame, no "no image" box
  *   1 image    full width, at its own aspect ratio (no crop)
  *   2 images   side by side
  *   3+ images  a row that wraps, every tile the same shape
- *
- * Nothing about the text changes as the count changes, so an entry reads as a
- * finished piece whether or not it has pictures.
  */
 import type { JournalEntry, MediaAsset } from '@/types/content';
 import { asset } from '@/utils/url';
@@ -33,13 +27,10 @@ const count = media.length;
 /**
  * Render inline `**emphasis**` from the source text.
  *
- * The paragraphs are stored exactly as written, markers included. Splitting on
- * the marker rather than running a full markdown pass keeps this honest: only the
- * one construct the source actually uses is interpreted, so nothing else in the
- * text can be silently rewritten.
- *
- * The text is escaped FIRST, so an entry containing `<` renders as the character
- * rather than as markup.
+ * Splitting on the marker rather than running a full markdown pass keeps this
+ * honest: only the one construct the source uses is interpreted, so nothing else
+ * in the text can be silently rewritten. The text is escaped FIRST, so an entry
+ * containing `<` renders as the character rather than as markup.
  */
 function render(text: string): string {
   const escaped = text
@@ -99,14 +90,8 @@ function render(text: string): string {
 </article>
 
 <style>
-  /*
-    ONE COLUMN OF PROSE, at a measure that is comfortable to read.
-
-    The entry is deliberately not split into a text column plus a rail: this is a
-    continuous account a person reads top to bottom, and breaking it into columns
-    would turn a narrative into a set of fragments. The date sits in the head,
-    where it labels the entry without competing with it.
-  */
+  /* One column of prose: an entry is read top to bottom, so splitting it into a
+     text column plus a rail would fragment a narrative. */
   .jr__entry {
     padding-block: clamp(2.25rem, 4.5vw, 3.25rem);
     border-top: var(--hairline) solid var(--border);
@@ -124,9 +109,8 @@ function render(text: string): string {
     margin: 0 0 0.6rem;
   }
 
-  /* A short accent rule before the date — the same editorial marker the page
-     headers use, so an entry reads as part of this site rather than as pasted
-     text. */
+  /* A short accent rule before the date — the shared editorial marker used by
+     the page headers. */
   .jr__meta::before {
     content: '';
     width: 1.6rem;
@@ -151,12 +135,8 @@ function render(text: string): string {
     text-wrap: balance;
   }
 
-  /*
-    Body text carries the theme's MUTED foreground, not the faint one, and is set
-    at reading size with generous leading. A journal is read rather than scanned,
-    so the paragraphs get room: this is the one place on the site where a long
-    wall of text is the intended content.
-  */
+  /* Body text is read rather than scanned: the muted (not faint) foreground at
+     reading size with generous leading. */
   .jr__p {
     max-width: 68ch;
     font-size: var(--text-lg);
@@ -174,9 +154,6 @@ function render(text: string): string {
     color: var(--fg);
   }
 
-  /* ==========================================================================
-     photographs — composed from the count that exists
-     ====================================================================== */
   .jr__media {
     display: grid;
     gap: clamp(0.6rem, 1.4vw, 0.9rem);

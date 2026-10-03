@@ -37,15 +37,11 @@ body {
 
 /* --------------------------------------------------------------------------
    THEME TRANSITION
-   A theme change must read as a crossfade, not a switch. Every surface, border
-   and text colour carries a transition, so panels, rules and type all move
-   together.
-
-   Applied ONLY while the theme is changing: the toggle adds `.theme-switching`
-   for ~340ms and removes it. Without that guard these transitions would also
-   animate the initial paint and every hover, which is both wrong and wasteful.
-
-   `prefers-reduced-motion` removes the fade entirely.
+   A theme change reads as a crossfade, not a switch — surfaces, borders and text
+   all move together. Applied ONLY while the theme changes (the toggle adds
+   `.theme-switching` for ~340ms); without that guard these transitions would also
+   fire on the initial paint and on every hover. `prefers-reduced-motion` removes
+   the fade.
    -------------------------------------------------------------------------- */
 .theme-switching,
 .theme-switching *,
@@ -71,9 +67,8 @@ body {
 
 /* --------------------------------------------------------------------------
    PAGE TRANSITION
-   Pages fade in with a very small rise. No JavaScript and no View Transitions
-   API — one keyframe on the page wrapper, so it costs nothing and cannot fail.
-   Deliberately subtle: 420ms and 8px.
+   One keyframe on the page wrapper: no JS, no View Transitions API. Deliberately
+   subtle — 420ms (--t-slow) and an 8px rise.
    -------------------------------------------------------------------------- */
 @keyframes page-in {
   from {
@@ -97,9 +92,7 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   BACKGROUND
-   One fixed layer under everything: a single wide warm wash plus a vignette.
-   Content is lifted above it.
+   BACKGROUND — one fixed layer under everything; content lifts above it.
    -------------------------------------------------------------------------- */
 body::before {
   content: '';
@@ -269,10 +262,6 @@ video {
   background-color: var(--border-strong);
 }
 
-/* ==========================================================================
-   SKIP LINK
-   ========================================================================== */
-
 .skip-link {
   position: absolute;
   top: -100%;
@@ -330,9 +319,7 @@ video {
   }
 }
 
-/* ==========================================================================
-   UNDERLINE LINK — animated rule on hover
-   ========================================================================== */
+/* UNDERLINE LINK — animated rule on hover */
 
 .ulink {
   position: relative;
@@ -357,10 +344,6 @@ video {
   transform: scaleX(1);
   transform-origin: left;
 }
-
-/* ==========================================================================
-   UTILITIES
-   ========================================================================== */
 
 .sr-only {
   position: absolute;

@@ -2,16 +2,12 @@
  * NAVIGATION — the single source of truth for the site's information
  * architecture.
  * ============================================================================
- * The site is two levels, deliberately:
+ * Two levels, deliberately: the HOMEPAGE is a curated INTRODUCTION (preview
+ * sections + CTAs); the PAGES hold the full INFORMATION.
  *
- *   HOMEPAGE  a curated professional INTRODUCTION — preview sections + CTAs.
- *   PAGES     the full INFORMATION: about, projects, experience, skills,
- *             publications, certifications, achievements, gallery, contact.
- *
- * WHY `primary` EXISTS
- * The brief asked for navigation that is not cramped. Nine destinations in one
- * flat row is exactly what makes a bar feel full, so the primary row carries
- * only the pages a visitor needs first; the rest live under a "More" menu. The
+ * WHY `primary` EXISTS: the brief asked for navigation that is not cramped.
+ * Nine destinations in one flat row makes a bar feel full, so the primary row
+ * carries only the pages a visitor needs first; the rest live under "More". The
  * grouping lives HERE, not in the navbar, so the bar, the mobile panel and the
  * footer all follow the same decision.
  */
@@ -42,12 +38,12 @@ export interface HomeSection {
 /**
  * Order defines the desktop bar, the mobile panel and the footer.
  *
- * PRIMARY ROW  About · Projects · Experience · Skills        (+ More + CTA)
+ * PRIMARY ROW  About · Projects · Experience · Skills  (+ More + CTA)
  * MORE MENU    My Journal · Publications · Certifications · Achievements · Gallery
  *
- * My Journal sits FIRST under "More" because it is the only entry there that is a
- * living record rather than a finished credential — it is the page most likely to
- * have changed since a reader last visited.
+ * My Journal sits FIRST under "More": it is the only entry there that is a living
+ * record rather than a finished credential, so it is the most likely to have
+ * changed since a reader last visited.
  */
 const ALL_PAGES: NavPage[] = [
   {
@@ -114,14 +110,11 @@ export const navPages: NavPage[] = ALL_PAGES.filter((p) => !p.hidden);
 /** The desktop bar's main row. */
 export const primaryNav: NavPage[] = navPages.filter((p) => p.primary);
 
-/** Everything not in the main row — shown under "More" on desktop, and inline
- *  in the mobile panel and footer. */
+/** Everything not in the main row — under "More" on desktop, inline elsewhere. */
 export const secondaryNav: NavPage[] = navPages.filter((p) => !p.primary);
 
-/**
- * Homepage preview sections, in the order they are composed in
- * `src/pages/index.astro`. Drives the hero's jump row.
- */
+/** Homepage preview sections in composition order (src/pages/index.astro);
+ *  drives the hero's jump row. */
 export const homeSections: HomeSection[] = [
   { id: 'about-preview', label: 'About' },
   { id: 'featured', label: 'Selected Work' },
@@ -131,13 +124,12 @@ export const homeSections: HomeSection[] = [
 ];
 
 /**
- * Which nav entry should be marked "current" for a pathname.
- * Exact match first, then a prefix match, so a nested route such as
- * /projects/marketing-data-system still highlights /projects.
+ * Which nav entry is "current" for a pathname. Exact match first, then a prefix
+ * match, so /projects/marketing-data-system still highlights /projects.
  */
 export function activePageFor(pathname: string): NavPage | undefined {
-  /* `Astro.url.pathname` carries the deploy base, so strip it before matching
-     against the route paths — otherwise no nav item is ever marked current. */
+  /* `Astro.url.pathname` carries the deploy base — strip it before matching, or
+     no nav item is ever marked current. */
   const clean = stripBase(pathname).replace(/\/+$/, '') || '/';
   const exact = navPages.find((p) => p.href === clean);
   if (exact) return exact;

@@ -3,11 +3,9 @@
  * PREVIEW: SKILLS  (homepage)
  *
  * A curated set of tool marks — NOT the full inventory. The brief asked for
- * selected skills on the homepage and the complete list on /skills.
- *
- * The selection is explicit rather than "the first N": these are the tools the
- * source material ties to actual work, so the preview shows the strongest
- * evidence rather than whatever happens to be first in the data file.
+ * selected skills on the homepage and the complete list on /skills; the selection
+ * is explicit rather than "the first N" because these are the tools the source
+ * material ties to actual work.
  *
  * NO PROFICIENCY PERCENTAGES — none are documented anywhere, so none are shown.
  */
@@ -77,8 +75,8 @@ const selected = SELECTED.map((n) => byName.get(n)).filter(Boolean);
     margin: 0;
     padding: 0;
     list-style: none;
-    /* auto-fill keeps tiles the right size at every width, with no media
-       query and no dependence on how many skills are selected */
+    /* auto-fill keeps tiles the right size at every width, with no media query
+       and no dependence on how many skills are selected */
     grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
   }
 </style>

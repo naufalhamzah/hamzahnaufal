@@ -1,10 +1,10 @@
-/* ==========================================================================
+/*
    PROJECT FILTER
    Styling for the filter bar. Kept in the island's own stylesheet so the whole
    component is self-contained and the page CSS stays a single readable file.
    Only design tokens from tokens.css are used, so both themes work without any
    conditional rules here.
-   ========================================================================== */
+*/
 
 .pf {
   margin-top: 1.5rem;

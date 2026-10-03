@@ -1,24 +1,14 @@
 /**
- * ORGANIZATIONS & LEADERSHIP
- * ============================================================================
  * SOURCE: [P] = Profile.pdf (authoritative for dates), [D] = portfolio deck.
- * IMAGES: 17 committee/organisation photographs from ./konten.
+ * IMAGES: committee/organisation photographs from ./konten (see organizationGallery).
  *
- * IMPORTANT DATE CORRECTIONS
- * The portfolio deck shows 2024 for three committee roles whose own event names
- * say 2023 (the deck appears to have auto-filled dates). Per the agreed rules,
- * [P] wins. Corrected and documented on each entry below:
- *   - CSS 2023             : [D] Oct–Nov 2024 -> [P] October – December 2023
- *   - Interface&PKMMTJ 2023 : [D] Jul–Sep 2024 -> [P] July – September 2023
- *   - Rapat Kerja 2023      : [D] Apr–Jun 2024 -> [P] February – March 2023
+ * DATE CORRECTIONS: the deck shows 2024 for three roles whose events are 2023, so
+ * per the agreed rules [P] wins — CSS: Oct–Dec 2023, Interface&PKMMTJ: Jul–Sep
+ * 2023, Rapat Kerja: Feb–Mar 2023. UKM Penelitian: [P] lists TWO successive roles
+ * (Expert Staff, then Department Secretary) that [D] merges into one; both kept.
  *
- * UKM Penelitian: [P] lists TWO successive roles (Expert Staff, then Department
- * Secretary); [D] merges them into one. [P] is more granular and authoritative,
- * so both are kept separately here.
- *
- * `photoIds` reference entries in `organizationGallery` below. A role with no
- * photoIds simply renders without images — the component handles both cases.
- * ============================================================================
+ * `photoIds` reference entries in `organizationGallery` below; a role with none
+ * simply renders without images.
  */
 
 import { organizationListSchema } from './schemas';
@@ -28,23 +18,12 @@ const HIMA = 'Himpunan Mahasiswa Ilmu Komputer FMIPA UNNES';
 const UKM = 'UKM Penelitian Universitas Negeri Semarang';
 
 /**
- * The shared photo pool. Roles point into this by id, so the same image can be
- * reused without duplicating alt text or dimensions.
- */
-/**
- * THE SAME PHOTOGRAPHS THE GALLERY USES — deliberately, not by accident.
+ * The shared photo pool: roles point into this by id, so one image can be reused
+ * without duplicating alt text or dimensions.
  *
- * These used to live again under `public/images/organizations/`, as 17 separate
- * files (`committee-01..13`, `org-01..04`). Comparing them against the gallery
- * set showed all 17 were PIXEL-FOR-PIXEL the same photographs as
- * `gallery/moment-02..18` — a second copy of files the site already ships, kept
- * because this file pointed at its own directory. Nothing rendered them, so the
- * duplication was invisible.
- *
- * They now point at the gallery files. One photograph, one file, and the same
- * image appearing in a role's collage and in the gallery is intentional: both
- * places are describing the same event, and the gallery caption is the one that
- * states what is visible.
+ * These are THE SAME FILES the gallery uses (`gallery/moment-02..18`), chosen
+ * deliberately: this file once shipped a second pixel-for-pixel copy under
+ * `public/images/organizations/` that nothing rendered.
  */
 const photo = (
   n: number,
@@ -106,7 +85,6 @@ type OrganizationSeed = Omit<OrganizationEntry, 'photos'> & {
 };
 
 const raw: OrganizationSeed[] = [
-  /* ---------------------- HIMA Ilmu Komputer (12 roles) ------------------- */
   {
     id: 'hima-psdm-head',
     organization: HIMA,
@@ -346,7 +324,6 @@ const raw: OrganizationSeed[] = [
     source: 'profile',
   },
 
-  /* ------------------------- Kampus Merdeka (1 role) ---------------------- */
   {
     id: 'kampus-merdeka-research',
     organization: 'Kampus Merdeka — PPK Ormawa Hima Ilkom UNNES 2024',
@@ -367,7 +344,6 @@ const raw: OrganizationSeed[] = [
     source: 'both',
   },
 
-  /* --------------------- UKM Penelitian UNNES (2 roles) ------------------- */
   {
     id: 'ukm-works-secretary',
     organization: UKM,
@@ -407,10 +383,6 @@ const raw: OrganizationSeed[] = [
   },
 ];
 
-/**
- * Roles carry `photoIds` for authoring convenience; the schema stores the
- * resolved assets so components never need the lookup table.
- */
 const withPhotos: OrganizationEntry[] = raw.map(({ photoIds, ...rest }) => ({
   ...rest,
   photos: photoIds ? photoById(photoIds) : undefined,

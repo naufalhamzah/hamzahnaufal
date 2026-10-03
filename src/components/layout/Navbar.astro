@@ -2,11 +2,9 @@
 /**
  * NAVBAR — sticky, page-based, deliberately uncrowded.
  *
- * The bar carries only four primary destinations plus a "More" menu, so it
- * never reads as a wall of links. The grouping comes from
- * `src/utils/navigation.ts`, so the bar, the mobile panel and the footer can
- * never disagree about where a page lives.
- *
+ * Four primary destinations plus a "More" menu, so it never reads as a wall of
+ * links. The grouping comes from `src/utils/navigation.ts`, so the bar, the
+ * mobile panel and the footer can never disagree about where a page lives.
  * Active state is computed from the pathname on the SERVER, so it is already
  * correct before any JavaScript runs.
  */
@@ -41,7 +39,6 @@ const activeInMore = Boolean(
       <span class="nav__name">{profile.shortName}</span>
     </a>
 
-    <!-- Desktop: primary + More -->
     <nav class="nav__desk" aria-label="Main">
       <ul class="nav__list">
         <li>
@@ -187,7 +184,6 @@ const activeInMore = Boolean(
     min-height: 4.25rem;
   }
 
-  /* ---------- brand ---------- */
   .nav__brand {
     display: inline-flex;
     align-items: center;
@@ -205,10 +201,10 @@ const activeInMore = Boolean(
 
   /*
     The tile and the glyph are separate fills: the tile is the accent FILL, which
-    carries light text, while the glyph sits on top of it. Using `--solid-bg` and
-    `--on-solid` rather than `--accent` is what makes the mark legible in both
-    themes — `--accent` is tuned for text ON the canvas and is too dark to carry a
-    light glyph as a fill.
+    carries light text, while the glyph sits on top. Using `--solid-bg` and
+    `--on-solid` rather than `--accent` makes the mark legible in both themes —
+    `--accent` is tuned for text ON the canvas and is too dark to carry a light
+    glyph as a fill.
   */
   .nav__mark svg {
     display: block;
@@ -242,7 +238,6 @@ const activeInMore = Boolean(
     white-space: nowrap;
   }
 
-  /* ---------- desktop links ---------- */
   .nav__desk {
     display: none;
   }
@@ -313,7 +308,6 @@ const activeInMore = Boolean(
     transform: rotate(180deg);
   }
 
-  /* ---------- "More" dropdown ---------- */
   .nav__more {
     position: relative;
   }
@@ -385,7 +379,6 @@ const activeInMore = Boolean(
     font-size: 0.64rem;
   }
 
-  /* ---------- actions ---------- */
   .nav__acts {
     display: flex;
     align-items: center;
@@ -452,7 +445,6 @@ const activeInMore = Boolean(
     }
   }
 
-  /* ---------- mobile panel ---------- */
   .panel {
     border-top: var(--hairline) solid var(--border);
     background-color: var(--bg);
@@ -519,14 +511,12 @@ const activeInMore = Boolean(
   const moreBtn = document.getElementById('nav-more');
   const morePanel = document.getElementById('nav-more-panel');
 
-  /* --- 1. scrolled --- */
   const onScroll = () => {
     if (nav) nav.dataset.scrolled = String(window.scrollY > 6);
   };
   onScroll();
   window.addEventListener('scroll', onScroll, { passive: true });
 
-  /* --- 2. "More" disclosure --- */
   function setMore(open: boolean) {
     if (!moreBtn || !morePanel) return;
     moreBtn.setAttribute('aria-expanded', String(open));
@@ -538,7 +528,6 @@ const activeInMore = Boolean(
     setMore(moreBtn.getAttribute('aria-expanded') !== 'true');
   });
 
-  /* --- 3. mobile panel --- */
   function setPanel(open: boolean) {
     if (!burger || !panel) return;
     burger.setAttribute('aria-expanded', String(open));

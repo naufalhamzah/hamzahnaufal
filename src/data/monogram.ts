@@ -1,39 +1,25 @@
 /**
- * MONOGRAM
- * ============================================================================
- * One definition of the personal mark, used everywhere it appears: the navbar,
- * the mobile panel and the browser tab.
+ * MONOGRAM — one definition of the personal mark, used everywhere it appears: the
+ * navbar, the mobile panel and the browser tab.
  *
- * WHAT IT IS
- * A serif "H" carrying a rose flourish and a period, traced from the artwork the
- * author supplied. It is a MONOGRAM of the person's own initial, never a logo of
- * an organisation: the site's identity is the individual, and AirNav appears only
- * as an Experience entry.
+ * A serif "H" carrying a rose flourish and a period, traced from the author's
+ * artwork. It is a MONOGRAM of the person's own initial, never a logo of an
+ * organisation.
  *
- * TWO PATHS, NOT ONE
- * The supplied artwork is two colours -- a cream letter and a rose flourish -- and
- * a single flat path could only carry one of them. On the wine tile the flourish
- * in its original rose measures 2.12:1 against the tile, which is under the
- * 3:1 that WCAG 1.4.11 asks of a graphic, so it read as a smudge rather than as a
- * flourish. Split into two paths, each takes its own fill, and the flourish takes
- * `--on-solid-soft` (wine-300) at 4.42:1 -- still quieter than the letter,
- * which is what makes it read as ornament, but now actually visible.
+ * TWO PATHS, NOT ONE: the artwork is two colours (a cream letter and a rose
+ * flourish) and a single flat path could carry only one. On the wine tile the
+ * flourish in its original rose measures 2.12:1, under the 3:1 WCAG 1.4.11 asks of
+ * a graphic; split into two paths it takes `--on-solid-soft` (wine-300) at 4.42:1.
  *
- * TRACED, NOT RESAMPLED
- * The source is a 1254px raster on a solid ground. Shipped as a raster it would
- * carry its ground as a black box on the ivory theme, and a downscaled bitmap
- * would stair-step at 16px. The outline is vector geometry instead: potrace over
- * two colour masks, curves whose bounding box touches all four edges dropped
- * (potrace's first curve is the canvas border, and painting it buries the
- * artwork). The geometry is stored normalised to a 32-unit tile, so no font
- * has to be installed and an SVG favicon -- which cannot reference a webfont
- * anyway -- renders identically to the navbar.
+ * TRACED, NOT RESAMPLED: the source is a 1254px raster on a solid ground, which
+ * would carry its ground as a black box on the ivory theme and stair-step at 16px.
+ * The outline is vector geometry instead — potrace over two colour masks, curves
+ * whose bounding box touches all four edges dropped (potrace's first curve is the
+ * canvas border, and painting it buries the artwork). Geometry is normalised to a
+ * 32-unit tile so an SVG favicon renders identically to the navbar.
  *
- * THE SIZE IT IS JUDGED AT
- * Every candidate was rendered at 16px, the size a favicon is actually seen at.
- * At that size the flourish is barely a pixel thick and reads as a warm accent
- * rather than a shape, which is expected and acceptable; the letter itself stays
- * legible from 16px up. The mark was composed to survive that floor first.
+ * Judged at 16px, the size a favicon is seen at: the flourish reads as a warm
+ * accent rather than a shape (acceptable); the letter stays legible from 16px up.
  */
 
 export interface Monogram {
@@ -54,10 +40,9 @@ export const monogram: Monogram = {
 };
 
 /**
- * A standalone SVG document for the favicon.
- *
- * Colours are passed in rather than hard-coded, so the caller hands it the live
- * theme tokens and the tab icon cannot drift away from the palette.
+ * A standalone SVG document for the favicon. Colours are passed in rather than
+ * hard-coded, so the caller hands it the live theme tokens and the tab icon cannot
+ * drift away from the palette.
  */
 export function monogramSvg(opts: {
   bg: string;

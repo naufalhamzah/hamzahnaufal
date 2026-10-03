@@ -1,11 +1,6 @@
 /**
- * EDUCATION
- * ============================================================================
  * SOURCE: [P] = Profile.pdf (authoritative), [D] = portfolio deck.
- *
- * No graduation month and no GPA are shown: neither document states them. The
- * TODO on the university entry says so explicitly rather than inventing a date.
- * ============================================================================
+ * No graduation month and no GPA are shown: neither document states them.
  */
 
 import { educationListSchema } from './schemas';
@@ -17,11 +12,8 @@ const raw: EducationEntry[] = [
     institution: 'Universitas Negeri Semarang',
     degree: "Bachelor's Degree",
     field: 'Information Systems',
-    /*
-      Graduation month confirmed by the user: MARCH 2026. It is stated as a range
-      end so the education entry reads like every other dated record on the site,
-      and the TODO below was removed because the question is now answered.
-    */
+    /* Graduation month confirmed by the user: MARCH 2026, stated as a range end
+       so the entry reads like every other dated record on the site. */
     dateRange: '2022 – March 2026',
     sortKey: '2022-08',
     location: 'Semarang, Jawa Tengah, Indonesia',
@@ -35,11 +27,8 @@ const raw: EducationEntry[] = [
       alt: 'Universitas Negeri Semarang crest',
       /*
         REAL file size — 800x1069, not the 800x800 an earlier version claimed.
-        The wrong pair was not cosmetic: these numbers become the <img> width and
-        height attributes, so the browser reserved a SQUARE box for a portrait
-        file. Against the portrait image that reserve is wrong in both
-        directions, and inside a fixed square plate the crest was then squeezed —
-        which is what the user saw as a cut-off logo.
+        These numbers become the <img> width/height attributes, so a square reserve
+        against a portrait file squeezed the crest inside a fixed square plate.
       */
       width: 800,
       height: 1069,

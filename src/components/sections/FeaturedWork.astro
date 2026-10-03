@@ -2,22 +2,16 @@
 /**
  * PREVIEW: SELECTED WORK  (homepage's strongest section)
  *
- * A HORIZONTAL RAIL, not a stacked grid.
+ * A HORIZONTAL RAIL, not a stacked grid: one project holds the frame and the
+ * next stays half-visible at the edge, so the section invites opening one thing
+ * rather than listing all the work. It is a native scroll-snap container, so all
+ * three projects are in the HTML and it works with JavaScript disabled. See
+ * `FeaturedRail.astro` for the peek, the snap and the controls.
  *
- * This section used to be a vertical spread — one wide lead card followed by two
- * supporting cards — which read as "the whole portfolio, condensed" and set the
- * homepage up as a list of work rather than an invitation to open one thing. It
- * is now a carousel: one project holds the frame, the next stays half-visible at
- * the edge, and the visitor chooses how far to walk through it.
- *
- * The rail is a native scroll-snap container, so all three projects are in the
- * HTML and it works with JavaScript disabled. See `FeaturedRail.astro` for the
- * carousel itself and the reasoning behind the peek, the snap and the controls.
- *
- * No subjective ranking labels ("best", "top"). The three are chosen to show the
- * RANGE of the work — a data dashboard, a data system and a product-design case
- * study — rather than three entries of the same kind. See `featuredProjects` in
- * the data layer for why the selection is explicit rather than filtered.
+ * No subjective ranking labels ("best", "top") — the three are chosen to show the
+ * RANGE of the work (a data dashboard, a data system, a product-design case
+ * study), not three entries of the same kind. See `featuredProjects` in the data
+ * layer for why the selection is explicit rather than filtered.
  *
  * IMAGE BUDGET: three project visuals, no more.
  */
@@ -28,8 +22,8 @@ import { withBase } from '@/utils/url';
 
 /**
  * Master-list indices, so the "01 / 02 / 03" the rail shows is the SAME number
- * the projects page gives that project — the numbering stays stable across
- * pages instead of restarting inside the carousel.
+ * the projects page gives that project — the numbering stays stable across pages
+ * instead of restarting inside the carousel.
  */
 const indices = featuredProjects.map(
   (p) => projectEntries.findIndex((e) => e.id === p.id) + 1,

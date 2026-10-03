@@ -1,24 +1,17 @@
 /**
- * PROFILE
- * ============================================================================
- * Every fact is traceable to one of the two source documents:
+ * Facts trace to one of two source documents:
  *   [P] = Profile.pdf (LinkedIn export)     — identity + dates
  *   [D] = PORTOFOLIO HAMZAH (3).pdf (deck)  — descriptions, skills, projects
- *
- * Where a fact is genuinely unknown it is marked with a TODO rather than
- * guessed. Nothing here is invented.
- * ============================================================================
+ * No fact is guessed: anything the documents do not state is simply absent.
  */
 
 import { profileSchema } from './schemas';
 import type { ContactLink, MediaAsset } from '@/types/content';
 
 /**
- * Whether the phone number appears anywhere on the site.
- *
- * The number comes from [D]; [P] masks it. Flip to `true` to surface it —
- * no component changes required. Default `false` per the brief: never publish
- * a phone number publicly.
+ * Whether the phone number appears anywhere on the site. The number comes from
+ * [D]; [P] masks it. Flip to `true` to surface it — no component changes needed.
+ * Default `false` per the brief: never publish a phone number publicly.
  */
 export const CONTACT_PHONE_ENABLED = false;
 
@@ -26,10 +19,7 @@ export interface Profile {
   name: string;
   shortName: string;
   initials: string;
-  /**
-   * One-line professional identity, from [P]'s headline.
-   * Set in accent italic directly under the name — the primary claim.
-   */
+  /** One-line professional identity, from [P]'s headline. */
   headline: string;
   /** Short positioning tags shown under the name. */
   positioning: string[];
@@ -41,12 +31,9 @@ export interface Profile {
   location: string;
   /**
    * The quiet status line at the FOOT of the hero, paired with `location`.
-   *
-   * It must NOT repeat `headline`. It used to hold the identical string, so the
-   * hero printed "Information Systems Graduate" twice within one screen — once as
-   * the accent role line, once in the bottom-right rule — which reads as a
-   * copy-paste slip, not as emphasis. What belongs here is the record fact the
-   * hero does not otherwise carry.
+   * Must NOT repeat `headline` — it once held the identical string, printing
+   * "Information Systems Graduate" twice within one screen. It belongs here as
+   * the record fact the hero does not otherwise carry.
    */
   currentStatus: string;
   currentRole: string;
@@ -66,11 +53,8 @@ const rawProfile: Profile = {
   shortName: 'Hamzah Naufal',
   initials: 'HNZ',
 
-  /**
-   * PRIMARY IDENTITY.
-   * The brief is explicit: the site must lead with "Information Systems
-   * Graduate", NOT with an employer. AirNav appears only inside Experience.
-   */
+  /* PRIMARY IDENTITY. The brief is explicit: the site must lead with
+     "Information Systems Graduate", NOT with an employer. */
   headline: 'Information Systems Graduate',
 
   positioning: ['Data', 'Technology', 'Business Process', 'Digital Solutions'],
@@ -82,20 +66,15 @@ const rawProfile: Profile = {
   displayWord: 'Portfolio',
 
   location: 'Tangerang, Indonesia',
-  /*
-    The hero's bottom-right rule. It carries the record fact the hero does not
-    otherwise state — the degree and where it is from — instead of repeating
-    `headline` verbatim, which it did before.
-  */
+
+  /* The hero's bottom-right rule. Carries the degree and where it is from
+     instead of repeating `headline` verbatim, which it did before. */
   currentStatus: "Bachelor's Degree, Information Systems",
   /** Shown on the Experience page only — never as the site's identity. */
   currentRole: 'Information Technology Administration  at AirNav Indonesia',
 
-  /**
-   * About narrative. Rewritten for this pass: shorter sentences, concrete
-   * verbs, no generic self-praise ("passionate", "results-driven"). Every
-   * claim still traces to [P] or [D].
-   */
+  /* Written with concrete verbs, no generic self-praise ("passionate",
+     "results-driven"). Every claim traces to [P] or [D]. */
   summary: [
     'I am an Information Systems graduate from Universitas Negeri Semarang. My work sits where data, business process and technology meet: analysing how something currently works, then building the system or dashboard that makes it work better.',
     'In practice that has meant building a marketing data management system from scratch, developing a procurement monitoring dashboard for PT PLN (Persero), and publishing research that applies machine learning to real evaluation problems. Each project started with the same question — what decision is this supposed to support?',
@@ -113,38 +92,23 @@ const rawProfile: Profile = {
 
   email: 'naufalhamzahhh05@gmail.com',
 
-  /*
-    Tagline — the line the footer signs off with.
-
-    This replaces "Learning never stops — every project is a chance to grow."
-    That was true but generic: it could sit under any name on any portfolio and
-    say nothing about this one. The replacement is anchored to what the record
-    actually shows — systems built, questions asked, things measured — so it
-    reads as a description of the work rather than a slogan about it.
-  */
+  /* The line the footer signs off with — anchored to what the record shows
+     (systems built, questions asked, things measured), not a generic slogan. */
   tagline: 'I build the system, then keep asking what it should measure.',
 
   /**
    * The hero portrait — `Foto Cover 1.png`, cropped and optimised by the asset
-   * pipeline.
+   * pipeline. THIS FILE HAS NO BACKDROP: it is a cut-out (~67% transparent
+   * pixels), so the hero renders it as a silhouette standing in the page rather
+   * than a pasted rectangle. An earlier revision added a border and shadow box,
+   * which drew a visible rectangle around a person who has none — do not
+   * regress that.
    *
-   * THIS FILE HAS NO BACKDROP. It is a cut-out: roughly 67% of its pixels are
-   * fully transparent, so the hero renders it as a silhouette standing in the
-   * page (drop-shadow following the alpha shape, a soft pool behind it) rather
-   * than a pasted rectangle. An earlier revision gave it a border and a shadow
-   * box, which drew a visible rectangle around a person who has none — that is
-   * what makes a cut-out read as "stuck on", and it is worth not regressing.
-   *
-   * CROPPED to a head-to-chest 3:4, measured from the subject's actual extent
-   * rather than estimated (x 547..2591, y 963..4687 of 3125x4688). Three details
-   * that were wrong before and must not regress:
-   *   · the crop leaves ~37px of headroom above the crown. An earlier pass cut
-   *     111px off the top of the head, which reads as a mistake at hero size;
-   *   · the width (0.7242) is the NARROWEST that still contains the whole figure.
-   *     The subject spans 0.6544 of the frame, so a tighter crop sliced the arms
-   *     off at the edge — a 0.55 attempt cut 296px;
-   *   · the bottom edge falls below the sash's medal, so the whole sash stays in
-   *     frame instead of being sliced mid-way.
+   * CROPPED to head-to-chest 3:4, measured from the subject's extent rather than
+   * estimated (x 547..2591, y 963..4687 of 3125x4688). The crop leaves ~37px of
+   * headroom above the crown, the width (0.7242) is the narrowest that still
+   * contains the whole figure (arms are cut at tighter crops), and the bottom
+   * edge falls below the sash's medal.
    *
    * The uncropped original is still produced as `/images/hero/portrait-full.webp`.
    */
@@ -183,9 +147,8 @@ const rawProfile: Profile = {
 export const profile: Profile = profileSchema.parse(rawProfile);
 
 /**
- * Contact links with disabled entries removed.
- * Components must use THIS, not `profile.contactLinks`, so a disabled entry
- * can never leak into rendered HTML.
+ * Contact links with disabled entries removed. Components must use THIS, not
+ * `profile.contactLinks`, so a disabled entry can never leak into rendered HTML.
  */
 export const activeContactLinks: ContactLink[] = profile.contactLinks.filter(
   (link) => link.enabled !== false,

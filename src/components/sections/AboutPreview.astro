@@ -4,23 +4,11 @@
  *
  * A curated introduction, not the full narrative. /about carries the rest.
  *
- * IMAGE BUDGET: NONE — deliberately.
- *
- * This section used to carry a screenshot of the marketing data system. It is
- * removed, for two reasons the user named directly:
- *
- *   1. "gambar pecah" — a dense spreadsheet screenshot carries its meaning in
- *      its TEXT, and at the column width this section allowed, that text
- *      rendered about 5px tall. It was not legible, so it proved nothing; it
- *      read as a broken image rather than a screenshot.
- *   2. The homepage's image budget belongs to the hero and the selected work.
- *      A third image here competed with both.
- *
- * The screenshot is still used where it CAN be read: on /experience inside the
- * BeautyLab entry, at full article width.
- *
- * So this section is set as pure typography plus a narrow reference rail.
- * Nothing is invented: every number below is COUNTED from the data files.
+ * IMAGE BUDGET: NONE — deliberately. This section used to carry a screenshot of
+ * the marketing data system, removed because its meaning lives in its TEXT and
+ * at this section's column width that text rendered ~5px tall — not legible, so
+ * it proved nothing ("gambar pecah"). The screenshot is still shown at full
+ * article width on /experience inside the BeautyLab entry.
  */
 import SectionHead from '@/components/ui/SectionHead.astro';
 import { profile } from '@/data/profile';
@@ -30,9 +18,8 @@ import { publicationEntries } from '@/data/publications';
 import { withBase } from '@/utils/url';
 
 /**
- * Figures for the rail, counted from the data layer so they cannot drift out of
- * step with the content. Each is a count of something that exists — no invented
- * metrics, no percentages.
+ * Counted from the data layer so the figures cannot drift out of step with the
+ * content — each is a count of something that exists, no invented metrics.
  */
 const stats = [
   { value: String(projectEntries.length), label: 'Projects' },
@@ -83,10 +70,10 @@ const stats = [
     Two columns on desktop: the prose leads on the left, a narrow reference rail
     on the right carries the counts and the focus chips.
 
-    The asymmetry is deliberate. With the image gone, a plain two-paragraph block
-    would have run the full measure and read as a wall of text, so the rail is
-    what keeps the section structured without a picture — and the prose keeps the
-    wider column because it is the introduction, not the fact panel.
+    The asymmetry is deliberate: with the image gone, a plain two-paragraph block
+    would run the full measure and read as a wall of text, so the rail keeps the
+    section structured without a picture, and the prose keeps the wider column
+    because it is the introduction, not the fact panel.
   */
   .ab__grid {
     display: grid;
@@ -116,7 +103,6 @@ const stats = [
     color: var(--fg-muted);
   }
 
-  /* ---------------- reference rail ---------------- */
   .ab__side {
     padding-top: clamp(0.25rem, 1vw, 0.75rem);
   }
@@ -142,10 +128,9 @@ const stats = [
   }
 
   /*
-    The counts, set as editorial figures rather than boxes-with-numbers: three
-    columns, each number large in the display face with its label small beneath.
-    That is the same hierarchy the hero uses for the name and its role, which is
-    what makes this read as part of the same document.
+    Editorial figures, not boxes-with-numbers: each number large in the display
+    face with its label small beneath — the same hierarchy the hero uses for the
+    name and its role, which makes this read as part of the same document.
   */
   .ab__stats {
     display: grid;

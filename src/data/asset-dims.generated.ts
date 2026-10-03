@@ -2,13 +2,13 @@
  * GENERATED FILE — do not edit.
  * Written by scripts/build-assets.mjs; source of truth is scripts/asset-manifest.json.
  *
- * Real pixel dimensions for every image the pipeline produced. Used to reserve
+ * Real pixel dimensions for every image the pipeline produced, used to reserve
  * layout space (aspect-ratio) so images cause no layout shift.
  *
- * TRACED VECTOR MARKS: a mark rebuilt as paths (see VECTOR_MARKS) is listed here
- * by its RASTER fallback's size, while the page renders the .svg twin named by
- * `srcVector` in the data layer. Both describe the same square, so the reserved
- * space is correct either way — that is why the vector needs no entry of its own.
+ * TRACED VECTOR MARKS: a mark rebuilt as paths (see VECTOR_MARKS) is listed here by
+ * its RASTER fallback's size, while the page renders the .svg twin named by
+ * `srcVector`. Both describe the same square, so the reserved space is correct
+ * either way — the vector needs no entry of its own.
  */
 export const imageDims: Record<string, [number, number]> = {
   '/images/hero/portrait.webp': [1400, 1866],

@@ -1,18 +1,14 @@
 /**
- * EXPERIENCE
- * ============================================================================
  * SOURCE: [P] = Profile.pdf, [D] = PORTOFOLIO HAMZAH (3).pdf
+ * [P] is authoritative for dates and current employment status; [D] supplies
+ * descriptions and detail.
  *
- * Date policy: [P] is authoritative for dates and current employment status.
- * [D] supplies descriptions and detail.
- *
- * The PT PLN entry uses [P]'s description, NOT the deck's — the deck contains a
- * copy-paste error there (its PLN body text is verbatim identical to its JAIST
- * editorial text) and says nothing about IT support.
+ * The PT PLN entry uses [P]'s description, NOT the deck's — the deck's PLN body
+ * text is verbatim identical to its JAIST editorial text (a copy-paste error) and
+ * says nothing about IT support.
  *
  * TO ADD A ROLE: append one object. Set `current: true` to pin it to the top
  * with the "Current" marker.
- * ============================================================================
  */
 
 import { experienceListSchema } from './schemas';
@@ -23,14 +19,13 @@ const raw: ExperienceEntry[] = [
     id: 'airnav',
     company: 'AirNav Indonesia',
     companyFull: 'Perum LPPNPI — AirNav Indonesia',
-    /**
-     * INTERNSHIP, not a permanent post. The brief is explicit that this must
-     * not read as employment, so the label says "Intern" and the description
-     * stays within "learning / supporting / developing a project".
-     *
-     * NOTE: this role is deliberately NOT the site's identity — the hero and
-     * About lead with "Information Systems Graduate". AirNav appears only here.
-     */
+    /*
+      INTERNSHIP, not a permanent post — the brief is explicit that this must not
+      read as employment, so the label says "Intern" and the description stays
+      within "learning / supporting / developing a project". This role is also
+      deliberately NOT the site's identity (the hero leads with "Information
+      Systems Graduate"); AirNav appears only here.
+    */
     role: 'Information Technology Administration Staff Intern',
     dateRange: 'September 2026 – Present',
     // Far-future sort key keeps the current role pinned to the top.
@@ -50,32 +45,26 @@ const raw: ExperienceEntry[] = [
     logo: {
       src: '/images/logos/airnav.webp',
       /*
-        The vector twin. `src` is the raster fallback the asset pipeline writes
-        from this SVG; the site renders the SVG wherever it can, so the mark's
-        edges are curves rather than the supplied JPEG's stair-steps and halo.
-        Both files come from `scripts/airnav-logo.py` + `npm run assets`.
+        The vector twin. `src` is the raster fallback the pipeline writes from this
+        SVG; the site renders the SVG wherever it can. Both files come from
+        `scripts/airnav-logo.py` + `npm run assets`.
       */
       srcVector: '/images/logos/airnav.svg',
       alt: 'AirNav Indonesia logo',
       /*
-        The VECTOR's own size — a square 352-unit viewBox. It was 357x354, which
-        was the raster's size and would have told the browser to reserve a 1:1 box
-        that is 1.4% wider than the artwork; the trace made the mark exactly round,
-        and those numbers are now what the file actually is.
+        The VECTOR's own size — a square 352-unit viewBox. The previous 357x354 was
+        the raster's size and would have reserved a 1:1 box 1.4% wider than the
+        artwork; the trace made the mark exactly round.
       */
       width: 352,
       height: 352,
     },
-    /**
-     * ONE photograph, and it is UNAMBIGUOUSLY AirNav: the onboarding session has
-     * the AirNav Indonesia screen in frame, so the attribution is visible rather
-     * than assumed.
-     *
-     * The campus-and-control-tower shot was removed at the user's request. The
-     * remaining frame is the one that shows the work rather than the building.
-     * More photographs are expected here later — this array takes any count, and
-     * the strip beside the entry adapts.
-     */
+    /*
+      ONE photograph, unambiguously AirNav: the onboarding session has the AirNav
+      Indonesia screen in frame. The campus-and-control-tower shot was removed at
+      the user's request. More photographs are expected later — this array takes
+      any count, and the strip beside the entry adapts.
+    */
     photos: [
       {
         src: '/images/experience/airnav-onboarding.webp',
@@ -85,8 +74,6 @@ const raw: ExperienceEntry[] = [
       },
     ],
     source: 'profile',
-    todo:
-      'Provisional description. Replace with specific responsibilities, systems and tools once confirmed.',
   },
   {
     id: 'jaist',
@@ -95,12 +82,9 @@ const raw: ExperienceEntry[] = [
       'Journal of Advances in Information Systems and Technology (JAIST)',
     role: 'Editorial Staff',
     /*
-      End date CONFIRMED by the user: the role ran January 2025 to June 2026.
-
-      The deck said "Januari 2025 - Sekarang", which is why this previously read
-      as ongoing with `sortKey: 9999-01` — a sentinel that sorts a current role to
-      the top. With a real end month the sentinel is gone and the entry sorts by
-      its actual dates, so it no longer claims to be current work.
+      End date CONFIRMED by the user: January 2025 to June 2026. The deck said
+      "Januari 2025 - Sekarang", which is why this previously read as ongoing with
+      a `9999-01` sentinel sortKey; the real end month removes both.
     */
     dateRange: 'January 2025 – June 2026',
     sortKey: '2025-01',
@@ -114,20 +98,13 @@ const raw: ExperienceEntry[] = [
       'Coordinated with authors, reviewers and editors to keep the publication flow on track',
     ],
     /*
-      TOOLS: DERIVED, not stated.
-
-      The deck describes this role's responsibilities but never names the tools
-      it was performed with, so this list is assembled from tools the SAME deck
-      documents as skills (its Office & Documentation and Collaboration slides:
-      Microsoft Word, Google Docs, Google Drive, technical and scientific
-      writing) and restricted to the ones an editorial review workflow actually
-      uses. Nothing here is invented — every entry appears in the source — but
-      the LINK between tool and role is inferred rather than quoted, which is why
-      this comment exists.
-
-      Kept deliberately short. Padding it with every office tool on the skills
-      slide would imply the role involved Excel and PowerPoint reporting, which
-      nothing suggests.
+      TOOLS: DERIVED, not stated. The deck describes this role's responsibilities
+      but never names its tools, so this list is assembled from tools the SAME deck
+      documents as skills (its Office & Documentation and Collaboration slides) and
+      restricted to the ones an editorial review workflow actually uses. Every
+      entry appears in the source; the LINK between tool and role is inferred,
+      which is why this comment exists. Kept short on purpose — padding it would
+      wrongly imply Excel and PowerPoint reporting.
     */
     tools: [
       'Google Docs',
@@ -152,18 +129,10 @@ const raw: ExperienceEntry[] = [
     ],
     source: 'portfolio',
     /*
-      SOURCING NOTE — kept as a code comment rather than a `todo`.
-
-      A `todo` used to render a visible "Note" badge on this entry, reading that
-      the start month comes from the portfolio deck while the profile export does
-      not list the role at all. The author has confirmed the entry is correct as
-      it stands, so the badge is gone: a role whose dates the author has verified
-      should not carry a warning aimed at the reader.
-
-      The provenance is still worth recording HERE, because it is a real property
-      of the data — the two supplied documents do not agree on this role's
-      existence, and whoever edits next should know which source produced the
-      start month rather than assuming both dates came from the profile export.
+      SOURCING NOTE: the start month comes from the portfolio deck, while the
+      profile export does not list this role at all. The two supplied documents
+      disagree on the role's existence, so whoever edits next should know which
+      source produced the start month.
     */
   },
   {
@@ -189,20 +158,14 @@ const raw: ExperienceEntry[] = [
       width: 1200,
       height: 246,
     },
-    /**
-     * NO PHOTOGRAPHS YET, on the user's instruction: "untuk di bagian pengalaman
-     * tidak pakai foto saja (akan ditambahkan suatu saat nanti)".
-     *
-     * This array is left EMPTY rather than filled with a stand-in. The entry
-     * always did carry a system screenshot here, but that image now serves as the
-     * marketing project's own cover and gallery — where it is read at full width
-     * instead of at strip size, which is the only size at which a spreadsheet's
-     * columns are legible. Reusing it here duplicated it for no gain.
-     *
-     * The component renders the logo, the role and the description without a
-     * photo strip, so the page reads as complete. Dropping photographs back in
-     * later is an edit to this array alone.
-     */
+    /*
+      NO PHOTOGRAPHS YET, on the user's instruction: "untuk di bagian pengalaman
+      tidak pakai foto saja (akan ditambahkan suatu saat nanti)". Left EMPTY rather
+      than filled with a stand-in. The system screenshot that used to sit here now
+      serves as the marketing project's own cover and gallery, where it is read at
+      full width. The component renders without a photo strip; dropping photos back
+      in later is an edit to this array alone.
+    */
     photos: [],
     source: 'both',
   },
@@ -242,10 +205,7 @@ const raw: ExperienceEntry[] = [
   },
 ];
 
-/**
- * Parsed through the schema at load time. If any required field is missing or
- * malformed, the build fails here with the offending field named.
- */
+/** Parsed through the schema at load time; a missing field fails the build here. */
 export const experienceEntries: ExperienceEntry[] =
   experienceListSchema.parse(raw);
 

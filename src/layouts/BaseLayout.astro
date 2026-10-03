@@ -34,11 +34,10 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
 const socialImage = new URL(withBase(ogImage), Astro.site ?? site.url).href;
 
 /**
- * JSON-LD Person markup, built ONLY from facts present in the source documents.
+ * JSON-LD Person markup, built ONLY from facts in the source documents.
  *
- * `jobTitle` is deliberately the graduate positioning rather than the current
- * employer, matching the site's own identity rule. The internship is discoverable
- * through the Experience page instead.
+ * `jobTitle` is deliberately the graduate positioning, not the current employer
+ * (the internship is discoverable via the Experience page instead).
  */
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -91,9 +90,8 @@ const jsonLd = {
     <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
     <link rel="apple-touch-icon" href={withBase('/favicon.svg')} />
 
-    <!-- Pre-paint theme bootstrap: must run before first paint to avoid a light
-         flash on a dark-first site, so it stays inline and blocking. It sets the
-         theme WITHOUT the transition guard, so first paint is instant. -->
+    <!-- Pre-paint theme bootstrap: runs inline and blocking so a dark-first site
+         does not flash light. Sets the theme WITHOUT the transition guard. -->
     <script is:inline>
       (function () {
         try {
@@ -122,8 +120,7 @@ const jsonLd = {
 
     <Navbar />
 
-    <!-- The page wrapper carries the fade-in transition, so the nav and footer
-         stay put while the content settles. -->
+    <!-- Page wrapper carries the fade-in, so nav and footer stay put. -->
     <main id="main" tabindex="-1" class="page-in">
       <slot />
     </main>
@@ -135,10 +132,8 @@ const jsonLd = {
 
     <script>
       /**
-       * Progressive enhancement:
-       *  - marks that JS is available, so reveal styles only hide content when
-       *    they can also un-hide it
-       *  - reveals [data-reveal] elements as they scroll into view
+       * Adds `.js` so reveal styles only hide content when they can also
+       * un-hide it, then reveals [data-reveal] elements on scroll.
        */
       const root = document.documentElement;
       root.classList.add('js');

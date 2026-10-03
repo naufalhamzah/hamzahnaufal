@@ -1,14 +1,11 @@
 /**
- * ACHIEVEMENTS
- * ============================================================================
  * SOURCE: [D] awards and certificates shown in the deck, cross-checked vs [P].
  *
- * Wording policy: each entry states only what the document states — no ranking
- * inflation. A school-level olympiad medal is described as a Silver Medal at
- * the Olimpiade Numerasi Nasional, not upgraded to something it was not.
+ * Each entry states only what the document states — no ranking inflation. A
+ * school-level olympiad medal is described as a Silver Medal at the Olimpiade
+ * Numerasi Nasional, not upgraded to something it was not.
  *
  * TO ADD: append one object. `kind` picks the marker glyph.
- * ============================================================================
  */
 
 import { achievementListSchema } from './schemas';
@@ -17,10 +14,8 @@ import type { AchievementEntry } from '@/types/content';
 const raw: AchievementEntry[] = [
   {
     id: 'olimpiade-numerasi-silver',
-    /**
-     * YEAR CORRECTION: the award scan's file name and piagam both read 2020,
-     * so this is 2020 — previously recorded as 2022 from a slide thumbnail.
-     */
+    /* YEAR CORRECTION: the award scan's file name and piagam both read 2020,
+       previously recorded as 2022 from a slide thumbnail. */
     title: 'Silver Medal — Olimpiade Numerasi Nasional',
     detail:
       'Awarded a Silver Medal (Medali Perak) at the Olimpiade Numerasi Nasional, Level 5, representing SMAN 1 Kabupaten Tangerang. Awarded alongside participation in Karya Ilmiah Remaja (KIR) during secondary school.',

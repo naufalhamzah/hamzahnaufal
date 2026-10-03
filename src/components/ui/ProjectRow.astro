@@ -2,47 +2,22 @@
 /**
  * PROJECT ROW — the editorial entry used on /projects.
  *
- * WHY NOT THE CARD
- * The card is built for a grid of equals: one frame, one block of text beneath.
- * At full page width that frame rendered 1152px wide, which is a very large
- * image for a list of eight — the page became a stack of billboards, and the
- * user asked for something more editorial and less oversized.
+ * WHY NOT THE CARD: a card frame at full page width rendered 1152px — a stack of
+ * billboards for a list of eight. A row keeps the image a sensible share, puts
+ * the text BESIDE it, and alternates sides down the page so the eye zig-zags. A
+ * project with extra documentation also shows up to two supporting frames under
+ * its hero, so a visitor sees a project's breadth without opening it.
  *
- * A row changes the reading model. The image keeps a sensible share of the
- * width, the text sits BESIDE it, and the two alternate sides down the page so
- * the eye zig-zags rather than running straight down one column. That is what
- * makes a long list readable: rhythm, not repetition.
+ * ONE SHAPE, ONE RATIO (16:10) for everything that is NOT a phone mockup.
+ * Documents are letterboxed inside it, so a journal page and a dashboard share a
+ * box without crop.
  *
- * THE SUPPORTING STRIP
- * A project with extra documentation shows its hero plus up to two smaller
- * frames beneath it. That is the "featured image, then supporting images"
- * composition, and it means a visitor can see the breadth of a project without
- * opening it — while still keeping the page far shorter than one large image per
- * project would.
- *
- * ONE SHAPE, ONE RATIO — for everything that is NOT a phone mockup.
- *
- * The frame is 16:10 and documents are letterboxed inside it, so a journal page
- * and a dashboard sit in the same box without either being cropped. That rule
- * still holds for screenshots and documents.
- *
- * IT DOES NOT HOLD FOR PHONE SCREENS, and forcing it there was the mistake.
- *
- * The user's report: "jangan kotak kotak begini. buat tampilannya menarik,
- * langsung bentuk hp nya saja" — do not box these, just show the phone. They were
- * right, and the numbers say why. A 0.488-ratio phone inside a 16:10 frame fills
- * only 30% of the box's width; measured in the row, the phone rendered 233px
- * wide inside a 487px frame, so roughly 65% of the frame was empty matte. The box
- * was doing nothing except making a phone look like a small picture of a phone.
- *
- * So a project whose ENTIRE image set is portrait screens (which is every device
- * render in this portfolio — they are exported as cut-outs with their own bezel
- * and shadow) renders WITHOUT a frame: the device stands directly on the page at
- * its own proportions, at a size that is actually readable. Mixed or
- * landscape/document sets keep the frame exactly as before.
- *
- * The test is per PROJECT, not per image: a row that framed some images and let
- * others float would be less consistent, not more.
+ * IT DOES NOT HOLD FOR PHONE SCREENS: a 0.488-ratio phone fills only 30% of a
+ * 16:10 box — measured in the row, 233px wide inside a 487px frame (~65% empty
+ * matte). So a project whose ENTIRE image set is portrait screens renders WITHOUT
+ * a frame: the device stands on the page at its own proportions. Mixed or
+ * landscape/document sets keep the frame. The test is per PROJECT, not per image,
+ * so a row never mixes framed and floating images.
  */
 import type { ProjectEntry, MediaAsset } from '@/types/content';
 import { PROJECT_CATEGORY_LABELS } from '@/types/content';
@@ -74,12 +49,9 @@ const supporting = shots.slice(1, 3);
 const moreCount = Math.max(0, shots.length - 3);
 
 /**
- * Is this project a set of PHONE SCREENS?
- *
- * True only when every image it owns is portrait, which in practice means every
- * one is a device render. Documents (`fit: 'contain'`) are excluded explicitly:
- * a journal page is also portrait, but it is a page to be read on a matte, not a
- * device to stand on the page.
+ * True only when every image the project owns is portrait, i.e. a device render.
+ * Documents (`fit: 'contain'`) are excluded explicitly: a journal page is also
+ * portrait, but it is a page read on a matte, not a device standing on the page.
  */
 const isPortrait = (m: MediaAsset) => {
   const ar = m.width && m.height ? m.width / m.height : 1.5;
@@ -88,11 +60,9 @@ const isPortrait = (m: MediaAsset) => {
 const phones = shots.length > 0 && shots.every(isPortrait);
 
 /**
- * The device ratio, read off the real image so the group's boxes match it.
- *
- * Kept per-project rather than hardcoded in the stylesheet: the ratio belongs to
- * the export, and a re-export at a different shape would otherwise be letterboxed
- * inside boxes that still assumed the old one.
+ * The device ratio, read off the real image so the group's boxes match it. Kept
+ * per-project rather than hardcoded: the ratio belongs to the export, and a
+ * re-export at a different shape must not letterbox silently.
  */
 const phoneAr =
   hero.width && hero.height ? (hero.width / hero.height).toFixed(4) : '0.488';
@@ -102,11 +72,10 @@ const dims =
   (hero.width && hero.height ? ([hero.width, hero.height] as [number, number]) : null);
 
 /**
- * How a SUPPORTING image fills its 16:9 cell.
- *
- * Fill for a landscape photograph or screenshot; letterbox for anything that has
- * to be seen whole — a document (`fit: 'contain'`) or a portrait device render,
- * which `cover` would slice down the middle of the phone.
+ * How a SUPPORTING image fills its 16:9 cell: fill for a landscape photograph or
+ * screenshot, letterbox for anything that must be seen whole — a document
+ * (`fit: 'contain'`) or a portrait device render, which `cover` would slice down
+ * the middle of the phone.
  */
 const thumbFit = (m: MediaAsset) => {
   const ar = m.width && m.height ? m.width / m.height : 1.5;
@@ -116,17 +85,14 @@ const thumbFit = (m: MediaAsset) => {
 
 <article class:list={['pr', `pr--${side}`, phones && 'pr--phones']}>
   <div class="pr__inner">
-    <!-- ---------------- visual ---------------- -->
     <div class="pr__media">
       {
         phones ? (
           /*
-            PHONES STAND ON THE PAGE — no frame, no matte, no box.
-
-            See the note at the top of this file: a 0.488-ratio device inside a
-            16:10 frame used about a third of the box's width, so two thirds of
-            every "phone" row was empty plate. The device renders are cut-outs
-            with their own bezel and shadow, so the frame was adding nothing.
+            PHONES STAND ON THE PAGE — no frame, no matte, no box. A 0.488-ratio
+            device inside a 16:10 frame used about a third of the box's width, so
+            two thirds of every "phone" row was empty plate; the renders are cut-outs
+            with their own bezel and shadow, so the frame added nothing.
           */
           <div class="ph" style={`--phone-ar: ${phoneAr};`} data-lightbox-group>
             <div class="ph__viewport">
@@ -251,7 +217,7 @@ const thumbFit = (m: MediaAsset) => {
       }
     </div>
 
-    <!-- ---------------- text ---------------- -->
+    <!-- text -->
     <div class="pr__body">
       <p class="pr__meta">
         <span class="pr__num" aria-hidden="true">{num}</span>
@@ -290,14 +256,10 @@ const thumbFit = (m: MediaAsset) => {
       {/*
         THE CTA IS A REAL LINK, and the title carries the stretched layer.
 
-        It used to be `<span>View project</span>` — a control that looks pressable
-        and is not, unreachable by keyboard and invisible to a screen reader's link
-        list. It is now a second `<a>` to the same destination.
-
-        Two links to one place is intentional and correct here: the stretched layer
-        means the whole row is already clickable, and a visible "View project" that
-        does nothing would be worse than either option. The CTA sits ABOVE the
-        stretched layer (z-index 3) so its own hover and focus states work.
+        It was a `<span>` — a control that looks pressable and is not, unreachable
+        by keyboard and invisible to a screen reader's link list. Two links to one
+        destination is intentional: the stretched layer makes the whole row
+        clickable, and the CTA sits ABOVE it (z-index 3) for its own hover/focus.
       */}
       <a href={href} class="pr__cta">
         <span>View project</span>
@@ -320,12 +282,8 @@ const thumbFit = (m: MediaAsset) => {
   }
 
   @media (min-width: 900px) {
-    /*
-      The image takes the larger share but never the whole width — that is the
-      fix for "gambar terlalu besar". 1.25fr against 1fr puts it at roughly 55%
-      of the row, which is a comfortable size for a screenshot and leaves the text
-      a real column rather than a caption.
-    */
+    /* The image takes the larger share but never the whole width — the fix for
+       "gambar terlalu besar". 1.25fr against 1fr puts it at ~55% of the row. */
     .pr__inner {
       grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
       gap: clamp(1.75rem, 4vw, 3.5rem);
@@ -337,7 +295,6 @@ const thumbFit = (m: MediaAsset) => {
     }
   }
 
-  /* ---------------- media ---------------- */
   .pr__media {
     min-width: 0;
   }
@@ -352,16 +309,12 @@ const thumbFit = (m: MediaAsset) => {
     aspect-ratio: 16 / 10;
   }
 
-  /* Documents are letterboxed, not cropped — their meaning is at the edges. */
   /*
-    FILL BY DEFAULT — LETTERBOX ONLY WHAT MUST BE SEEN WHOLE.
-
-    Both selectors used to hardcode `contain` with an inset, which meant every
-    hero was letterboxed whatever it was: a 4:3 photograph of a group filled 83%
-    of a 16:10 frame and the matte took the rest, and the small inset removed a
-    bite more. The rule that actually distinguishes the two cases is already in
-    the data — `fit: 'contain'` marks a document or a screen whose edges carry
-    meaning. Everything else is a photograph and should fill the frame.
+    FILL BY DEFAULT — LETTERBOX ONLY WHAT MUST BE SEEN WHOLE. Both selectors used
+    to hardcode `contain`: a 4:3 group photograph filled 83% of a 16:10 frame, and
+    the inset took a bite more. The distinguishing rule already exists in the data
+    — `fit: 'contain'` marks a document or a screen whose edges carry meaning;
+    everything else fills.
   */
   .pr__frame img,
   .pr__thumb img {
@@ -436,32 +389,21 @@ const thumbFit = (m: MediaAsset) => {
     letter-spacing: 0.03em;
   }
 
-  /* ---------------- phone screens: no frame ---------------- */
-  /*
-    THE DEVICE IS THE PICTURE.
+  /* phone screens: no frame
+     THE DEVICE IS THE PICTURE. These renders are cut-outs — transparent margin,
+     their own bezel, screen and baked-in shadow — so a wrapper can only add a box
+     around a phone that already looks like a phone. No border, matte, aspect box
+     or hidden overflow.
 
-    These renders are cut-outs — transparent margin, their own bezel, screen and
-    baked-in shadow — so the only thing a wrapper can add is a box around a phone
-    that already looks like a phone. The frame is gone entirely: no border, no
-    matte, no aspect-ratio box, no hidden overflow.
+     GRID WITH EXPLICIT PROPORTIONS, not flex with per-item heights: per-item
+     `max-height` clamps tie the sizes to the VIEWPORT (`vh`), not the space the
+     image column has — measured at 1440px the lead rendered 183x374, smaller than
+     the plain framed screenshot on the next row. A grid whose COLUMN RATIOS mirror
+     the size relationship (lead 1.5x the supporting columns) scales every phone
+     from its column width at any viewport.
 
-    GRID WITH EXPLICIT PROPORTIONS, not flex with per-item heights.
-
-    The first attempt gave the lead and the supporting pair separate `max-height`
-    clamps. That ties the sizes to the VIEWPORT (`vh`) rather than to the space the
-    image column actually has, and the two drifted: measured at 1440px the lead
-    rendered 183x374 — smaller than the plain framed screenshot on the next row —
-    while a short window shrank it further still.
-
-    A grid whose COLUMN RATIOS mirror the size relationship removes the
-    guesswork: the lead's column is 1.5x the supporting columns, so the lead is
-    1.5x their width and therefore 1.5x their height. Every phone scales from the
-    column width, so the group fills the media column at any viewport instead of
-    floating small in the middle of it.
-
-    `--phone-ar` comes from the frontmatter, read off the real image. It is not
-    hardcoded because the set's ratio is a property of the export, not of this
-    stylesheet — a re-export at a different shape must not letterbox silently.
+     `--phone-ar` comes from the frontmatter, read off the real image — the set's
+     ratio is a property of the export, not of this stylesheet.
   */
   .ph {
     position: relative;
@@ -473,19 +415,14 @@ const thumbFit = (m: MediaAsset) => {
   }
 
   /*
-    A SWIPEABLE RAIL, not a static trio.
+    A SWIPEABLE RAIL, not a static trio: the row previously showed three phones and
+    a printed "+N more", so the rest of the set was unreachable and the pictures
+    were not clickable at all.
 
-    The user's report: "yang ini ga bisa di swipe ataupun di liat gambar lainnya".
-    The row showed three phones and a printed "+N more" — the rest of the set was
-    unreachable, and the pictures were not clickable at all.
-
-    EVERY slide is the same size and the SAME ratio as the device. The previous
-    grid made the lead 1.5x its neighbours, which reads well as a still trio and
-    badly in a rail: the visitor is moving through ONE sequence of screens, and a
-    screen 1.5x the others claims an importance it does not have.
-
-    Scroll-snap does the work natively, so touch, trackpad and keyboard scrolling
-    all function before any script runs.
+    EVERY slide is the same size and ratio as the device. The previous grid made the
+    lead 1.5x its neighbours — fine as a still trio, wrong in a rail where the
+    visitor moves through ONE sequence and a screen 1.5x the others claims
+    importance it does not have.
   */
   .ph__row {
     display: flex;
@@ -527,16 +464,11 @@ const thumbFit = (m: MediaAsset) => {
     aspect-ratio: var(--phone-ar, 0.488);
     scroll-snap-align: start;
     /*
-      ABOVE THE ROW'S STRETCHED LINK.
-
-      The link covers the whole row at `z-index: 2` so a click anywhere navigates.
-      That silently swallowed clicks on the pictures: measured with
-      `elementFromPoint` over a device, the topmost element was `A.pr__link`, so the
-      lightbox could never open — which is exactly what "ga bisa di liat gambar
-      lainnya" described.
-
-      A picture is its own affordance, so it wins inside its own box. The text
-      column keeps the stretched layer, and the CTA sits at the same level as this.
+      ABOVE THE ROW'S STRETCHED LINK (`z-index: 2`), which otherwise swallowed
+      clicks on the pictures: measured with `elementFromPoint` over a device, the
+      topmost element was `A.pr__link`, so the lightbox could never open. A picture
+      is its own affordance, so it wins inside its own box; the CTA sits at the
+      same level.
     */
     position: relative;
     z-index: 3;
@@ -564,7 +496,6 @@ const thumbFit = (m: MediaAsset) => {
     outline-offset: 3px;
   }
 
-  /* ---------------- rail arrows + counter ---------------- */
   .ph__arrow {
     position: absolute;
     top: 50%;
@@ -589,7 +520,7 @@ const thumbFit = (m: MediaAsset) => {
   }
 
   /* `display: grid` would beat the `hidden` attribute; the state is owned by the
-     script, and an arrow that looks live but does nothing is worse than none. */
+     script. */
   .ph__arrow[hidden] {
     display: none;
   }
@@ -616,8 +547,8 @@ const thumbFit = (m: MediaAsset) => {
     background-color: var(--surface-2);
   }
 
-  /* The counter replaces the old printed "+N more", which was a count of images
-     the visitor had no way to reach. */
+  /* The counter replaces the old printed "+N more", a count of images the visitor
+     had no way to reach. */
   .ph__more {
     margin-top: 0.4rem;
     text-align: center;
@@ -635,17 +566,16 @@ const thumbFit = (m: MediaAsset) => {
     bottom: -1rem;
   }
 
-  /* A single phone (no supporting images) keeps the lead's column, so one device
-     is never stretched across the whole media column. */
+  /* A single phone keeps the lead's column, so one device is never stretched
+     across the whole media column. */
   .ph__row:not(:has(.ph__item:not(.ph__item--lead))) {
     grid-template-columns: minmax(0, 0.62fr);
     justify-content: start;
   }
 
   @media (max-width: 640px) {
-    /* The rail keeps scrolling on a narrow screen — that is its whole point — but
-       the slides shrink so more than one is visible at a time, which is what tells
-       the visitor there is more to see. */
+    /* The rail keeps scrolling on a narrow screen — its whole point — but the
+       slides shrink so more than one is visible, telling the visitor there is more. */
     .ph__item {
       width: clamp(7rem, 42vw, 9rem);
     }
@@ -743,16 +673,11 @@ const thumbFit = (m: MediaAsset) => {
     `::after` was `position: absolute; inset: 0` on `.pr__link`, while `.pr__link`
     itself carried `position: relative`. That makes the pseudo cover the LINK's own
     box — measured 129x42px inside a 1152x530px row — so none of the card was
-    clickable except the four words of the title. `elementFromPoint` over the image
-    returned `IMG`, and clicking it did nothing at all.
+    clickable except the title. `elementFromPoint` over the image returned `IMG`.
 
-    The fix is not to reposition the pseudo but to drop the inline `position`, so
-    the nearest positioned ancestor becomes `.pr` (which is `position: relative`)
-    and `inset: 0` then means the whole row — which is what "stretched link" has
-    always meant here.
-
-    `z-index: 2` keeps it above the images; the rail's arrows and the CTA sit at 3
-    so they receive their own clicks instead of navigating.
+    The fix is to drop the inline `position`, so the nearest positioned ancestor
+    becomes `.pr` (`position: relative`) and `inset: 0` means the whole row.
+    `z-index: 2` keeps it above the images; the rail's arrows and the CTA sit at 3.
   */
   .pr__link::after {
     content: '';
@@ -889,12 +814,8 @@ const thumbFit = (m: MediaAsset) => {
    * Row rail controls — progressive enhancement over the scroll-snap rail.
    *
    * The rail is a native horizontal scroller, so swipe, trackpad and keyboard
-   * scrolling all work before this script exists. It adds the arrows, the counter,
-   * end-state disabling, and mouse drag.
-   *
-   * NO ARROWS WITHOUT SCRIPT, and no arrows when the rail already fits: they ship
-   * `hidden` and are revealed only once they do something. Three screens at a wide
-   * window do not scroll, so controls there would be decoration.
+   * scrolling work before this script exists. It adds the arrows, the counter,
+   * end-state disabling and mouse drag.
    */
   const rails = document.querySelectorAll<HTMLElement>('[data-row-rail]');
 
@@ -951,13 +872,9 @@ const thumbFit = (m: MediaAsset) => {
       next?.addEventListener('click', () => go(1));
 
       /*
-        MOUSE DRAG — a native scroll container does not drag with a mouse. Touch is
-        left to the browser on purpose: hijacking it costs the momentum and
-        rubber-banding the platform gives for free.
-
-        The 6px threshold is what keeps a plain CLICK working. Without it the
-        smallest movement while pressing a picture would count as a drag and swallow
-        the lightbox click.
+        MOUSE DRAG — native scroll containers do not drag with a mouse. Touch is
+        left to the browser on purpose: hijacking it costs the platform's momentum
+        and rubber-banding. The 6px threshold keeps a plain CLICK working.
       */
       let dragging = false;
       let startX = 0;
@@ -1005,18 +922,11 @@ const thumbFit = (m: MediaAsset) => {
       /*
         RESET `moved` ON THE NEXT GESTURE, not after the current one.
 
-        `moved` exists to swallow the click that ends a drag. The click handler below
+        `moved` swallows the click that ends a drag, and the click handler below
         clears it — but a drag that ends OUTSIDE the rail (pointerup on the page, or
-        a cancelled gesture) fires no click at all, so `moved` stayed above the
-        threshold and the NEXT genuine click on an arrow was swallowed by a handler
-        reacting to a drag that had already finished. One press, no response, for no
-        visible reason.
-
-        Resetting on the next pointerdown fixes that without breaking the case the
-        flag exists for: a new gesture clears it BEFORE its own click can arrive,
-        while the drag click that follows the current gesture still sees the value it
-        needs. Listening on the wrapper `.ph` rather than the rail matters — the
-        arrows live outside the rail, so a rail-scoped reset would miss them.
+        a cancelled gesture) fires no click, so `moved` stayed above the threshold
+        and the NEXT genuine click was swallowed. Listening on the wrapper `.ph`
+        rather than the rail matters: the arrows live outside the rail.
       */
       wrap.addEventListener('pointerdown', () => {
         moved = 0;

@@ -2,23 +2,17 @@
 /**
  * JOURNAL — the internship work record at AirNav Indonesia.
  * ============================================================================
- * WHAT THIS PAGE IS FOR
- * The record kept during the internship, written on the days there was something
- * worth writing down: a new thing learned, a discussion joined, something built.
- * It is not a daily log — the gaps between entries are part of what it is.
+ * The record written on the days something was worth writing down — a new
+ * concept, a discussion joined, something built — not a daily log; the gaps
+ * between entries are part of it.
  *
- * It is also the document that gets reported to a supervisor, which shapes the
- * design decisions below: dates lead every entry, the text is reproduced without
- * paraphrase, and the reading order is chronological.
+ * It is also the document reported to a supervisor, which shapes the design:
+ * dates lead every entry, the text is reproduced without paraphrase, and the
+ * reading order is chronological.
  *
- * ORDERING IS NEWEST FIRST
- * The most recent entry is the one a reader (or the supervisor) wants first. The
- * ordering is derived in `src/data/journal.ts`, so it cannot drift from the data.
- *
- * PHOTOGRAPHS ARE OPTIONAL PER ENTRY
- * An entry may have none, one, or several. The component composes the layout from
- * the count that exists, so adding images later is a data edit with no change
- * here. Nothing on the page assumes an entry has pictures.
+ * ORDERING IS NEWEST FIRST (derived in `src/data/journal.ts`, so it cannot drift
+ * from the data). PHOTOGRAPHS ARE OPTIONAL PER ENTRY — the component composes
+ * the layout from the count that exists, so adding images later is a data edit.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PageHeader from '@/components/ui/PageHeader.astro';
@@ -27,14 +21,9 @@ import { journalByMonth, journalPeriod } from '@/data/journal';
 import { profile } from '@/data/profile';
 
 /**
- * The header rail — only what a reader needs and the intro block does NOT
- * already say.
- *
- * Each value is DERIVED from the entries, so the panel can never state a period
- * the data does not support. The rows were cut back twice: once because a
- * sentence ("Added as moments are documented") sat in a slot the eye reads as a
- * value, and again because a Topics list duplicated what the entry themes already
- * show beside each entry, and "Entries" repeated the intro block below.
+ * The header rail — only what the intro block does NOT already say. Each value
+ * is DERIVED from the entries, so the panel can never state a period the data
+ * does not support.
  */
 const meta = [
   { label: 'Period', value: journalPeriod },
@@ -121,8 +110,7 @@ const meta = [
     color: var(--fg-faint);
   }
 
-  /* The first entry under a month heading should not repeat the heading's own
-     rule, so the month's first child loses its top border. */
+  /* The month's first entry loses its top border — the heading already draws one. */
   .jr__list > :global(.jr__entry:first-child) {
     border-top: 0;
   }

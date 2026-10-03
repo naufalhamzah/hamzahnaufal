@@ -14,7 +14,8 @@
     "astro": "astro",
     "og": "node scripts/make-og.mjs",
     "test": "node scripts/test-skills-filter.mjs",
-    "favicon": "node scripts/make-favicon.mjs"
+    "favicon": "node scripts/make-favicon.mjs",
+    "measure": "node scripts/measure.mjs"
   },
   "dependencies": {
     "@astrojs/react": "^7.0.0",

@@ -2,9 +2,9 @@
 /**
  * PUBLICATIONS — the complete research record.
  *
- * Each paper renders as an editorial entry: the cover alongside the full
- * citation, with the abstract where the source provides one. Only stated
- * metrics appear — no impact factors or citation counts are invented.
+ * Each paper renders as an editorial entry: cover beside the full citation, with
+ * the abstract where the source provides one. Only stated metrics appear — no
+ * impact factors or citation counts are invented.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PageHeader from '@/components/ui/PageHeader.astro';
@@ -98,12 +98,9 @@ const meta = [
                         <div class="pb__fact">
                           <dt class="mono">{f.k}</dt>
                           <dd>
-                            {/*
-                              A printed DOI is not always resolvable — one journal
-                              here prints a DOI its publisher has not registered,
-                              so only link the DOI when the entry's own `link`
-                              actually points at it.
-                            */}
+                            {/* A printed DOI is not always resolvable — one
+                              journal here prints an unregistered DOI — so link
+                              only when the entry's own `link` points at it. */}
                             {f.doi && p.link?.href.includes(f.v) ? (
                               <a
                                 href={p.link.href}
@@ -147,12 +144,6 @@ const meta = [
                   </a>
                 )}
 
-                {p.todo && (
-                  <p class="pb__todo mono">
-                    <span class="pb__todo-tag">Note</span>
-                    {p.todo}
-                  </p>
-                )}
 
                 {
                   p.gallery && p.gallery.length > 0 && (
@@ -413,26 +404,6 @@ const meta = [
     border-color: var(--accent);
     background-color: var(--accent-soft);
     color: var(--accent);
-  }
-
-  .pb__todo {
-    margin-top: 1.25rem;
-    max-width: 72ch;
-    padding: 0.6rem 0.75rem;
-    border-inline-start: 2px solid var(--accent-line);
-    background-color: var(--accent-soft);
-    color: var(--fg-subtle);
-    text-transform: none;
-    letter-spacing: 0.02em;
-  }
-
-  .pb__todo-tag {
-    display: inline-block;
-    margin-inline-end: 0.5rem;
-    color: var(--accent);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-size: 0.6rem;
   }
 
   /* ---- article pages ---- */

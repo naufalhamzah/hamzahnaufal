@@ -2,24 +2,12 @@
 /**
  * HERO — the homepage's focal point.
  *
- * COMPOSITION
- * Not "[photo box] + [text]". The portrait is a tall panel that bleeds past the
- * top of the section, sits inside an offset hairline frame, and overlaps the
- * type column slightly on desktop — so the image reads as part of the layout
- * rather than an illustration dropped next to it.
+ * The portrait is a tall panel that bleeds past the top of the section and
+ * overlaps the type column slightly on desktop, so the image reads as part of
+ * the layout rather than an illustration dropped next to it.
  *
- *   1. eyebrow
- *   2. the name, set very large, surname in italic with a burgundy rule
- *   3. the positioning line
- *   4. a short lead paragraph
- *   5. two actions
- *   6. one mono meta rule (location · status)
- *
- * IDENTITY
- * The headline is the graduate positioning, NOT the employer. AirNav appears
- * only on the Experience page.
- *
- * IMAGE BUDGET: exactly ONE photograph.
+ * The headline is the graduate positioning, NOT the employer; AirNav appears
+ * only on the Experience page. IMAGE BUDGET: exactly ONE photograph.
  */
 import { profile } from '@/data/profile';
 import { asset, withBase } from '@/utils/url';
@@ -29,17 +17,13 @@ const parts = profile.name.trim().split(/\s+/);
 const first = parts.slice(0, -1).join(' ');
 const last = parts[parts.length - 1] ?? '';
 
-/**
- * The four focus axes, numbered. `profile.positioning` is the single source, so
- * this is a re-presentation of an existing fact rather than a new claim.
- */
+/** Focus axes, numbered; `profile.positioning` is the single source. */
 const axes = profile.positioning;
 ---
 
 <section class="hero" id="top">
   <div class="shell shell--wide hero__shell">
     <div class="hero__grid">
-      <!-- ---------------- type ---------------- -->
       <div class="hero__type">
         <div class="hero__top">
           <p class="hero__eyebrow label">{profile.displayWord}</p>
@@ -63,13 +47,11 @@ const axes = profile.positioning;
         <p class="hero__role">{profile.headline}</p>
 
         {/*
-          THE LOWER BLOCK — this is what fills the dead space.
-
-          The lead paragraph used to sit alone in a 644px column while occupying
-          only 424px of it, leaving ~220px blank to its right and a gap under the
-          role line that read as an unfinished layout. The four focus axes now sit
-          in that space as a numbered register, divided from the prose by a
-          hairline, so the two read as one composed block.
+          THE LOWER BLOCK — this is what fills the dead space. The lead paragraph
+          alone left ~220px of empty column to its right (644px column, only
+          424px of text) and a gap under the role line. The focus axes now sit in
+          that space, divided from the prose by a hairline, so the two read as
+          one composed block.
         */}
         <div class="hero__lower">
           <p class="hero__lede">{profile.summary[0]}</p>
@@ -100,7 +82,6 @@ const axes = profile.positioning;
         </div>
       </div>
 
-      <!-- ---------------- portrait ---------------- -->
       <figure class="hero__figure">
         <img
           class="hero__img"
@@ -114,7 +95,6 @@ const axes = profile.positioning;
       </figure>
     </div>
 
-    <!-- ---------------- meta rule ---------------- -->
     <div class="hero__meta">
       <span class="mono">{profile.location}</span>
       <span class="hero__meta-rule" aria-hidden="true"></span>
@@ -124,21 +104,15 @@ const axes = profile.positioning;
 </section>
 
 <style>
-  /* ==========================================================================
-     HERO
-     ========================================================================== */
   .hero {
     position: relative;
     /* The portrait is allowed to break the top edge, so the section clips. */
     overflow: hidden;
     /*
-      TIGHTENED from clamp(2.25rem, 5vw, 4rem).
-
-      Measured before: the section ran 915px tall in a 900px viewport, which put
-      the meta rule — location and status — just below the fold. A rule that is
-      half visible reads as a mistake rather than a design. Reclaiming ~90px
-      across the vertical rhythm brings the whole hero, meta included, into one
-      screen.
+      Tightened from clamp(2.25rem, 5vw, 4rem): measured, the section ran 915px
+      tall in a 900px viewport, which put the meta rule — location and status —
+      just below the fold, where a half-visible rule reads as a mistake rather
+      than a design. Reclaiming ~90px brings the whole hero into one screen.
     */
     padding-top: clamp(1.75rem, 4vw, 3rem);
   }
@@ -153,18 +127,12 @@ const axes = profile.positioning;
   @media (min-width: 940px) {
     .hero__grid {
       /*
-        Type still leads, but the portrait is now close to parity (0.95fr against
-        1fr, where it used to be 0.78fr against 1.1fr).
-
-        Why: at 0.78fr the portrait rendered 521px wide on a 1440px viewport, and
-        the user's note was that it should look "more real". Size is the main
-        reason a cut-out reads as pasted: too small and the eye treats it as a
-        graphic in a box rather than a person in the page. At 0.95fr the figure
-        is roughly a third larger, the face reaches a usable size, and the
-        stacked drop-shadows have enough silhouette to be legible.
-
-        The asymmetry survives — the type column is still the wider one and the
-        image still sits below the headline's optical line.
+        Type still leads, but the portrait is near parity (0.95fr against the old
+        0.78fr). At 0.78fr it rendered 521px wide on a 1440px viewport and the
+        user asked it to look "more real": too small and the eye treats a cut-out
+        as a graphic in a box rather than a person in the page. ~1/3 larger, the
+        face reaches a usable size and the stacked drop-shadows have enough
+        silhouette to be legible.
       */
       grid-template-columns: minmax(0, 1fr) minmax(0, 0.95fr);
       gap: clamp(2rem, 4vw, 3.5rem);
@@ -172,13 +140,11 @@ const axes = profile.positioning;
     }
   }
 
-  /* ---------------- type ---------------- */
   /*
-    NO max-width on the column itself. An earlier `max-width: 20ch` here resolved
-    against the body font, not the display font, and collapsed the whole column
-    to ~200px — which wrapped the name into a narrow ribbon and made the hero
-    twice as tall as intended. The measure is constrained per element instead
-    (the h1 and the lead paragraph), which is where it actually matters.
+    NO max-width on the column itself. An earlier `max-width: 20ch` resolved
+    against the body font, not the display font, and collapsed the column to
+    ~200px, wrapping the name into a narrow ribbon. The measure is constrained
+    per element instead (the h1 and the lead paragraph).
   */
   @media (min-width: 940px) {
     .hero__type {
@@ -189,7 +155,6 @@ const axes = profile.positioning;
     }
   }
 
-  /* ---------------- top rule: eyebrow + live status ---------------- */
   .hero__top {
     display: flex;
     flex-wrap: wrap;
@@ -253,11 +218,10 @@ const axes = profile.positioning;
     }
   }
 
-  /* ---- the name ---- */
   .hero__name {
     font-family: var(--font-display);
-    /* The largest type on the site. This is the hierarchy anchor; everything
-       else is measured against it. */
+    /* The largest type on the site — the hierarchy anchor everything else is
+       measured against. */
     font-size: var(--text-display);
     font-weight: 500;
     line-height: 0.94;
@@ -289,11 +253,10 @@ const axes = profile.positioning;
   }
 
   /*
-    The gap under the name needs NEGATIVE help: `line-height: 0.94` on a
-    3-line display heading leaves each line's descender box below the baseline,
-    so the visual gap between "Zuhdi" and the role line measured ~50px where the
-    margin asked for 14px. Pulling the role up by its own leading restores the
-    intended rhythm without changing the name's tight leading.
+    `line-height: 0.94` on a 3-line display heading leaves each line's descender
+    box below the baseline, so the gap between the surname and the role measured
+    ~50px where the margin asked for 14px. Pulling the role up by its own leading
+    restores the intended rhythm without changing the name's tight leading.
   */
   .hero__role {
     margin-top: clamp(0.15rem, 0.6vw, 0.4rem);
@@ -303,11 +266,10 @@ const axes = profile.positioning;
     color: var(--accent);
   }
 
-  /* ---- lower block: lede beside the numbered axes ---- */
   /*
-    This is the change that fills the dead space. The lede alone left ~220px of
-    empty column to its right; the axes sit there now, divided by a hairline so
-    the two columns read as one composed block rather than two fragments.
+    The lede alone left ~220px of empty column to its right; the axes sit there
+    now, divided by a hairline so the two columns read as one composed block
+    rather than two fragments.
   */
   .hero__lower {
     display: grid;
@@ -428,28 +390,13 @@ const axes = profile.positioning;
     background-color: var(--accent-soft);
   }
 
-  /* ---------------- portrait ---------------- */
   /*
-    THE PORTRAIT IS A CUT-OUT.
-
-    This is the single most important fact about this figure, and the design
-    depends on it. The source has no backdrop at all — the background was removed
-    and ~40% of the pixels are fully transparent. The subject's silhouette is the
-    only thing in the file.
-
-    An earlier version ignored that and treated it like a rectangular photograph:
-    a filled plate, a 1px border and rounded corners on the <img>. On a cut-out
-    those draw a visible RECTANGLE around a person who has no rectangle — which
-    is exactly what makes it read as "pasted on". A box-shadow made it worse: it
-    casts a rectangle, so the eye sees a card, not a person.
-
-    So there is NO border, NO frame and NO radius anywhere on this figure.
-    Instead:
-      · `drop-shadow` — which follows the ALPHA SILHOUETTE, so the shadow the
-        subject casts is their own shape (shoulders, arm, sash). This is what
-        seats them in the page instead of pasting them on it.
-      · a FADE-OUT at the bottom (see mask-image below) so the cut does not end
-        in a hard horizontal edge.
+    THE PORTRAIT IS A CUT-OUT — the source has no backdrop (~40% of pixels are
+    fully transparent), so the silhouette is the only thing in the file. A filled
+    plate, a 1px border, rounded corners or a box-shadow all draw a RECTANGLE
+    around a person who has none, which is exactly what makes a cut-out read as
+    "pasted on". Hence: no border, no frame, no radius. Depth comes from
+    `drop-shadow` (which follows the alpha silhouette) and a bottom fade.
   */
   .hero__figure {
     position: relative;
@@ -457,13 +404,9 @@ const axes = profile.positioning;
     isolation: isolate;
   }
 
-  /* NOTE: there is deliberately NO background pool behind this figure.
-     An earlier version drew a soft elliptical lift so the subject would emerge
-     from the page rather than sit on it. Measured with a row sample across the
-     frame, it showed as a 4-unit step in colour exactly at the frame edge
-     followed by a gentle ramp inward — which is a shape the eye can find. It
-     read as a beige plate, not as depth. Removed. Depth now comes only from the
-     silhouette shadows on the image itself. */
+  /* Deliberately NO background pool here. An earlier soft elliptical lift
+     measured as a 4-unit colour step exactly at the frame edge, which the eye
+     found as a shape; it read as a beige plate, not depth. */
 
   @media (min-width: 940px) {
     .hero__figure {
@@ -477,34 +420,19 @@ const axes = profile.positioning;
     position: relative;
     display: block;
     /*
-      SIZED AS A REPLACED ELEMENT, NOT AS A BOX.
+      SIZED AS A REPLACED ELEMENT, NOT AS A BOX. `width: 100%` plus a `max-height`
+      does not shrink the portrait, it LETTERBOXES it: measured, box ratio 0.874
+      against a natural 0.75, so the image looked smaller with invisible padding
+      on both sides. An <img> with `width: auto`, `max-width: 100%` and
+      `max-height` fits the largest rectangle satisfying BOTH caps at the
+      intrinsic ratio, so the box always equals the image.
 
-      The naive version — `width: 100%` plus a `max-height` — does not shrink the
-      portrait, it LETTERBOXES it: the box stays 612px wide because the width was
-      forced, the height gets capped at 700px, and `object-fit: contain` then
-      paints a 525px-wide image inside a 612px-wide box. Measured: box ratio 0.874
-      against a natural 0.75. The portrait ended up smaller than before, with
-      invisible padding on both sides.
-
-      An <img> with `width: auto`, `max-width: 100%` and `max-height` behaves the
-      way the eye expects — the browser fits the largest rectangle that satisfies
-      BOTH caps while preserving the intrinsic ratio, so the box always equals the
-      image. Nothing is letterboxed and nothing is distorted.
-
-      THE HEIGHT CAP, and why it is here rather than on the <figure>:
-      the figure is taller than the type column in every measured viewport, so the
-      portrait — not the text — was setting the hero's height. Margin-tightening
-      did not fix it: after two rounds the meta rule still landed at y=922 in a
-      900px window, sliced by the fold. A `max-height` on the <figure> would have
-      been silently ignored anyway, because a percentage/auto resolution against an
-      auto-height grid item has nothing to resolve against — the same trap that
-      once let a footer logo grow to 361px. An absolute length resolves everywhere.
-
-      The portrait may never be taller than the space a screen actually offers
-      once the nav above and the meta rule below are paid for. On a tall window the
-      column width governs and this never engages; on a short one the figure scales
-      down and the whole hero stays inside a single screen. `svh` rather than `vh`,
-      because on mobile Safari the visible height changes as browser chrome slides.
+      The `max-height` lives here, not on the <figure>: a max-height on an
+      auto-height grid item has nothing to resolve against and is silently
+      ignored. The cap keeps the portrait — which sets the hero's height in every
+      measured viewport — from pushing the meta rule below the fold. `svh`, not
+      `vh`, because on mobile Safari the visible height changes as browser chrome
+      slides.
     */
     width: auto;
     height: auto;
@@ -514,48 +442,26 @@ const axes = profile.positioning;
        left edge of a wider track. */
     margin-inline: auto;
     /*
-      NO OUTLINE ON THE IMAGE.
+      NO OUTLINE ON THE IMAGE. The global `:focus-visible` rule draws a 3px accent
+      outline and the hero <img> receives focus on load, so a rectangle was drawn
+      around a cut-out that has no rectangle (the user reported it as a "border").
+      An image is not an interactive control, so the ring signals an affordance
+      that does not exist; nothing is lost for keyboard users.
 
-      The page's global `:focus-visible` rule draws a 3px accent outline, and the
-      hero <img> receives focus on load — so a rectangle was drawn around a
-      cut-out that has no rectangle. The user reported it as a "border" on the
-      photo, which is exactly what it was.
-
-      Suppressed deliberately: an image is not an interactive control, so a focus
-      ring on it signals an affordance that does not exist. Nothing is lost for
-      keyboard users — there is no action to reach here.
-    */
-    /*
-      `!important` is load-bearing here, not laziness. The global `:focus-visible`
-      rule sets BOTH `outline` and `outline-offset`, and a plain `outline: none`
-      does not neutralise the offset — the browser then draws the ring from a
-      stale offset on some engines. These three declarations together are what
-      actually remove the rectangle.
+      `!important` is load-bearing: the global rule sets BOTH `outline` and
+      `outline-offset`, and a plain `outline: none` does not neutralise the offset
+      on some engines.
     */
     outline: none !important;
     outline-offset: 0 !important;
     /*
-      `drop-shadow`, NOT `box-shadow`.
-
-      box-shadow draws around the element's BOX, so on a cut-out it paints a
-      rectangle behind a person who has none — the "sticker" look. drop-shadow
-      is applied to the rendered ALPHA, so the shadow traces the actual
-      silhouette. Two stacked shadows: a tight one to seat the subject against
-      the page, and a wide soft one for depth.
-    */
-    /*
-      THREE stacked drop-shadows, which is what makes a cut-out read as a real
-      person standing in the page rather than a flat sticker:
-
-        1. a tight contact shadow — seats the figure, the way a hard light source
-           would
-        2. a mid shadow — gives the body a sense of separation from the surface
-        3. a wide, very soft one — the ambient falloff, which is the part the eye
-           reads as "occupying space"
-
-      All three follow the ALPHA silhouette, so the shadow is the shape of the
-      person (shoulders, arm, the sash's edge) and not a rectangle. One shadow
-      alone reads as a graphic cut-out; the stack is what makes it photographic.
+      `drop-shadow`, NOT `box-shadow`: box-shadow draws around the element's BOX,
+      painting a rectangle behind a person who has none (the "sticker" look).
+      drop-shadow is applied to the rendered ALPHA, so the shadow traces the
+      actual silhouette. Three stacked: a tight contact shadow to seat the
+      figure, a mid shadow for separation, and a wide soft one for the ambient
+      falloff the eye reads as "occupying space". One alone reads as a graphic
+      cut-out; the stack is what makes it photographic.
     */
     filter: var(--photo-filter) drop-shadow(
         0 1px 2px rgba(0, 0, 0, 0.45)
@@ -563,26 +469,14 @@ const axes = profile.positioning;
       drop-shadow(0 14px 28px rgba(0, 0, 0, 0.26))
       drop-shadow(0 34px 60px rgba(0, 0, 0, 0.30));
     /*
-      THE BOTTOM FADE — this is what removes the "patahan".
+      THE BOTTOM FADE removes the "patahan": a cut-out ending on a straight
+      horizontal line reads as a torn photograph. A long, even ramp over the last
+      third dissolves that edge — an earlier curve dropped from solid to 0.2 in
+      the last fifth, which is a visible gradient band rather than a dissolve.
 
-      The crop has to end somewhere, and a cut-out ending on a straight
-      horizontal line looks like a torn photograph: the eye reads the edge as a
-      FRACTURE because the figure simply stops mid-torso against the page.
-
-      A mask that goes to fully transparent over the last fifth dissolves that
-      edge. The subject now fades out into the page instead of being sliced, so
-      there is no line to see — the portrait ends the way a vignette ends, not
-      the way a cut ends.
-
-      Order matters: filtering happens before masking, so drop-shadow is
-      computed from the full silhouette and then faded along with it. The shadow
-      therefore fades too, and no shadow edge is left floating below the figure.
-    */
-    /*
-      A LONG, even fade — the earlier curve dropped from solid to 0.2 in the last
-      fifth, which is a visible gradient band rather than a dissolve. Spreading
-      it over the last third with a smooth ramp makes the figure recede instead of
-      being wiped, so there is no line where the crop ends.
+      Order matters: filtering happens before masking, so each drop-shadow is
+      computed from the full silhouette and then fades with it, leaving no shadow
+      edge floating below the figure.
     */
     mask-image: linear-gradient(
       to bottom,
@@ -614,18 +508,16 @@ const axes = profile.positioning;
       drop-shadow(0 32px 56px rgba(62, 46, 30, 0.18));
   }
 
-  /* ---------------- meta rule ---------------- */
   .hero__meta {
     display: flex;
     align-items: center;
     gap: 1rem;
     /*
-      Tightened twice. First from clamp(2.5rem, 5vw, 4rem) to 3.5vw, then again
-      here: measured, the meta rule still landed at y=897 in a 900px viewport —
-      technically visible, visually sliced. The figure is taller than the type
-      column, so it is the figure that sets this section's height; the meta rides
-      down with it. Keeping the whole hero inside one screen means the rule has to
-      sit close under the columns.
+      Tightened twice, most recently from clamp(2.5rem, 5vw, 4rem): measured, the
+      meta rule still landed at y=897 in a 900px viewport — technically visible,
+      visually sliced. The figure is taller than the type column, so it sets this
+      section's height and the meta rides down with it; the rule has to sit close
+      under the columns for the whole hero to fit one screen.
     */
     margin-top: clamp(1.25rem, 2.5vw, 2rem);
     padding-top: 1.1rem;
@@ -638,15 +530,12 @@ const axes = profile.positioning;
     background-color: var(--border-faint);
   }
 
-  /* ---------------- mobile ---------------- */
   @media (max-width: 939px) {
     /*
-      Portrait first, and capped hard.
-
-      The cap matters more now than it did with a rectangular photo: this is a
-      CUT-OUT, so at full width a 3:4 figure would be ~530px of free-floating
-      person with nothing containing it. Capping the column keeps it a portrait
-      inset the eye reads as an introduction, not a full-bleed poster.
+      Portrait first, capped hard. The cap matters more on a cut-out: at full
+      width a 3:4 figure would be ~530px of free-floating person with nothing
+      containing it, so capping the column keeps it an introduction rather than a
+      full-bleed poster.
     */
     .hero__figure {
       order: -1;
@@ -659,7 +548,6 @@ const axes = profile.positioning;
       width: clamp(1.25rem, 12vw, 3.5rem);
     }
 
-    /* The lede is in a single column here, so it can breathe wider. */
     .hero__lede {
       max-width: none;
     }
@@ -677,11 +565,10 @@ const axes = profile.positioning;
     }
   }
 
-  /* ---------------- reduced motion ---------------- */
   @media (prefers-reduced-motion: reduce) {
     /* The pulse is decoration. A visitor who asked for less motion gets a still
        dot rather than a disabled one — the status fact is in the text either
-       way, so nothing is lost. */
+       way. */
     .hero__dot::after {
       animation: none;
       opacity: 0.22;

@@ -2,38 +2,24 @@
 /**
  * FEATURED RAIL — the homepage's horizontal project carousel.
  *
- * WHY A RAIL INSTEAD OF A STACKED GRID
- * The homepage used to present three projects as a vertical spread: one wide
- * lead card followed by two supporting cards. It read as "here is the whole
- * portfolio, condensed" — a wall of cards competing with the sections below it —
- * when the homepage's job is to make a visitor want to open ONE thing.
+ * A rail rather than a stacked grid: the homepage's job is to make a visitor want
+ * to open ONE thing, and a horizontal walk-through does that where a wall of
+ * cards competes with the sections below. All slides render server-side, so
+ * nothing depends on the script.
  *
- * A horizontal rail changes the reading model. The section becomes a
- * walk-through rather than a list: one project holds the frame, the next is
- * visible at the edge as an invitation, and the visitor chooses how far to go.
- * All three still render server-side in the HTML, so nothing depends on the
- * script — the rail is a real scroll container and works with JS disabled.
+ * WHAT MAKES IT A CAROUSEL, NOT A SCROLLING DIV:
+ *   · ONE FRAME SHAPE — every slide is the same size, so the rail never jumps as
+ *     differently-shaped images come into view.
+ *   · SNAP POINTS — `scroll-snap-type: x mandatory` lands every swipe and arrow
+ *     exactly on a slide boundary.
+ *   · A PEEK — at desktop widths the next slide shows ~5.5rem of itself. That
+ *     sliver is the affordance; it is also why the rail carries a matching
+ *     trailing spacer, or the last slide could not reach its own snap point.
+ *   · A COUNTER AND A PROGRESS LINE, not dots.
  *
- * WHAT MAKES IT FEEL LIKE A CAROUSEL AND NOT A SCROLLING DIV
- *   · ONE FRAME SHAPE. Every slide is the same size, so the rail never jumps as
- *     different-shaped images come into view. Contents vary; geometry does not.
- *   · SNAP POINTS. `scroll-snap-type: x mandatory` makes every swipe and every
- *     arrow land exactly on a slide boundary, which is what separates a carousel
- *     from a box you can drag.
- *   · A PEEK. At desktop widths the next slide shows ~5.5rem of itself. That
- *     sliver is the affordance — it says "there is more" more quietly than an
- *     arrow does. It is also why the rail carries matching `padding-inline-end`:
- *     without it the last slide cannot reach its own snap point and the carousel
- *     silently becomes unscrollable at the end.
- *   · A COUNTER AND A PROGRESS LINE, not dots. Dots are the generic template
- *     answer; a rule that tracks the scroll position belongs to the editorial
- *     language the rest of the site already uses.
- *
- * IMAGES. The slide reuses `ShotSlider` when a project has more than one image,
- * so a multi-image project can be browsed in place, and letterboxes inside a
- * fixed frame otherwise. Both paths keep the whole image visible rather than
- * cropping it, which is the rule this site settled on: the frame is constant,
- * the image is never cut.
+ * IMAGES: the slide reuses `ShotSlider` for multi-image projects and letterboxes
+ * inside a fixed frame otherwise. Both keep the whole image visible: the frame is
+ * constant, the image is never cut.
  */
 import type { ProjectEntry, MediaAsset } from '@/types/content';
 import { PROJECT_CATEGORY_LABELS } from '@/types/content';
@@ -72,11 +58,8 @@ const many = projects.length > 1;
           const num = String(indices[i] ?? i + 1).padStart(2, '0');
           const primary = project.categories[0];
 
-          /**
-           * Every image the project owns, hero first, de-duplicated. The gallery
-           * used to repeat the hero as its first entry, which made the slider
-           * open on the same picture twice.
-           */
+          /** Every image the project owns, hero first, de-duplicated. The gallery
+           *  used to repeat the hero as its first entry, opening the slider twice. */
           const shots: MediaAsset[] = [
             project.visual,
             ...(project.gallery ?? []).filter((g) => g.src !== project.visual.src),
@@ -100,10 +83,9 @@ const many = projects.length > 1;
                   >
                     {shots.length > 1 ? (
                       /*
-                        No `fit` override — each image answers for itself, from its
-                        own `fit` flag. Forcing `contain` here letterboxed every
-                        photograph in the rail, which is the "gambar terlalu kecil"
-                        the user reported on the Smart Farming card.
+                        No `fit` override — each image answers for itself from its own
+                        `fit` flag. Forcing `contain` letterboxed every photograph in
+                        the rail ("gambar terlalu kecil" on the Smart Farming card).
                       */
                       <ShotSlider
                         images={shots}
@@ -222,48 +204,27 @@ const many = projects.length > 1;
 }
 
 <style>
-  /* ==========================================================================
-     the rail
-     ========================================================================== */
   .rail-wrap {
     margin-top: clamp(2rem, 4vw, 3rem);
   }
 
   .rail {
     /*
-      THE PEEK ARITHMETIC — this is the whole trick of the layout, so it is worth
-      stating exactly, because the obvious version is wrong twice over.
+      THE PEEK ARITHMETIC — slide width W = rail_width − peek − gap, and a trailing
+      spacer S ≥ peek + gap. Both are load-bearing:
 
-      Goal: the next slide should show `--peek` pixels of itself past the rail's
-      right edge. That is the carousel's affordance — it says "there is more"
-      more quietly than an arrow.
+      1. W subtracts the GAP as well as the peek: the visible sliver is measured
+         from the RAIL's edge, and the gap sits inside it.
+      2. The trailing spacer is NOT cosmetic: without it the last slide's snap
+         position sits past the maximum scroll offset, so the final project cannot
+         come to rest at the left edge. It is `peek` ALONE — the preceding flex gap
+         already supplies the gap term (measured: `peek + gap` left 36px of run-on;
+         `peek` reaches the last slide exactly).
 
-      Slide width  W = rail_width − peek − gap
-      Trailing spacer S must satisfy  W + S ≥ rail_width
-                                    → S ≥ peek + gap
-
-      Both halves are load-bearing:
-
-      1. W subtracts the GAP as well as the peek. A slide's visible sliver is
-         measured from the RAIL's edge, and the gap between slides sits inside
-         that sliver — leave the gap out and the peek renders `gap` pixels
-         narrower than intended.
-
-      2. A trailing spacer is required, and it is NOT cosmetic. Without it the
-         last slide's snap position sits beyond the maximum scroll offset, so the
-         carousel physically cannot bring the final project to rest at the left
-         edge — it stops one slide short and looks broken at the end. The spacer
-         is `peek` ALONE: the gap between the last slide and the spacer is a flex
-         gap and already contributes, so adding it again leaves a strip of dead
-         scroll past the end. Measured: `peek + gap` left 36px of run-on;
-         `peek` reaches the last slide exactly.
-
-      WHY A SPACER AND NOT `padding-inline-end`: percentage flex-basis resolves
-      against the CONTENT box, so a trailing padding shrinks the very `100%` the
-      width is calculated from — the peek then comes out double-counted. The
-      spacer is a separate flex item and leaves `100%` meaning what it says. It is
-      a pseudo-element, so it never appears in `rail.children` and cannot be
-      mistaken for a slide by the counter or the arrows.
+      A SPACER, not `padding-inline-end`: percentage flex-basis resolves against
+      the CONTENT box, so trailing padding shrinks the `100%` the width is derived
+      from and double-counts the peek. As a pseudo-element it never appears in
+      `rail.children`, so the counter and arrows cannot mistake it for a slide.
     */
     --peek: 2.75rem;
     --rail-gap: clamp(1.25rem, 3vw, 2.25rem);
@@ -286,9 +247,9 @@ const many = projects.length > 1;
   .rail::after {
     content: '';
     /*
-      `peek` ALONE — see the arithmetic note above. The preceding flex gap
-      already supplies the gap term; including it here overshoots by exactly one
-      gap and leaves the rail scrollable past its last slide.
+      `peek` ALONE — the preceding flex gap already supplies the gap term;
+      including it here overshoots by exactly one gap and leaves the rail
+      scrollable past its last slide.
     */
     flex: 0 0 var(--peek);
   }
@@ -315,9 +276,8 @@ const many = projects.length > 1;
     }
 
     /*
-      A SLIGHT step down for off-screen slides — set only once the script has
-      marked the container ready, so a no-JS visitor sees every slide at full
-      strength rather than a row of dimmed ones.
+      A SLIGHT step down for off-screen slides — set only once the script marks the
+      container ready, so a no-JS visitor sees every slide at full strength.
     */
     .rail[data-ready] .rail__slide {
       opacity: 0.5;
@@ -345,9 +305,6 @@ const many = projects.length > 1;
     }
   }
 
-  /* ==========================================================================
-     one project
-     ========================================================================== */
   .fwc {
     height: 100%;
   }
@@ -366,7 +323,6 @@ const many = projects.length > 1;
     }
   }
 
-  /* ---------------- frame ---------------- */
   .fwc__frame {
     position: relative;
     margin: 0;
@@ -385,10 +341,9 @@ const many = projects.length > 1;
 
   /*
     FILL BY DEFAULT. This hardcoded `contain` plus a 0.9rem inset, so a 4:3
-    photograph — the Smart Farming cover the user was looking at — filled 83% of
-    the 16:10 frame before the inset took another bite. `fit: 'contain'` in the
-    data is what marks the pieces that must be shown whole; those get the matte,
-    everything else fills.
+    photograph (the Smart Farming cover) filled only 83% of the 16:10 frame before
+    the inset took another bite. `fit: 'contain'` in the data marks the pieces that
+    must be shown whole; those get the matte, everything else fills.
   */
   .fwc__frame--contain img {
     object-fit: contain;
@@ -406,11 +361,8 @@ const many = projects.length > 1;
     transition: transform var(--t-slow) var(--ease);
   }
 
-  /*
-    The rule is what the eye reads as "this card is live". It wipes in from the
-    left on hover or keyboard focus — the same gesture the project cards use, so
-    the two pages feel like one document.
-  */
+  /* The rule wipes in from the left on hover or keyboard focus — the shared
+     gesture the project cards use, so the two pages feel like one document. */
   .fwc__rule {
     position: absolute;
     left: 0;
@@ -429,13 +381,11 @@ const many = projects.length > 1;
     transform: scaleX(1);
   }
 
-  /* ---------------- stretched link ---------------- */
-  /*
-    The slider needs real <button> elements, and a button inside an anchor is
-    invalid HTML. So the card is a container, the title carries the anchor, and a
-    pseudo-element stretches it across the card. The slider's controls sit above
-    that layer on their own z-index, so they keep their clicks.
-  */
+  /* stretched link
+     The slider needs real <button> elements, and a button inside an anchor is
+     invalid HTML. So the card is a container, the title carries the anchor, and a
+     pseudo-element stretches it across the card; the slider's controls sit above
+     that layer on their own z-index. */
   .fwc__link {
     position: relative;
     text-decoration: none;
@@ -455,7 +405,6 @@ const many = projects.length > 1;
     outline-offset: 3px;
   }
 
-  /* ---------------- text ---------------- */
   .fwc__body {
     display: flex;
     flex-direction: column;
@@ -581,9 +530,6 @@ const many = projects.length > 1;
     transform: translateX(4px);
   }
 
-  /* ==========================================================================
-     foot: progress + counter + arrows
-     ========================================================================== */
   .rail__foot {
     display: grid;
     gap: 1rem;
@@ -657,8 +603,7 @@ const many = projects.length > 1;
 
   /*
     A disabled arrow is the honest state at either end of the rail: it says "you
-    are already there" instead of silently doing nothing. `aria-disabled` is
-    mirrored on the button so the state reaches assistive tech too.
+    are already there" instead of silently doing nothing.
   */
   .rail__btn:disabled {
     opacity: 0.32;
@@ -670,9 +615,6 @@ const many = projects.length > 1;
     outline-offset: 3px;
   }
 
-  /* ==========================================================================
-     reduced motion
-     ========================================================================== */
   @media (prefers-reduced-motion: reduce) {
     .fwc__frame img,
     .fwc__rule,
@@ -693,15 +635,14 @@ const many = projects.length > 1;
    * Carousel controls — progressive enhancement over the scroll-snap rail.
    *
    * The rail is a native scroll container, so swipe, trackpad, scrollbar-drag and
-   * keyboard arrow keys ALL work before this script runs. What the script adds:
-   * the mouse drag, the two arrow buttons, the counter, the progress line, and
-   * the active-slide marking.
+   * keyboard arrow keys ALL work before this script runs. The script adds the mouse
+   * drag, the two arrow buttons, the counter, the progress line and the active-slide
+   * marking.
    *
-   * ONE STEP IS MEASURED, NOT CALCULATED. The distance between the first two
-   * slides' `offsetLeft` already includes the gap, the peek and whatever the
-   * container width is — so the arrows stay correct at every breakpoint without
-   * reading any of those values. Computing it from `clientWidth` would drift the
-   * moment the peek changes at a media query.
+   * ONE STEP IS MEASURED, NOT CALCULATED: the distance between the first two
+   * slides' `offsetLeft` already includes the gap, the peek and the container width,
+   * so the arrows stay correct at every breakpoint. Computing it from `clientWidth`
+   * would drift the moment the peek changes at a media query.
    */
   const carousels = document.querySelectorAll<HTMLElement>('[data-carousel]');
 
@@ -724,7 +665,6 @@ const many = projects.length > 1;
         rail.scrollBy({ left: step() * dir, behavior: 'smooth' });
       };
 
-      /* ---------------- sync: counter, progress, arrows, active slide ------- */
       let frame = 0;
 
       const sync = () => {
@@ -763,16 +703,11 @@ const many = projects.length > 1;
       prev?.addEventListener('click', () => go(-1));
       next?.addEventListener('click', () => go(1));
 
-      /* ---------------- mouse drag ---------------- */
       /*
-        Native scroll containers do not drag with a mouse, which is how a desktop
-        visitor expects a carousel to behave. Pointer Events cover mouse, pen and
-        touch in one path, but touch is left to the browser: hijacking it would
-        cost the momentum and rubber-banding the platform gives for free.
-
+        Native scroll containers do not drag with a mouse. Touch is left to the
+        browser: hijacking it would cost the platform's momentum and rubber-banding.
         A small threshold keeps a plain click working — without it, the tiniest
-        pointer movement while clicking would count as a drag and swallow the
-        navigation.
+        pointer movement would count as a drag and swallow the navigation.
       */
       let dragging = false;
       let startX = 0;
@@ -838,7 +773,6 @@ const many = projects.length > 1;
       /* An anchor drag ghost would fight the pointer drag above. */
       rail.addEventListener('dragstart', (event) => event.preventDefault());
 
-      /* ---------------- init ---------------- */
       rail.setAttribute('data-ready', '');
       sync();
     });

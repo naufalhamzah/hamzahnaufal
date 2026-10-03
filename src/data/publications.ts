@@ -1,13 +1,9 @@
 /**
- * PUBLICATIONS
- * ============================================================================
  * SOURCE: [D] journal pages reproduced in the deck; titles cross-checked vs [P].
  * IMAGES: real journal covers and article pages from ./konten.
  *
- * Every field was read off the journal pages shown in the deck. Nothing is
- * inferred. No DOI is listed because none appears in the source, and none has
- * been invented.
- * ============================================================================
+ * Every field was read off the journal pages shown in the deck. No DOI is listed
+ * where none appears in the source, and none has been invented.
  */
 
 import { publicationListSchema } from './schemas';
@@ -48,12 +44,9 @@ const raw: PublicationEntry[] = [
       'confusion matrix',
     ],
     /*
-      VISUAL = the paper's OWN first page, not the issue cover.
-
-      The cover only identifies the ISSUE — this issue carries several papers, so
-      a cover on the card does not tell a reader which article they are looking
-      at. The first page carries the title and byline, which is what a publication
-      card is for. The cover still appears, as the second gallery frame.
+      VISUAL = the paper's OWN first page, not the issue cover: the cover only
+      identifies the ISSUE, while the first page carries the title and byline. The
+      cover still appears as the second gallery frame.
     */
     visual: {
       src: '/images/publications/ijirse-article-knn.webp',
@@ -126,23 +119,11 @@ const raw: PublicationEntry[] = [
     title:
       'Smart Farming: Optimalisasi Suplai Air Lahan untuk Produktivitas Pertanian Desa Gonoharjo dengan Automatic Irrigation System Berbasis Energi Hijau Terintegrasi SIMPELDES',
     /*
-      AUTHOR LIST — FIFTEEN, transcribed from the article's own printed byline.
-
-      Read off the article's first page at 4x with the contrast raised, name by
-      name against each superscript. The page's final line carries the affiliation
-      key "(1-15)", which settles the count independently of the names.
-
-      Two earlier versions were wrong in different ways: the deck listed only
-      eight, and a first pass at transcribing the page produced sixteen with three
-      names misread. The names below are what the page actually prints:
-
-        ... ¹¹Arell Saverro Biyantoro, ¹²Bela Sisilia, ¹³Novi Fitri Rahayu,
-        ¹⁴Muhammad Assegaf, ¹⁵Ireneus Pradipta Prabaswara
-
-      The three corrections, because they were plausible-looking misreadings
-      rather than obvious typos: 'Averro S Biyantoro' -> 'Arell Saverro
-      Biyantoro', 'Bella Stellvi' -> 'Bela Sisilia', 'Inez Pradipta Prabaswara'
-      -> 'Ireneus Pradipta Prabaswara'.
+      AUTHOR LIST — FIFTEEN, transcribed from the article's own printed byline,
+      read at 4x with contrast raised. The page's final line carries the affiliation
+      key "(1-15)", which settles the count independently. The deck listed only
+      eight; a first pass misread three names, corrected to: 'Arell Saverro
+      Biyantoro', 'Bela Sisilia', 'Ireneus Pradipta Prabaswara'.
     */
     authors: [
       'Melani Siyamafiroh',
@@ -177,27 +158,20 @@ const raw: PublicationEntry[] = [
     abstract:
       'Desa Gonoharjo, on the slopes of Mount Ungaran in Central Java, has substantial agricultural potential but faced sub-optimal conventional irrigation, particularly during the dry season, alongside manual village services. The PPK Ormawa HIMA ILKOM FMIPA UNNES programme addressed this through IoT-based technology and a digital information system: a renewable-energy automatic irrigation system to support more even and efficient water distribution, integrated with SIMPELDES (the village service information system) to speed up information flow and data processing. Activities included site surveys, smart farming technology socialisation, installation of the automatic irrigation system with solar panels, farmer education, and monitoring and evaluation.',
     /*
-      LINK — the journal's own article listing, NOT the printed DOI.
-
-      The article's front page prints `10.32672/ampoen.v2i2.2365`. That DOI is not
-      resolvable: the handle system returns `responseCode: 100` (not found) and
-      Crossref has no record for it, even though the publisher's prefix
-      (10.32672, Universitas Serambi Mekkah) is registered. Linking it would ship
-      a 404.
-
-      The URL below is printed on the same page under "Lainnya Kunjungi" and is
-      the publisher's own stable address for the journal. The DOI is kept in
-      `doi` so the citation stays complete and so a later re-check is a one-field
-      change once the publisher registers it.
+      LINK — the journal's own article listing, NOT the printed DOI. The front page
+      prints `10.32672/ampoen.v2i2.2365`, which does not resolve (handle system
+      returns responseCode 100, Crossref has no record) even though the publisher's
+      prefix is registered; linking it would ship a 404. The URL below is printed on
+      the same page under "Lainnya Kunjungi". The DOI is kept in `doi` so the
+      citation stays complete and a later re-check is a one-field change.
     */
     doi: '10.32672/ampoen.v2i2.2365',
     link: {
       label: 'View article',
       /*
         The ARTICLE page, not the journal root. Verified: its Highwire meta tags
-        carry this paper's exact title, volume 2, issue 2, firstpage 980,
-        lastpage 993, date 2024-11-17, ISSN 3025-8030, and 'Hamzah Naufal Zuhdi'
-        as the fifth of fifteen authors.
+        carry this paper's exact title, volume 2, issue 2, pages 980–993, and
+        'Hamzah Naufal Zuhdi' as the fifth of fifteen authors.
       */
       href: 'https://jurnal.serambimekkah.ac.id/index.php/ampoen/article/view/2365',
       external: true,

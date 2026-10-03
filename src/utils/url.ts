@@ -1,25 +1,23 @@
 /**
  * URL HELPERS — deploy-base awareness.
  * ============================================================================
- * GitHub Pages serves a PROJECT site from a path, not from the domain root: a
- * repository called `naufalhamzah` is published at
- * `https://naufalhamzah.github.io/naufalhamzah/`, not at the apex.
+ * GitHub Pages serves a PROJECT site from a path, not the domain root: the repo
+ * `naufalhamzah` publishes at `https://naufalhamzah.github.io/naufalhamzah/`.
  *
- * Astro rewrites the URLs it generates itself (bundled CSS, JS, fonts) when
- * `base` is set, but it does NOT touch a string a template wrote by hand. So
- * every `href="/about"` and every `src="/images/..."` stays root-absolute and
- * 404s under the prefix. These helpers are the fix:
+ * Astro rewrites the URLs it generates itself (CSS, JS, fonts) when `base` is
+ * set, but NOT a string a template wrote by hand — so every `href="/about"` and
+ * `src="/images/..."` stays root-absolute and 404s under the prefix. These
+ * helpers are the fix:
  *
  *   withBase('/about')               -> '/naufalhamzah/about'
  *   stripBase('/naufalhamzah/about') -> '/about'
  *
- * `withBase` is safe to apply to ANY link: a value that does not begin with a
- * slash (an https:// URL, a mailto:, a #fragment) is returned untouched, so
- * external links cannot be mangled by it.
+ * withBase is safe on ANY link: a value not starting with a slash (https://,
+ * mailto:, #fragment) passes through untouched.
  *
- * IF THE SITE EVER MOVES TO THE DOMAIN ROOT — a renamed `<user>.github.io`
- * repository, or a custom domain — empty `base` in `astro.config.mjs` and both
- * helpers become no-ops. Nothing else has to change.
+ * If the site moves to the domain root — a renamed `<user>.github.io` repo or a
+ * custom domain — empty `base` in `astro.config.mjs` and both helpers become
+ * no-ops. Nothing else changes.
  */
 
 /** The deploy base path, without a trailing slash ('' when served at root). */
@@ -35,13 +33,10 @@ export function withBase(path: string): string {
 /**
  * Prefix an IMAGE source with the deploy base.
  *
- * Every image path in the data layer is stored canonically (`/images/...`), so
- * the data files stay deployment-agnostic and the UI is the layer that knows
- * where the site is served from. This is the single place that knowledge is
- * applied, which is why components call it at every render site rather than the
- * data files storing a prefixed path.
- *
- * Safe on any value: an absolute `https://` URL or a `data:` URI passes through.
+ * Data files store image paths canonically (`/images/...`) so they stay
+ * deployment-agnostic; the UI is the layer that knows where the site is served
+ * from, and this is the single place that knowledge is applied. Safe on any
+ * value: an `https://` URL or `data:` URI passes through.
  */
 export function asset(src: string): string {
   return withBase(src);

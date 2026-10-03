@@ -2,12 +2,10 @@
 /**
  * SKILLS — the complete tool and method showcase.
  *
- * The brief's requirements, and how each is met:
- *   · "logos large enough"         → SkillTile renders a 2.4rem mark
- *   · "grouped by area"            → one section per SkillGroup from the data
- *   · "only what is in the portfolio" → the list comes from src/data/skills.ts
- *   · "no percentage skill bars"   → no proficiency is shown anywhere, because
- *                                    neither source document states one
+ * Brief requirements: logos large enough (SkillTile renders a 2.4rem mark),
+ * grouped by area (one section per SkillGroup), only what is in the portfolio
+ * (list from src/data/skills.ts), and NO percentage skill bars — no proficiency
+ * is shown, because neither source document states one.
  *
  * Group ordering lives in the data file, so a new group needs no page change.
  */
@@ -21,24 +19,16 @@ import { profile } from '@/data/profile';
 /**
  * The meta strip answers what a reader actually asks about a skills page.
  *
- * "With a logo" used to sit here and read 49 against "Entries 49" — the same
- * number twice, because every entry now has a mark. A figure that can only ever
- * repeat another figure is not information; it just makes the panel look fuller.
- * The counts below are ones that can DIFFER and therefore tell a reader
- * something: how many of the entries are tools you can name, against practices
- * that have no product behind them.
+ * The counts are ones that can DIFFER and therefore mean something: how many
+ * entries are products you can name, against practices with no product behind
+ * them. (A "With a logo" count was dropped — every entry has a mark, so it only
+ * ever repeated "Entries".)
  */
 const allItems = skillGroups.flatMap((g) => g.items);
 
-/*
-  The split comes from the ICON REGISTRY's own `kind`, not from guessing.
-
-  A first attempt counted entries that HAVE an icon — which is now every entry,
-  so it printed 49 against 0 and was just as uninformative as the label it
-  replaced. What actually distinguishes these entries is whether a mark is an
-  official product logo (`kind: 'brand'`) or a drawn category glyph for a method
-  (`kind: 'local'`), and only the registry knows that.
-*/
+/* The split uses the ICON REGISTRY's own `kind`, not a guess: an official
+   product logo is `kind: 'brand'`, a drawn category glyph for a method is
+   `kind: 'local'`, and only the registry knows which is which. */
 const productCount = allItems.filter((i) => getSkillIcon(i.icon)?.kind === 'brand').length;
 const methodCount = totalSkills - productCount;
 
@@ -237,13 +227,10 @@ const meta = [
   /* ==========================================================================
      filter / search
 
-     A page that lists 49 entries over seven sections makes a reader scroll to
-     find one name. The bar narrows it in place instead: type a term, or pick a
-     category, and the groups below narrow to what matches.
-
-     The controls are ADDITIONS, never replacements — with JavaScript off, every
-     tile is already in the HTML and all that is missing is the ability to
-     narrow. Nothing is hidden by default and no content depends on the script.
+     A page listing 49 entries over seven sections makes a reader scroll to find
+     one name; this bar narrows it in place. The controls are ADDITIONS, never
+     replacements — with JavaScript off, every tile is already in the HTML and
+     nothing is hidden by default.
      ====================================================================== */
   .sk-tools {
     padding-block: clamp(1rem, 2vw, 1.5rem) 0;
@@ -370,7 +357,7 @@ const meta = [
     color: var(--fg-muted);
   }
 
-  /* A heading whose section has no matches is hidden with its header. */
+  /* Hidden by the filter when a section has no matches. */
   .sk__group[hidden],
   [data-sk-item][hidden] {
     display: none;
@@ -382,8 +369,8 @@ const meta = [
     margin: 0;
     padding: 0;
     list-style: none;
-    /* auto-fill keeps tiles a consistent size at any width, so adding a skill
-       never breaks the layout */
+    /* auto-fill keeps tiles the same size at any width, so adding a skill never
+       breaks the layout */
     grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
   }
 
@@ -408,15 +395,14 @@ const meta = [
 
 <script>
   /**
-   * SKILLS FILTER — narrow 49 entries in place.
+   * SKILLS FILTER — narrow the entries in place.
    *
-   * Progressive enhancement: every tile is already in the HTML and nothing is
-   * hidden until this runs. If the script never executes, the page is a complete
-   * list; it simply cannot be narrowed.
+   * Progressive enhancement: every tile is already in the HTML, so if this never
+   * runs the page is a complete (if un-narrowable) list.
    *
-   * Both controls compose rather than override each other — a category chip sets
-   * the scope and the search narrows within it, which is what a reader expects
-   * when they click "Data" and then type "sql".
+   * The two controls COMPOSE: a category chip sets the scope and the search
+   * narrows within it, which is what a reader expects after clicking "Data" then
+   * typing "sql".
    */
   const search = document.getElementById('sk-search') as HTMLInputElement | null;
   const chips = Array.from(
@@ -427,9 +413,8 @@ const meta = [
   );
   const status = document.getElementById('sk-status');
   const empty = document.getElementById('sk-empty');
-  /* Read from the DOM rather than repeating a literal: the count is data, and a
-     hardcoded 49 in the script would silently lie the first time a skill is
-     added. */
+  /* From the DOM, not a literal: a hardcoded 49 would silently lie the first
+     time a skill is added. */
   const TOTAL = document.querySelectorAll('[data-sk-item]').length;
 
   if (search && chips.length && groups.length) {
@@ -452,8 +437,8 @@ const meta = [
           if (match) groupShown++;
         }
 
-        /* Hide the whole section, heading included, when nothing in it matches —
-           an empty heading over an empty grid reads as a broken page. */
+        /* Hide the whole section, heading included, when nothing matches — an
+           empty heading over an empty grid reads as a broken page. */
         group.hidden = groupShown === 0;
         shown += groupShown;
       }

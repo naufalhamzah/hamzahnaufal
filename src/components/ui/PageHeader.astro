@@ -2,17 +2,12 @@
 /**
  * PAGE HEADER — the masthead every detail page shares.
  *
- * This is what makes each page feel distinct from the homepage while still
- * being unmistakably the same site: the same eyebrow treatment, the same
- * oversized serif, the same hairline, but a different statement of purpose.
- *
- * Anatomy:  eyebrow (accent rule + label)  →  title  →  standfirst  →  meta rail
+ * Anatomy: eyebrow (accent rule + label) → title → standfirst → meta rail.
  * Every part except the eyebrow and title is optional.
  */
 interface Props {
   /** Small uppercase label above the title. */
   eyebrow: string;
-  /** The page title — set large in the display serif. */
   title: string;
   /** Optional lead paragraph under the title. */
   standfirst?: string;

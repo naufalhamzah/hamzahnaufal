@@ -2,19 +2,16 @@
 /**
  * CONTACT — how to get in touch.
  *
- * The site is fully static, so there is no form: a form would need a
- * third-party service that the brief has not approved, and a form that silently
- * drops messages is worse than no form. Email is presented as the primary
- * action instead.
+ * The site is static, so there is no form: it would need a third-party service
+ * the brief has not approved, and a form that silently drops messages is worse
+ * than none. Email is the primary action instead.
  *
- * The phone number is NOT listed. Links come from `activeContactLinks`, which
+ * The phone number is NOT listed — links come from `activeContactLinks`, which
  * filters out disabled entries, so a hidden number can never leak into the HTML.
  *
- * LAYOUT NOTE
- * The email is not a bordered card any more. A card made the address look like a
- * form field; setting it as OVERSIZED DISPLAY TYPE instead makes it the single
- * loudest thing on the page, which is what a contact page should do — the
- * address IS the content, and everything else is supporting matter.
+ * The address is set as OVERSIZED DISPLAY TYPE, not a bordered card (a card made
+ * it look like a form field): the address IS the content, everything else is
+ * supporting matter.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PageHeader from '@/components/ui/PageHeader.astro';
@@ -150,11 +147,8 @@ const facts = [
     max-width: 100%;
   }
 
-  /*
-    The address in display type at the largest size on the page. It wraps rather
-    than shrinking, because an email that has been scaled down to fit stops
-    reading as the page's subject.
-  */
+  /* At the largest size on the page. It WRAPS rather than shrinking — an email
+     scaled down to fit stops reading as the page's subject. */
   .co__mail-addr {
     font-family: var(--font-display);
     font-size: clamp(1.6rem, 5.2vw, var(--text-display));
@@ -166,8 +160,7 @@ const facts = [
     transition: color var(--t-base) var(--ease);
   }
 
-  /* A rule under the address that fills on hover — the underline is the
-     affordance, so no border or card is needed around it. */
+  /* The underline fills on hover — that is the affordance, so no card is needed. */
   .co__mail-addr::after {
     content: '';
     display: block;

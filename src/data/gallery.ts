@@ -1,48 +1,30 @@
 /**
- * GALLERY / MOMENTS
- * ============================================================================
  * SOURCE: personal and activity photographs supplied in `konten/`.
  *
- * WHY THIS FILE EXISTS SEPARATELY FROM `experience.ts`
- * The photographs were not organised by activity. Nothing in the file names or
- * the images themselves reliably says "this was AirNav" or "this was PLN", so
- * attaching them to a named employer would be an assumption — which the brief
- * explicitly forbids. They are collected here as one honest body of work and
- * shown as a Gallery, while the ONLY images placed inside an Experience entry
- * are the ones whose employer is unambiguous from the image itself.
+ * WHY SEPARATE FROM `experience.ts`: the photographs were not organised by
+ * activity, and nothing in the file names or the images reliably says "this was
+ * AirNav" or "this was PLN", so attaching them to a named employer would be an
+ * assumption. The ONLY images placed inside an Experience entry are the ones whose
+ * employer is unambiguous from the image itself.
  *
- * Captions describe what is visible in the frame. Where a banner or screen in
- * the photo carries a name (FMIPA, HIMA ILKOM, UNNES, GPMB, the AirNav screen)
- * that is reported as text IN the image, not as a claim about the event.
+ * Captions describe what is visible in the frame. A banner or screen carrying a
+ * name (FMIPA, HIMA ILKOM, UNNES, GPMB, the AirNav screen) is reported as text IN
+ * the image, not as a claim about the event.
  *
- * TO ADD A PHOTO: drop the file into `public/images/gallery/`, then add one
- * entry here. The grid adapts to any count.
- * ============================================================================
+ * TO ADD A PHOTO: drop the file into `public/images/gallery/`, then add one entry
+ * here. The grid adapts to any count.
  */
 
 import { galleryListSchema } from './schemas';
 import type { GalleryEntry } from '@/types/content';
 
-/* --------------------------------------------------------------------------
-   COLLECTIONS
-
-   The gallery is split by the SETTING the photographs come from, because that is
-   the split a visitor actually reads by — "what did he do at university" and
-   "what has he done on the job" are different questions, and a single
-   undifferentiated wall answers neither.
-
-   Every photograph currently held is CAMPUS: committees, field programmes,
-   classroom visits, and PPK Ormawa field work. That was verified by looking at
-   each frame, not by trusting the filenames — they are committee jackets, the
-   FMIPA building, programme banners, and the UNNES crest on a meeting-room wall.
-   There is no office photograph in the set, so the internship collection is
-   declared but EMPTY rather than padded with campus shots relabelled as work.
-
-   The internship collection is wired up and waiting: dropping office
-   photographs into public/images/gallery/ and tagging them `internship` below
-   makes the section appear. Until then it is not rendered, so the page never
-   shows an empty shell.
-   -------------------------------------------------------------------------- */
+/* COLLECTIONS — split by the SETTING the photographs come from, because that is
+   how a visitor reads them ("what did he do at university" vs "on the job").
+   Every photograph currently held is CAMPUS (verified by looking at each frame,
+   not the filenames), so the internship collection is declared but EMPTY rather
+   than padded with relabelled campus shots. It is wired up and waiting: dropping
+   office photographs into public/images/gallery/ and tagging them `internship`
+   below makes the section appear; until then it is not rendered. */
 export const GALLERY_COLLECTIONS = [
   {
     id: 'campus',
@@ -66,13 +48,9 @@ const shot = (
   alt: string,
   caption: string,
   group: string,
-  /*
-    Defaults to `campus`, which is correct for every photograph currently held —
-    all 19 were individually inspected and every one is university activity
-    (committee jackets, the FMIPA building, programme banners, PPK Ormawa field
-    work). The default keeps the call sites readable; the internship collection
-    sets it explicitly.
-  */
+  /* Defaults to `campus`, correct for every photograph currently held — all 19
+     were individually inspected and every one is university activity. The
+     internship collection sets it explicitly. */
   collection: GalleryEntry['collection'] = 'campus',
 ): GalleryEntry => ({
   id: file.replace(/\.webp$/, ''),
@@ -195,10 +173,8 @@ const raw: GalleryEntry[] = [
     'Team photo in front of a presentation screen',
     'Committees & events',
   ),
-  /*
-    Three photographs added Aug 2026. Alt text below describes what is visible in
-    each frame, not an inferred event — the same rule the rest of this file follows.
-  */
+  /* Alt text describes what is visible in each frame, not an inferred event — the
+     same rule the rest of this file follows. */
   shot(
     'moment-19.webp',
     'Students in yellow jackets holding up phones in a meeting room, seated behind a large conference table, with a gold emblem mounted on the wood-panelled wall behind them',
@@ -215,11 +191,9 @@ export const galleryGroups: string[] = Array.from(
 );
 
 /**
- * The collections that actually have photographs, in declaration order.
- *
- * A collection with no entries is dropped here rather than rendered as an empty
- * section — the page shows what exists. The `group` on each entry is what routes
- * it into a collection; the campus group names map to the `campus` collection.
+ * The collections that actually have photographs, in declaration order. A
+ * collection with no entries is dropped rather than rendered as an empty section.
+ * Each entry's `collection` field routes it into a collection.
  */
 export const galleryByCollection = GALLERY_COLLECTIONS.map((c) => ({
   ...c,

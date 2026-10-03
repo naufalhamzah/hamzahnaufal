@@ -2,19 +2,16 @@
 /**
  * PROJECTS — the complete project portfolio.
  *
- * Structure:
- *   · a category filter over the full list, which is the ONE interactive part of
- *     the site and therefore the only client-side island
- *   · every project as an EDITORIAL ROW — image on one side, text on the other,
- *     sides alternating down the page, with a supporting strip under the hero
- *     where the project has more documentation
+ * Structure: a category filter over the full list (the site's ONE interactive
+ * part, hence its only client-side island), and every project as an EDITORIAL
+ * ROW — image one side, text the other, sides alternating down the page.
  *
- * The rows replaced a single-column card grid. At full width that grid made
- * every image 1152px wide, so the page read as a stack of billboards; see
- * `ProjectRow.astro` for why a row with a beside-it text column is the fix.
+ * The rows replaced a single-column card grid, where at full width every image
+ * was 1152px wide and the page read as a stack of billboards. See
+ * `ProjectRow.astro` for why the beside-it text column is the fix.
  *
- * No subjective ranking labels ("best", "top"). Grouping is by CATEGORY, which
- * is a fact about the work, not a judgement of it.
+ * No subjective ranking labels ("best", "top") — grouping is by CATEGORY, a fact
+ * about the work, not a judgement of it.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PageHeader from '@/components/ui/PageHeader.astro';
@@ -29,18 +26,16 @@ import { profile } from '@/data/profile';
 import { PROJECT_CATEGORY_LABELS, PROJECT_CATEGORY_ORDER } from '@/types/content';
 
 
-/** Index numbers follow the master list, so they never renumber on filtering. */
 /**
  * The master grid order.
  *
- * `projectsInterleaved` rather than `projectsSorted`: the plain recency sort put
- * the marketing data system first and then ran into the procurement dashboard —
- * two data/systems projects back to back — while the UI/UX case studies sat at
- * the bottom. The interleaved order alternates primary category, so the opening
- * row shows the range of the work and no category is buried.
+ * `projectsInterleaved` rather than `projectsSorted`: plain recency ran two
+ * data/systems projects back to back while the UI/UX case studies sat at the
+ * bottom; the interleaved order alternates primary category so the opening row
+ * shows the range of the work.
  *
- * `index` still resolves against `projectEntries`, so each card's number is
- * stable no matter what order the grid displays.
+ * `index` resolves against `projectEntries`, so each card's number is stable
+ * regardless of grid order and never renumbers on filtering.
  */
 const numbered = projectsInterleaved.map((p) => ({
   project: p,
@@ -51,9 +46,8 @@ const others = numbered.filter((n) => !n.project.featured);
 const featuredCount = featuredProjects.length;
 
 /**
- * `others` is not rendered as a separate list — the grid shows every project and
- * the filter island hides them. It is kept because the page-level comment above
- * refers to it and because it documents the featured/other split, which a future
+ * `others` is not rendered — the grid shows every project and the filter island
+ * hides them. Kept as documentation of the featured/other split a future
  * "featured only" view would need.
  */
 void others;
@@ -106,11 +100,9 @@ const meta = [
         total={projectEntries.length}
       />
 
-      <!--
-        The cards are server-rendered and always present in the HTML; the island
-        only hides/shows them by toggling a data attribute. That keeps the
-        content crawlable and the page working without JavaScript.
-      -->
+      <!-- Cards are server-rendered and always in the HTML; the island only
+           toggles a data attribute to hide/show them, so the content stays
+           crawlable and the page works without JavaScript. -->
       <div class="pj__grid" id="projects-grid">
         {
           numbered.map((n, i) => (
@@ -119,11 +111,8 @@ const meta = [
               data-categories={n.project.categories.join(' ')}
               data-index={i}
             >
-              {/*
-                Sides alternate down the list so the page zig-zags instead of
-                running down one edge — the rhythm that makes a long list of
-                similar entries readable.
-              */}
+              {/* Sides alternate so the page zig-zags instead of running down
+                  one edge — the rhythm that makes a long list readable. */}
               <ProjectRow
                 project={n.project}
                 index={n.index}
@@ -159,15 +148,11 @@ const meta = [
   /*
     ONE COLUMN, full width.
 
-    The grid used to be two columns with the first cell spanning both. That is
-    what produced the inconsistency the user reported: a spanning lead card and
-    two half-width cards have different available widths, so the same 16:10 frame
-    rendered at 1152px wide on one row and 550px on the next — and because each
-    row could hold cards of different heights, the whole list read as uneven.
-
-    A single full-width column removes the variable entirely. Every card now has
-    the same width, the same frame ratio and therefore the same visual weight, so
-    the page reads as a sequence of case studies rather than a jumble of tiles.
+    The old two-column grid (first cell spanning both) gave cards different
+    available widths, so the same 16:10 frame rendered at 1152px on one row and
+    550px on the next and rows could hold cards of different heights — the
+    unevenness the user reported. A single full-width column gives every card the
+    same width and frame ratio, so the page reads as a sequence of case studies.
   */
   .pj__grid {
     display: grid;
@@ -176,8 +161,7 @@ const meta = [
     margin-top: clamp(2rem, 4vw, 3rem);
   }
 
-  /* A hairline between rows, since the rows themselves are now wide and a gap
-     alone is not enough separation. */
+  /* A hairline between rows — a gap alone is not enough separation at this width. */
   .pj__cell + .pj__cell {
     padding-top: clamp(3rem, 6vw, 5rem);
     border-top: var(--hairline) solid var(--border-faint);

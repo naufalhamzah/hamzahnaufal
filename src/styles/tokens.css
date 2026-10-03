@@ -1,24 +1,23 @@
 /* ==========================================================================
    DESIGN TOKENS — one system, two themes
    --------------------------------------------------------------------------
-   This file is the whole visual language. Components reference var(--x) and
-   never a raw colour, so re-skinning the site means editing this file only.
+   The whole visual language. Components reference var(--x) and never a raw
+   colour, so re-skinning the site means editing this file only.
 
    THE TWO THEMES ARE DESIGNED TOGETHER, not as inversions of each other:
 
      DARK   near-black canvas, warm charcoal surfaces, ivory type, burgundy.
      LIGHT  warm ivory canvas, soft beige surfaces, charcoal type, burgundy.
 
-   Neither uses pure #000 or pure #fff. Both keep the same editorial character
-   and the same hierarchy, so switching theme changes the mood without changing
-   the design.
+   Neither uses pure #000 or pure #fff; both keep the same editorial character
+   and hierarchy, so switching theme changes the mood, not the design.
 
    LAYERING (how a section stands out without a hard border):
-     --bg              the page canvas
-     --surface         a raised panel (cards, media, side rails)
-     --surface-2       a nested panel inside a surface
-     --band            a full-width section tint — the quiet separator used
-                       between homepage sections instead of a rule
+     --bg         the page canvas
+     --surface    a raised panel (cards, media, side rails)
+     --surface-2  a nested panel inside a surface
+     --band       a full-width section tint — the quiet separator between
+                  homepage sections, used instead of a rule
 
    Tokens are grouped in three layers on purpose:
      1. raw ramps        (--ink-1000, --ivory-100 …)   never used directly
@@ -86,9 +85,9 @@
      3. LAYOUT
      ----------------------------------------------------------------------
      ONE measure governs the site: every page is a centred column of the same
-     max width with the same gutter. Sections then differ in their internal
-     grid, never in their outer width — that is what stops a page reading as
-     "a pile of unrelated blocks".
+     max width and gutter. Sections differ only in their internal grid, never
+     their outer width — that stops a page reading as "a pile of unrelated
+     blocks".
      ====================================================================== */
   --measure: 1280px; /* the outer column */
   --measure-wide: 1440px; /* only the hero and full-bleed galleries */
@@ -127,6 +126,7 @@
   /* A theme change is slower than a hover but still well under half a second —
      long enough to read as a crossfade, short enough not to feel sluggish. */
   --t-theme: 320ms;
+  /* theme.ts holds the matching guard duration (THEME_FADE_MS = 340ms). */
 }
 
 /* ==========================================================================
@@ -157,8 +157,8 @@
 
   /* ---- accent ----
      --accent colours TEXT on the canvas; --solid-bg is a FILL whose text is
-     --on-solid. They are separate because the value that reads well as text on
-     a dark canvas is too bright to carry ivory text as a fill. */
+     --on-solid. Separated because a value bright enough to read as text on a
+     dark canvas is too bright to carry ivory text as a fill. */
   --accent: var(--wine-400);
   --accent-strong: var(--wine-500);
   --accent-soft: rgba(168, 64, 78, 0.09);
@@ -167,10 +167,9 @@
   --solid-bg-hover: var(--wine-600);
   --on-solid: #fff6f2;
   --on-accent: #fff6f2;
-  /* The monogram's flourish. It sits ON the --solid-bg tile, drawn over a
-     --on-solid letter, so it needs a value that separates from the tile without
-     competing with the letter: wine-300 measures 4.42:1 against wine-700, while
-     the artwork's own rose managed only 2.12:1 and read as a smudge. */
+  /* The monogram's flourish, drawn over an --on-solid letter on the --solid-bg
+     tile. wine-300 measures 4.42:1 against wine-700; the artwork's own rose
+     managed only 2.12:1 and read as a smudge. */
   --on-solid-soft: var(--wine-300);
 
   /* ---- depth ---- */
@@ -178,9 +177,8 @@
   --shadow-md: 0 10px 30px -14px rgba(0, 0, 0, 0.72);
   --shadow-lg: 0 28px 64px -26px rgba(0, 0, 0, 0.88);
 
-  /* Scrim for text sitting on an image, and the colour of that text. Kept dark
-     in BOTH themes, because it sits on top of a photograph rather than on the
-     page. */
+  /* Scrim for text on an image, and the colour of that text. Kept dark in BOTH
+     themes — it sits on a photograph, not on the page. */
   --img-scrim: linear-gradient(
     180deg,
     rgba(9, 8, 7, 0) 0%,
@@ -189,29 +187,25 @@
   --on-image: #f7f3ec;
 
   /* ---- photographs ------------------------------------------------------
-     A photograph does not automatically belong to the palette it is dropped
-     into. The hero portrait is a CUT-OUT — its backdrop is transparent, not a
-     colour — so the page showed through it and the tone followed the page by
-     accident. These tokens make the treatment deliberate.
+     The hero portrait is a CUT-OUT — its backdrop is transparent, not a colour —
+     so the page showed through it and its tone followed the page by accident.
+     These tokens make the treatment deliberate, letting one set of source images
+     sit correctly in BOTH themes without editing the files:
 
-     These three tokens make one set of source images sit correctly in BOTH
-     themes without editing the files:
-
-       --photo-filter  tonal tuning only (never a colour cast) — a slight pull
-                       on saturation and contrast so the photograph stops
-                       competing with the palette
-       --photo-mat     the matte a photo sits on, i.e. the visible edge around
-                       it. On dark a lifted charcoal, so a black-backdrop
-                       portrait finally has an edge; on paper a deeper tone, so
-                       a dark photograph reads as deliberate.
-       --photo-edge    the hairline that outlines the frame
+       --photo-filter  tonal tuning only (never a colour cast): a slight pull on
+                       saturation and contrast so a photograph stops competing
+                       with the palette
+       --photo-mat     the matte a photo sits on — the visible edge around it. On
+                       dark a lifted charcoal (so a black-backdrop portrait has
+                       an edge); on paper a deeper tone (so a dark photo reads as
+                       deliberate)
+       --photo-edge    the hairline outlining the frame
      ---------------------------------------------------------------------- */
   --photo-filter: saturate(0.9) contrast(1.03);
   --photo-mat: var(--surface-2);
   --photo-edge: rgba(229, 220, 205, 0.13);
   /* A drawn phone shell for mobile-screenshot mockups: a body darker than the
-     page so the shell reads as an object, and an edge light enough to define its
-     outline against the matte. */
+     page, and an edge light enough to outline it against the matte. */
   --device-body: rgb(18, 15, 13);
   --device-edge: rgba(229, 220, 205, 0.2);
   /* A lift applied only to very dark photographs on dark, so a black backdrop
@@ -219,11 +213,9 @@
   --photo-shadow: 0 24px 60px -28px rgba(0, 0, 0, 0.9);
 
   /* ------------------------------------------------------------------------
-     PAGE BACKGROUND
-     A deliberate step down from the previous version: ONE very wide warm wash
-     anchored off-canvas plus a soft vignette. No second wash, no visible
-     gradient band. It should read as "the black is warm and the edges fall
-     away", not as a gradient.
+     PAGE BACKGROUND — ONE very wide warm wash anchored off-canvas plus a soft
+     vignette, no visible gradient band: it should read as "the black is warm and
+     the edges fall away", not as a gradient.
      ------------------------------------------------------------------------ */
   --bg-layers:
     radial-gradient(
@@ -268,8 +260,8 @@
   --solid-bg-hover: var(--wine-600);
   --on-solid: #fff6f2;
   --on-accent: #fff6f2;
-  /* Same value as the dark theme: the tile itself is wine-700 on both themes,
-     so the flourish's contrast against it does not change. */
+  /* Same value as dark: the tile is wine-700 on both themes, so the flourish's
+     contrast against it does not change. */
   --on-solid-soft: var(--wine-300);
 
   --shadow-sm: 0 1px 2px rgba(62, 46, 30, 0.07);
@@ -284,20 +276,19 @@
   --on-image: #f7f3ec;
 
   /* ---- photographs (see the dark block for the reasoning) ----------------
-     On paper the problem inverts. The hero portrait has a BLACK backdrop, so
-     dropped straight onto warm ivory it reads as a hole in the page rather
-     than as a photograph. Two things fix that without editing the file:
+     On paper the problem inverts: the hero portrait's BLACK backdrop, dropped on
+     warm ivory, reads as a hole in the page. Two tokens fix it without editing
+     the file:
 
        --photo-mat    a deeper tone, so the dark frame has a visible border and
                       reads as a deliberate plate rather than a void
-       --photo-filter a slight lift, so the dark areas are not pure black
-                      sitting against ivory
+       --photo-filter a slight lift, so dark areas are not pure black on ivory
      ---------------------------------------------------------------------- */
   --photo-filter: saturate(0.96) contrast(1.02) brightness(1.02);
   --photo-mat: var(--surface-3);
   --photo-edge: rgba(33, 28, 23, 0.22);
-  /* On paper the shell inverts: a light body with a darker outline, so it still
-     reads as a device and never as a white rectangle on an ivory page. */
+  /* On paper the shell inverts: a light body with a darker outline, so it never
+     reads as a white rectangle on an ivory page. */
   --device-body: rgb(255, 253, 250);
   --device-edge: rgba(33, 28, 23, 0.24);
   --photo-shadow: 0 24px 56px -30px rgba(62, 46, 30, 0.34);
@@ -315,8 +306,8 @@
 
 /* ==========================================================================
    EXPOSE TO TAILWIND (v4)
-   `@theme inline` keeps the utilities pointing at the live variables, so
-   bg-surface / text-fg re-resolve the instant the theme attribute flips.
+   `@theme inline` keeps utilities pointing at the live variables, so bg-surface
+   / text-fg re-resolve the instant the theme attribute flips.
    ========================================================================== */
 @theme inline {
   --font-display: var(--font-display);

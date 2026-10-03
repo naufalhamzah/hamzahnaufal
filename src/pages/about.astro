@@ -1,13 +1,11 @@
 ---
 /**
- * ABOUT — the full professional background.
- *
- * Carries everything the homepage preview deliberately omits: the complete
- * narrative, how I work, education, and the organisational record.
+ * ABOUT — the full professional background: everything the homepage preview
+ * omits — the narrative, how I work, education, and the organisational record.
  *
  * The organisational section lives here rather than on its own page because it
- * is background, not a portfolio category — and it keeps the main navigation to
- * eight destinations, which is what the brief asked for.
+ * is background, not a portfolio category, and it keeps the main navigation to
+ * eight destinations (the brief).
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PageHeader from '@/components/ui/PageHeader.astro';
@@ -19,13 +17,11 @@ import { experienceSorted } from '@/data/experience';
 import { skillGroups } from '@/data/skills';
 import { asset, withBase } from '@/utils/url';
 
-/** Education entries carry their own logos. */
 const education = educationSorted;
 
 /**
  * Organisational roles grouped by parent body, newest first inside each group.
- * `organizationGroups` is derived from the data, so a new body appears here
- * automatically.
+ * `organizationGroups` is derived, so a new body appears here automatically.
  */
 const orgsByGroup = organizationGroups.map((g) => ({
   group: g,
@@ -33,23 +29,21 @@ const orgsByGroup = organizationGroups.map((g) => ({
 }));
 
 /**
- * The snapshot sections, all derived from the data layer — nothing here is a
- * new claim about the person, only a re-presentation of records that already
- * exist. Each is deliberately CAPPED: About is a background page, not a second
- * Experience or Skills page, and the sections it summarises have their own
- * destinations linked at the end.
+ * The snapshot sections, all derived from the data layer — nothing here is a new
+ * claim, only a re-presentation of existing records. Each is deliberately
+ * CAPPED: About is a background page, not a second Experience or Skills page.
  */
 
-/** Three most recent roles — the professional record in brief. */
+/** Three most recent roles. */
 const experienceSnapshot = experienceSorted.slice(0, 3);
 
-/** Six groups' names, as a flat index of what the work covers. */
+/** The groups' names, as a flat index of what the work covers. */
 const skillIndex = skillGroups.map((g) => g.title);
 
 /**
- * INTERESTS — the four positioning axes, expanded into one plain sentence each.
- * The labels come from `profile.positioning` and the sentences only restate what
- * the summary and the project record already say; no new field is introduced.
+ * INTERESTS — the four positioning axes, one plain sentence each. Labels come
+ * from `profile.positioning`; the sentences only restate what the summary and
+ * project record already say. No new field is introduced.
  */
 const interests = [
   {
@@ -71,19 +65,12 @@ const interests = [
 ];
 
 /**
- * The personal photographs this page uses.
+ * The personal photographs this page uses — PHOTOGRAPHS, not product screenshots.
  *
- * These are PHOTOGRAPHS, not product screenshots. A dense customer-data
- * spreadsheet used to sit in this array and was removed: a spreadsheet carries
- * its meaning in its text, and at strip size that text is unreadable, so it read
- * as a broken image rather than as evidence. Screenshots belong in the project
- * galleries, where they render at full width and the columns can actually be
- * read — which is where that spreadsheet lives now, as the marketing system's
- * gallery image.
- *
- * What belongs here is photography showing the person and the contexts they
- * worked in. Two frames also balance better in a two-up composition than three
- * did in a row.
+ * A spreadsheet was removed from this array: its meaning lives in its text, and
+ * at strip size that text is unreadable, so it read as a broken image.
+ * Screenshots belong in the project galleries where they render full width (the
+ * marketing system's gallery image). Two frames also balance better than three.
  */
 const photos = [
   {
@@ -221,7 +208,6 @@ const meta = [
                     {e.highlights.map((h) => <li>{h}</li>)}
                   </ul>
                 )}
-                {e.todo && <p class="ab-ed__todo mono">{e.todo}</p>}
               </div>
             </li>
           ))
@@ -324,9 +310,6 @@ const meta = [
 </BaseLayout>
 
 <style>
-  /* ==========================================================================
-     narrative
-     ========================================================================== */
   .ab {
     padding-block: clamp(2rem, 4vw, 3rem) var(--space-section);
   }
@@ -407,9 +390,6 @@ const meta = [
     border-bottom: var(--hairline) solid var(--border-faint);
   }
 
-  /* ==========================================================================
-     interests
-     ========================================================================== */
   .ab-int {
     padding-block: var(--space-section);
     border-top: var(--hairline) solid var(--border);
@@ -426,12 +406,9 @@ const meta = [
     color: var(--fg-muted);
   }
 
-  /*
-    Four cards, but they are NOT boxed. Each carries a hairline along its top
-    edge only, so the set reads as one ruled register rather than four tiles —
-    the brief's "less clutter, not card-heavy". The number gives the eye a
-    left-hand anchor without a bullet.
-  */
+  /* Four cards, but NOT boxed: a hairline along the top edge only, so the set
+     reads as one ruled register rather than four tiles (the brief's "less
+     clutter, not card-heavy"). The number anchors the eye without a bullet. */
   .ab-int__grid {
     display: grid;
     gap: clamp(1.5rem, 3vw, 2.5rem);
@@ -477,8 +454,6 @@ const meta = [
     color: var(--fg-muted);
   }
 
-  /* ==========================================================================
-     ========================================================================== */
   .ab-xp,
   .ab-sk {
     padding-block: var(--space-section);
@@ -590,9 +565,6 @@ const meta = [
     letter-spacing: 0.02em;
   }
 
-  /* ==========================================================================
-     photographs
-     ========================================================================== */
   .ab-ph {
     padding-block: var(--space-section);
     border-top: var(--hairline) solid var(--border);
@@ -602,9 +574,6 @@ const meta = [
     margin-bottom: clamp(1.25rem, 2.5vw, 1.75rem);
   }
 
-  /* ==========================================================================
-     education
-     ========================================================================== */
   .ab-ed {
     padding-block: var(--space-section);
     background-color: var(--band);
@@ -642,11 +611,8 @@ const meta = [
     overflow: hidden;
   }
 
-  /*
-    max-* not width/height:100% — a percentage height does not resolve inside a
-    centred grid item, so a square crest would overflow the plate. The crests are
-    square (600x600) while the plate is not, which is exactly when this bites.
-  */
+  /* max-* not width/height:100% — a percentage height does not resolve inside a
+     centred grid item, so a square crest (600×600) would overflow the plate. */
   .ab-ed__logo img {
     max-width: 100%;
     max-height: 100%;
@@ -688,19 +654,6 @@ const meta = [
     margin-top: 0.35rem;
   }
 
-  .ab-ed__todo {
-    margin-top: 0.9rem;
-    padding: 0.55rem 0.7rem;
-    border-inline-start: 2px solid var(--accent-line);
-    background-color: var(--accent-soft);
-    color: var(--fg-subtle);
-    text-transform: none;
-    letter-spacing: 0.02em;
-  }
-
-  /* ==========================================================================
-     organisations
-     ========================================================================== */
   .ab-org {
     padding-block: var(--space-section);
   }
@@ -774,9 +727,6 @@ const meta = [
     text-transform: none;
   }
 
-  /* ==========================================================================
-     onward links
-     ========================================================================== */
   .ab-go {
     padding-block: var(--space-band) var(--space-section);
     border-top: var(--hairline) solid var(--border);

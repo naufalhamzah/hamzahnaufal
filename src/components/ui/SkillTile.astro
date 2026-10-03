@@ -2,19 +2,14 @@
 /**
  * SKILL TILE — one skill as a logo tile.
  *
- * The brief asked twice for marks that are large enough to recognise, so the
- * mark is 2.5rem inside a generous tile — not a 14px glyph beside text.
+ * THREE STATES, handled here so the grid never shows a broken tile:
+ *   brand  an official mark in its brand colour
+ *   mono   an official mark whose brand colour is too dark to read on the dark
+ *          canvas — drawn in `currentColor` (see skill-icons.ts)
+ *   text   no mark exists, so it renders as a text tile only. Deliberately no
+ *          monogram: a lone letter reads as a logo and invites "whose logo is that?"
  *
- * THREE STATES, all handled here so the grid never shows a broken tile:
- *   brand    an official mark in its brand colour
- *   mono     an official mark whose brand colour is too dark to read on the
- *            dark canvas — drawn in `currentColor` instead (see skill-icons.ts)
- *   text     no mark exists for this skill, so it renders as a text tile only.
- *            It deliberately does NOT show a monogram: a lone letter reads as a
- *            logo and invites the question "whose logo is that?".
- *
- * NO PERCENTAGES. No proficiency level is documented anywhere in the source
- * material, so none is shown.
+ * NO PERCENTAGES: no proficiency level is documented in the source material.
  */
 import { getSkillIcon } from '@/data/skill-icons';
 
@@ -72,18 +67,15 @@ const mark = getSkillIcon(icon);
   }
 
   /* ---- the mark: sized to be recognisable, which is the point ----
-     Raised from 2.5rem to 3.25rem. At 2.5rem a detailed brand mark (Looker,
-     Figma) still read as a smudge at arm's length — the user asked twice for
-     logos large enough to identify on sight. The tile is what absorbs the extra
-     size, so the grid's rhythm is unchanged. */
+     Raised from 2.5rem to 3.25rem: at 2.5rem a detailed brand mark (Looker,
+     Figma) read as a smudge at arm's length. The tile absorbs the size, so the
+     grid rhythm is unchanged. */
   .st__mark {
     display: grid;
     place-items: center;
     width: 3.25rem;
     height: 3.25rem;
     flex: none;
-    /* Brand marks keep their colour; marks whose brand colour is unreadable on
-       dark inherit this. */
     color: var(--fg);
   }
 
@@ -100,7 +92,7 @@ const mark = getSkillIcon(icon);
     text-wrap: balance;
   }
 
-  /* ---- text-only: no mark, so the tile centres on its label ---- */
+  /* text-only: no mark, so the tile centres on its label */
   .st--text {
     gap: 0;
     min-height: 6.5rem;
@@ -111,7 +103,6 @@ const mark = getSkillIcon(icon);
     color: var(--fg-subtle);
   }
 
-  /* ---- compact ---- */
   .st--small {
     flex-direction: row;
     align-items: center;

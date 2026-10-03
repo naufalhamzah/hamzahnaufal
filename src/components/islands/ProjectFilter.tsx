@@ -1,18 +1,15 @@
 /**
  * PROJECT FILTER — the site's only interactive control.
  *
- * WHY REACT HERE AND NOWHERE ELSE
- * Every other interaction on the site is a display toggle (theme, menu,
- * lightbox) and is handled with a few lines of vanilla JS, which keeps the rest
- * of the site at ZERO client JavaScript. Filtering needs real state, so it is the
- * one place a framework earns its bytes.
+ * WHY REACT HERE AND NOWHERE ELSE: every other interaction is a display toggle
+ * (theme, menu, lightbox) handled with a few lines of vanilla JS, keeping the
+ * rest of the site at ZERO client JavaScript. Filtering needs real state, so it
+ * is the one place a framework earns its bytes.
  *
- * IMPORTANT — THE CARDS ARE NOT RENDERED HERE
- * Astro server-renders every project card into #projects-grid. This component
- * only toggles the `hidden` attribute on those existing cells. That means:
- *   · the content is in the HTML, so it is crawlable and indexable
- *   · the page works perfectly with JavaScript disabled
- *   · no card markup is duplicated in the bundle
+ * THE CARDS ARE NOT RENDERED HERE. Astro server-renders every project card into
+ * #projects-grid; this component only toggles the `hidden` attribute on those
+ * existing cells, so the content is in the HTML (crawlable), the page works with
+ * JavaScript disabled, and no card markup is duplicated in the bundle.
  */
 
 import { useMemo, useState } from 'react';

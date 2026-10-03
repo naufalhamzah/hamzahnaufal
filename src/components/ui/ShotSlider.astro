@@ -2,29 +2,21 @@
 /**
  * SHOT SLIDER — a horizontal snap rail of images.
  *
- * WHY THIS EXISTS
- * Two places needed the same thing: the Experience page framed every role
- * differently depending on how many images it had (one got a wide banner, two
- * got a split, three got a lead-plus-stack), and the Projects grid gave every
- * card a frame shaped like its own image, so one list held THREE different frame
- * shapes (measured ratios 1.60, 0.56 and 0.80). Both read as inconsistent.
+ * ONE frame shape, and a slider when there is more than one image. Two places
+ * needed this: the Experience page framed every role differently by image count
+ * and the Projects grid shaped each card like its own image, so one list held
+ * THREE different frame ratios (measured 1.60, 0.56, 0.80).
  *
- * The fix in both places is the same: ONE frame shape, and a slider when there
- * is more than one image. The shape stays constant; only the contents change.
+ * PROGRESSIVE ENHANCEMENT: the rail is a native scroll-snap element, so swiping,
+ * trackpad and keyboard scrolling work with NO script. A delegated listener then
+ * adds the arrows and the counter.
  *
- * PROGRESSIVE ENHANCEMENT. The rail is a native scroll-snap element, so swiping,
- * trackpad scrolling and keyboard scrolling all work with NO script — the slider
- * is usable the moment the HTML parses. A small delegated listener then upgrades
- * the arrows and the counter; the arrows are only rendered when there is more
- * than one image, so a single-image frame never shows a dead control.
- *
- * TWO MODES, and the difference matters:
- *   lightbox = true   (default) each slide opens the shared lightbox. Right on
- *                     the Experience page, where nothing else is clickable.
+ * TWO MODES:
+ *   lightbox = true   (default) each slide opens the shared lightbox.
  *   lightbox = false  slides are plain images. Required inside a project card,
- *                     because the card's own link already covers its whole
- *                     surface — two competing actions on one click is worse than
- *                     either alone, and a <button> inside an <a> is invalid HTML.
+ *                     whose own link already covers its whole surface — two
+ *                     competing actions on one click is worse than either alone,
+ *                     and a <button> inside an <a> is invalid HTML.
  */
 import type { MediaAsset } from '@/types/content';
 import { asset } from '@/utils/url';
@@ -40,47 +32,31 @@ interface Props {
   /** Accessible name for the rail. */
   label?: string;
   /**
-   * How images fill the frame, applied to EVERY slide.
-   *
-   * `contain` is what makes a mixed set of images work in one frame: the sources
-   * run from a 0.49 phone screenshot to a 1.78 dashboard, and `cover` would crop
-   * the phone screenshot by 70% — it stops being a screenshot of anything. With
-   * `contain` the frame shape stays identical across the page while each image
-   * keeps its whole content, and the matte makes the differing shapes read as a
-   * deliberate plate rather than as a mis-sized picture.
+   * How images fill the frame, applied to EVERY slide. `contain` lets a mixed set
+   * work in one frame: the sources run from a 0.49 phone screenshot to a 1.78
+   * dashboard, and `cover` would crop the phone screenshot by 70% — it stops
+   * being a screenshot of anything. The matte then makes the differing shapes
+   * read as a deliberate plate.
    */
   fit?: 'cover' | 'contain';
   /**
-   * Group NARROW images side by side within one slide.
-   *
-   * A phone screenshot is ~0.49 wide. `contain` in a 16:10 frame keeps it whole
-   * but leaves most of the frame as matte — the screenshot ends up a narrow strip
-   * floating in empty space, which reads as a layout accident rather than a
-   * choice.
-   *
-   * Pairing them places two screenshots side by side inside one slide, so they
-   * together fill the frame's width. The frame keeps its single ratio (so the
-   * grid stays consistent) and the screenshots stay uncropped (so nothing is
-   * lost) — the empty matte is what disappears.
+   * Group NARROW images side by side within one slide. A ~0.49 phone screenshot
+   * under `contain` leaves most of a 16:10 frame as matte — a narrow strip
+   * floating in space. Paired, two screenshots together fill the frame's width
+   * while keeping the single ratio and staying uncropped.
    *
    * WIDE images are never paired; they already fill the frame on their own.
    */
   pairNarrow?: boolean;
   /**
-   * Present narrow screenshots as DEVICE MOCKUPS.
+   * Present narrow screenshots as DEVICE MOCKUPS. A raw phone screenshot in a
+   * wide frame reads as a picture of a phone, not as product work: it says "this
+   * is a mobile product" without a caption, gives the capture a deliberate
+   * boundary instead of a letterbox edge, and lifts the frame because the shell
+   * is taller than the screenshot.
    *
-   * A raw phone screenshot dropped into a wide frame reads as a picture of a
-   * phone, not as product work — the interface itself is a minority of the
-   * pixels and the eye lands on the screen bezel of the capture. Wrapping it in
-   * a drawn phone shell does three things at once: it says "this is a mobile
-   * product" without a caption, it gives the screenshot a deliberate boundary
-   * instead of a letterbox edge, and it lifts the whole frame, because the shell
-   * is taller than the screenshot and the composition stops being mostly empty.
-   *
-   * The shell is drawn in CSS — border, radius, notch — so it costs no extra
-   * image, scales to any frame, and follows the theme. It is decoration applied
-   * TO an image, never a substitute for one: the screenshot inside stays the
-   * real capture.
+   * The shell is drawn in CSS, so it costs no extra image and follows the theme.
+   * It is decoration applied TO an image, never a substitute for one.
    */
   mockup?: boolean;
 }
@@ -101,23 +77,18 @@ const asMockup = (m: MediaAsset) => {
   if (!mockup) return false;
   const ar = m.width && m.height ? m.width / m.height : 1.5;
   /*
-    A DOCUMENT IS NOT A PHONE, even when it is portrait.
-
-    The threshold alone caught the Ampoen journal page (ratio 0.734) and wrapped
-    it in the drawn 9:19.5 device box, which rendered the page at about 30% of
-    the frame's width — the user's "gambar terlalu kecil", measured. Documents
-    declare `fit: 'contain'`, and that flag is exactly what tells the two apart:
-    a phone screen is a device, a page is a page.
+    A DOCUMENT IS NOT A PHONE even when portrait: the threshold alone caught the
+    Ampoen journal page (ratio 0.734) and wrapped it in the 9:19.5 device box,
+    rendering the page at ~30% of the frame's width. Documents declare
+    `fit: 'contain'`, and that flag is what tells the two apart.
   */
   return ar < 0.75 && m.fit !== 'contain';
 };
 
 /**
- * Build the slides.
- *
  * With `pairNarrow`, consecutive images narrower than 0.75 are grouped two at a
- * time; everything else gets its own slide. The grouping is done here rather
- * than in the data so the same images still work if the prop is turned off.
+ * time; everything else gets its own slide. Grouping here rather than in the
+ * data keeps the same images working if the prop is turned off.
  */
 const isNarrow = (m: MediaAsset) => {
   const ar = m.width && m.height ? m.width / m.height : 1.5;
@@ -273,7 +244,6 @@ const many = images.length > 1;
     height: 100%;
   }
 
-  /* ---------------- the frame ---------------- */
   .sl__viewport {
     position: relative;
     overflow: hidden;
@@ -283,11 +253,6 @@ const many = images.length > 1;
     aspect-ratio: var(--sl-ratio, 16 / 10);
   }
 
-  /*
-    A native horizontal scroller with snap points. `scroll-snap-type` makes each
-    swipe land exactly on a slide, which is what makes it feel like a slider
-    rather than a box you have to drag.
-  */
   .sl__rail {
     display: flex;
     height: 100%;
@@ -309,11 +274,9 @@ const many = images.length > 1;
     outline-offset: -2px;
   }
 
-  /*
-    A slide is a flex ROW so it can hold one image or a pair. With two narrow
-    screenshots side by side, the two together fill the frame's width and the
-    matte that a single screenshot would leave is gone.
-  */
+  /* A slide is a flex ROW so it can hold one image or a pair; two narrow
+     screenshots together fill the frame's width, removing the matte a single one
+     would leave. */
   .sl__slide {
     flex: 0 0 100%;
     width: 100%;
@@ -348,11 +311,8 @@ const many = images.length > 1;
     display: block;
     width: 100%;
     height: 100%;
-    /*
-      `cover` at a fixed ratio crops a little, which is fine for screenshots and
-      photographs. The anchor is TOP because a centred crop of a person cuts the
-      head off and keeps the floor.
-    */
+    /* Anchor the crop to the TOP: a centred crop of a person cuts the head off
+       and keeps the floor. */
     object-fit: cover;
     object-position: center top;
   }
@@ -365,8 +325,8 @@ const many = images.length > 1;
     transform: scale(1.02);
   }
 
-  /* Documents (a journal page, a cover) are letterboxed rather than cropped —
-     their meaning lives at the edges. */
+  /* Documents (a journal page, a cover) are letterboxed — their meaning lives at
+     the edges. */
   .sl__img--contain {
     object-fit: contain !important;
     object-position: center !important;
@@ -379,25 +339,14 @@ const many = images.length > 1;
     padding: 0;
   }
 
-  /* ---------------- device mockup ---------------- */
-  /*
-    A drawn phone shell around a portrait screenshot.
-
-    The measurement that matters: the box is sized by HEIGHT first
-    (`height: 100%`, width from the aspect ratio), then the screenshot sits
-    inside it. Sizing by width would let a very tall capture push past the frame
-    and clip it — the same trap that clipped the portrait earlier in this build,
-    one level down.
-
-    THE RENDER IS THE PHONE — this wrapper adds NO hardware of its own.
-
-    It used to draw a shell (1.5px border, 1.35rem radius, a filled `--device-body`
-    plate, a box-shadow) plus a drawn notch. Every capture that ships here is a
-    full device render with its own bezel, corner radius, dynamic island and
-    shadow, so the shell was a SECOND rectangle around a phone that already had
-    one. What remains is a transparent layout box: it reserves space, sizes from
-    the device's own ratio, and centres the render.
-  */
+  /* device mockup
+     THE RENDER IS THE PHONE — this wrapper adds NO hardware of its own. The box is
+     sized by HEIGHT first (`height: 100%`, width from the aspect ratio): sizing by
+     width would let a very tall capture push past the frame and clip it. Every
+     capture ships as a full device render with its own bezel, corner radius,
+     dynamic island and shadow, so a drawn shell would be a SECOND rectangle around
+     a phone that already has one. What remains is a transparent layout box that
+     reserves space, sizes from the device's own ratio and centres the render. */
   .sl__device {
     display: block;
     position: relative;
@@ -417,8 +366,8 @@ const many = images.length > 1;
     display: block;
     width: 100%;
     height: 100%;
-    /* The render supplies its own rounded corners, so `cover` would crop them into
-       square ones and `border-radius` here would round the wrong rectangle. */
+    /* The render supplies its own rounded corners, so `border-radius` here would
+       round the wrong rectangle. */
     border-radius: 0;
     object-fit: contain;
     object-position: center bottom;
@@ -433,17 +382,11 @@ const many = images.length > 1;
       drop-shadow(0 14px 28px rgba(62, 46, 30, 0.16));
   }
 
-  /* NO DRAWN NOTCH — same defect and same evidence as in `Collage.astro`.
-
-     This `::before` painted a pill that landed on top of the dynamic island the
-     captures already carry. Measured on the shipped files: every device capture
-     holds its own dark pill, ~24% of the frame width, 35px down from the top.
-     Two pills in one phone reads as a defect, not as a device.
-
-     The rule is deleted rather than made conditional because the shell is only
-     ever applied to device renders here, and a device render brings its own
-     hardware. If a bare screen capture is ever added, the right fix is to render
-     THAT one without the shell, not to re-add a pill to every phone. */
+  /* NO DRAWN NOTCH — same defect as in `Collage.astro`: the `::before` pill landed
+     on top of the dynamic island the captures already carry (measured: every device
+     capture holds its own dark pill, ~24% of the frame width, 35px down). If a bare
+     screen capture is ever added, render THAT one without the shell rather than
+     re-adding a pill to every phone. */
 
   .sl__slide--pair .sl__device {
     height: calc(100% - 0.6rem);
@@ -454,12 +397,9 @@ const many = images.length > 1;
     outline-offset: -3px;
   }
 
-  /* ---------------- arrows ---------------- */
-  /*
-    `z-index: 3` puts these ABOVE the project card's stretched link (`z-index:
-    2`), so clicking an arrow slides the rail instead of navigating. Without
-    this, every arrow press would follow the card link.
-  */
+  /* arrows
+     `z-index: 3` puts these ABOVE the project card's stretched link (`z-index: 2`),
+     so clicking an arrow slides the rail instead of following the card link. */
   .sl__arrow {
     position: absolute;
     top: 50%;
@@ -494,7 +434,6 @@ const many = images.length > 1;
     right: 0.6rem;
   }
 
-  /* ---------------- counter ---------------- */
   .sl__count {
     position: absolute;
     /* Clear of the scan line and the frame edge, so it never looks clipped. */
@@ -522,18 +461,12 @@ const many = images.length > 1;
   /**
    * Slider controls — progressive enhancement over the scroll-snap rail.
    *
-   * The rail itself needs no script: it is an overflow container with snap
-   * points, so touch, trackpad and keyboard scrolling already work. This only
-   * adds the arrows and keeps the counter in step.
-   *
-   * One delegated listener handles every slider on the page. A projects grid can
-   * hold several rails at once, and attaching a listener per instance is the kind
-   * of thing that quietly costs a frame during scroll.
+   * One delegated listener handles every slider on the page; a projects grid can
+   * hold several rails, and a listener per instance costs a frame during scroll.
    *
    * The arrows move by ONE SLIDE, not one viewport: each slide is exactly the
-   * rail's width (`flex: 0 0 100%`), so the arithmetic is the rail's own width.
-   * Scrolling is asked to be smooth, which the browser downgrades to a jump when
-   * the visitor has asked for reduced motion.
+   * rail's width (`flex: 0 0 100%`). Smooth scrolling is downgraded to a jump by
+   * the browser when the visitor asks for reduced motion.
    */
   const rails = document.querySelectorAll<HTMLElement>('.sl__rail');
 
@@ -569,20 +502,13 @@ const many = images.length > 1;
     });
 
     /*
-      MOUSE DRAG — native scroll containers do not drag with a mouse, which is how
-      a desktop visitor expects a gallery to behave. Touch is deliberately left to
-      the browser: hijacking it would cost the momentum and rubber-banding the
-      platform gives for free.
+      MOUSE DRAG — native scroll containers do not drag with a mouse. Touch is left
+      to the browser on purpose: hijacking it would cost the platform's momentum and
+      rubber-banding. The 6px threshold keeps a plain CLICK working.
 
-      Pointer Events cover mouse, pen and touch in one path. The 6px threshold keeps
-      a plain CLICK working — without it the tiniest movement while pressing would
-      count as a drag and swallow the click on the image underneath.
-
-      Same implementation as `FeaturedRail.astro`, and it is duplicated rather than
-      extracted because the two differ in one detail: this rail steps by its own
-      WIDTH (one slide is 100% of it), while the featured rail steps by the measured
-      distance between two slides. Sharing the code would mean parameterising that
-      difference for no gain.
+      Same implementation as `FeaturedRail.astro`, duplicated because the two differ
+      in one detail: this rail steps by its own WIDTH (one slide is 100% of it),
+      while the featured rail steps by the measured distance between two slides.
     */
     rails.forEach((rail) => {
       let dragging = false;

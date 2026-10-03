@@ -1,24 +1,16 @@
 /**
- * SKILL ICON REGISTRY
- * ============================================================================
  * Maps a short icon key (used in `src/data/skills.ts`) to an inline SVG.
  *
- * WHY INLINE SVG RATHER THAN IMAGE FILES:
- *   - no extra network requests, no broken-image states, no layout shift
- *   - icons inherit `currentColor`, so one file works in both themes
- *   - the build stays fully static
+ * INLINE SVG, not image files: no extra requests, no broken-image states, no
+ * layout shift, icons inherit `currentColor` (one file works in both themes), and
+ * the build stays fully static.
  *
- * TWO SOURCES:
- *   1. `simple-icons` — official brand marks (MIT-licensed icon data) for
- *      brands that publish one. Pulled at build time.
- *   2. A hand-drawn local set for brands simple-icons does not ship. It
- *      deliberately omits several trademarks (Tableau, Adobe, Microsoft Office,
- *      Canva), so those get a monogram-style glyph instead. They are drawn as
- *      simple geometric marks, NOT as imitations of the real logos.
+ * TWO SOURCES: `simple-icons` official brand marks, and a hand-drawn local set for
+ * brands it omits (Tableau, Adobe, Microsoft Office, Canva). The local marks are
+ * simple geometric glyphs, NOT imitations of the real logos.
  *
- * USING A MISSING KEY is safe: `getSkillIcon()` returns null and the component
- * renders a text-only chip.
- * ============================================================================
+ * An unknown key is safe: `getSkillIcon()` returns null and the component renders
+ * a text-only chip.
  */
 
 import {
@@ -52,13 +44,11 @@ export interface SkillIcon {
   kind: 'brand' | 'local';
 }
 
-/* -------------------------------------------------------------------------- */
-/* Local fallbacks                                                            */
-/* -------------------------------------------------------------------------- */
+/* Local fallbacks */
 /**
- * Simple geometric marks for brands whose official logos are not redistributable.
- * Each is drawn from basic shapes inside a 24x24 box. They are intentionally
- * generic so they read as a category marker, not a counterfeit trademark.
+ * Simple geometric marks for brands whose official logos are not redistributable,
+ * drawn from basic shapes inside a 24x24 box — deliberately generic so they read
+ * as a category marker, not a counterfeit trademark.
  */
 const LOCAL: Record<string, SkillIcon> = {
   // Tableau — three stacked bars suggestion
@@ -261,11 +251,10 @@ const LOCAL: Record<string, SkillIcon> = {
       'M2.4 4.4h9.2v6.2H2.4V4.4zm1.5 1.5v3.2h6.2V5.9H3.9zM12.8 3.2h8.8v7.4h-8.8V3.2zm1.5 1.5v4.4h5.8V4.7h-5.8zM2.4 12.4h9.2v7.4H2.4v-7.4zm1.5 1.5v4.4h6.2v-4.4H3.9zM13.6 12.6h7.2v6.6h-7.2v-6.6zm1.5 1.5v3.6h4.2v-3.6h-4.2z',
   },
   /*
-    CapCut — a ring with a play mark: the video-editor category.
-    simple-icons ships no CapCut mark, and the brief's rule for these fallbacks is
-    a GENERIC category glyph rather than a counterfeit trademark, so this reads as
-    "video editing" without imitating the product's own logo. It replaces a bar
-    chart, which said "analytics" and had nothing to do with the tool.
+    CapCut — a ring with a play mark (the video-editor category). simple-icons
+    ships no CapCut mark, and the rule for these fallbacks is a GENERIC category
+    glyph rather than a counterfeit trademark. Replaces a bar chart, which said
+    "analytics" and had nothing to do with the tool.
   */
   capcut: {
     kind: 'local',
@@ -275,22 +264,16 @@ const LOCAL: Record<string, SkillIcon> = {
   },
 };
 
-/* -------------------------------------------------------------------------- */
-/* Registry                                                                   */
-/* -------------------------------------------------------------------------- */
+/* Registry */
 
 /**
  * simple-icons ships single-path marks plus a brand colour.
  *
- * DARK-MARK FIX: several official marks are near-black — Java (#000000),
- * GitHub (#181717), OBS Studio (#302E31). Painted with `fill: #000000` on a
- * near-black canvas they disappear completely, which is how a tile ends up
- * looking empty while still being "correct" data. Any brand colour too dark to
- * read is dropped to `null`, which the tile renders as `currentColor` and
- * therefore inherits the theme's foreground. The mark keeps its silhouette and
- * stays visible in both themes.
- *
- * Threshold: relative luminance below 0.12 is unreadable on the dark canvas.
+ * DARK-MARK FIX: several official marks are near-black — Java (#000000), GitHub
+ * (#181717), OBS Studio (#302E31) — and disappear on a near-black canvas when
+ * painted with `fill: #000000`, leaving a tile that looks empty while still being
+ * "correct" data. Any brand colour too dark to read (< 0.12 relative luminance) is
+ * dropped to `null`, which the tile renders as `currentColor`.
  */
 function isTooDark(hex: string): boolean {
   const h = hex.replace('#', '');
@@ -350,8 +333,7 @@ const REGISTRY: Record<string, SkillIcon> = {
   obs: brand(siObsstudio),
   zoom: brand(siZoom),
   // Draw.io has no official simple-icons mark. It gets its OWN drawn glyph
-  // (a node-and-edge diagram) rather than borrowing another brand's mark —
-  // the previous entry aliased the Canva glyph, which showed the wrong logo.
+  // (a node-and-edge diagram) rather than borrowing the Canva glyph.
   drawio: {
     kind: 'local',
     hex: null,
@@ -363,9 +345,8 @@ const REGISTRY: Record<string, SkillIcon> = {
 };
 
 /**
- * Resolve an icon key.
- * Returns null for an unknown key or an explicit null — callers render a
- * text-only chip in that case. Never throws, so a typo cannot break the build.
+ * Resolve an icon key. Returns null for an unknown key or an explicit null —
+ * callers render a text-only chip. Never throws, so a typo cannot break the build.
  */
 export function getSkillIcon(key: string | null | undefined): SkillIcon | null {
   if (!key) return null;

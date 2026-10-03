@@ -2,20 +2,15 @@
 /**
  * CERTIFICATIONS — a professional credential showcase.
  *
- * The brief rejects the "image, image, image stacked vertically" treatment, so
- * this renders as:
+ * The brief rejects "image, image, image stacked vertically", so this renders as
+ * a summary strip of derived counts, then labelled groups (courses &
+ * credentials, programmes & committees, organisation roles) each an EDITORIAL
+ * GRID of unequal cards, every card opening the shared lightbox.
  *
- *   · a summary strip with derived counts per group
- *   · three labelled groups (courses & credentials, programmes & committees,
- *     organisation roles), each an EDITORIAL GRID of unequal cards
- *   · every card opens the shared lightbox, which supports next/previous and
- *     zoom across the whole set
- *
- * Counts come from the data, never hardcoded — adding a certificate updates the
+ * Counts come from the data, never hardcoded — a new certificate updates the
  * strip, the group count and the lightbox total automatically.
  *
- * Award piagam (Silver Medal, Finalist) live in the Achievements section at the
- * bottom of this page rather than being duplicated here.
+ * Award piagam (Silver Medal, Finalist) live in Achievements, not duplicated here.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PageHeader from '@/components/ui/PageHeader.astro';
@@ -71,10 +66,8 @@ const meta = [
               <p class="ce__count mono">{group.items.length}</p>
             </header>
 
-            {/*
-              One lightbox group per section, so browsing with the arrow keys
-              stays within a category instead of jumping across all 15.
-            */}
+            {/* One lightbox group per section, so arrow keys stay in a category
+                instead of jumping across all 15. */}
             <ol class="ce__grid" data-lightbox-group>
               {group.items.map((c, i) => (
                 <li class:list={['ce__cell', i === 0 && 'ce__cell--lead']}>
@@ -254,24 +247,17 @@ const meta = [
 
   /* ---- the scan itself ---- */
   /*
-    CONTAIN, NOT COVER — a certificate is a DOCUMENT.
+    CONTAIN, NOT COVER — a certificate is a DOCUMENT, not a photograph.
 
-    These scans run from 1.29 to 1.78 in aspect ratio, and the frame above them
-    was a fixed 3:2 with `object-fit: cover`. That cropped every one of them: the
-    wide MySkill certificates lost their top and bottom edges, and the squarer
-    Oracle and Hima ones lost their sides — including, on several, the printed
-    name and the signature block, which is exactly the part that makes the scan
-    worth showing.
+    These scans run 1.29–1.78 in aspect ratio; a fixed 3:2 frame with
+    `object-fit: cover` cropped every one — the wide MySkill certificates lost
+    their top and bottom edges, the squarer Oracle and Hima ones lost their sides,
+    on several cutting off the printed name and signature block. The scan is
+    therefore FITTED inside the frame, and the matte (--photo-mat) makes the
+    letterboxing read as a deliberate plate and gives scans of differing
+    backgrounds (navy, white, cream, green) a consistent weight.
 
-    A certificate is not a photograph to be composed; it is evidence, and its
-    entire page matters. So the scan is FITTED inside the frame and the matte
-    shows where the shapes disagree. The matte is what makes the letterboxing
-    read as a deliberate plate rather than a mis-sized image, and it also gives
-    the scans a consistent visual weight even though their own backgrounds differ
-    (navy, white, cream, green).
-
-    A slight inset keeps the scan's own border from touching the frame edge, so
-    the two rectangles never look like one confused edge.
+    A slight inset keeps the scan's own border off the frame edge.
   */
   .ce__frame {
     position: relative;
@@ -362,8 +348,8 @@ const meta = [
     letter-spacing: 0.02em;
   }
 
-  /* Credential IDs are long; ellipsis keeps the card tidy while the title
-     attribute preserves the full value. */
+  /* Credential IDs are long; ellipsis keeps the card tidy, the title attribute
+     preserves the full value. */
   .ce__id {
     overflow: hidden;
     text-overflow: ellipsis;

@@ -1,43 +1,24 @@
 /**
- * SKILLS — with icons
- * ============================================================================
  * SOURCE: [D] = "Skills and Expertise" slide, plus tools evidenced in [P]'s
- *         experience descriptions.
+ * experience descriptions.
  *
- * ICON STRATEGY (see src/data/skill-icons.ts):
- *   - `icon` names a key in the icon registry.
- *   - Icons come from `simple-icons` (official brand marks, MIT-licensed data)
- *     where the brand exists, otherwise from a hand-written local set.
- *   - simple-icons intentionally omits some trademarks (Tableau, Adobe products,
- *     Microsoft Office, Canva). Those use a local monogram fallback so nothing
- *     renders as a missing image.
+ * ICON STRATEGY (see src/data/skill-icons.ts): `icon` names a key in the registry.
+ * Icons come from `simple-icons` where a brand mark exists, otherwise a local set.
+ * simple-icons omits some trademarks (Tableau, Adobe, Microsoft Office, Canva);
+ * those use a local monogram fallback.
  *
- * NO PROFICIENCY LEVELS. Neither source document states any, so showing
- * "Python 90%" would be fabrication. This is a list of things worked with,
- * grouped by area.
- *
- * NO IoT CLAIM. An earlier version of this file carried a "Hardware & IoT"
- * group — sensors, microcontrollers, the ESP32. That was removed on the user's
- * instruction: the smart-farming build was a team deployment they contributed
- * to, not a hardware specialism, and the group overstated it. What they DO work
- * with is ordinary IT support hardware, which is what the group now describes.
- * The ESP32 still appears where it is accurate — in the project's own tools
- * list.
+ * NO PROFICIENCY LEVELS — neither source states any, so showing "Python 90%" would
+ * be fabrication. This is a list of things worked with, grouped by area. The file
+ * once carried a "Hardware & IoT" group (sensors, ESP32); it was removed on the
+ * user's instruction as overstating a team deployment. The ESP32 still appears
+ * where accurate — the project's own tools list.
  *
  * TO ADD A SKILL: add one string to the relevant `items` array, plus an `icon`
- * entry in skill-icons.ts if you want a logo. Add an icon-less skill by leaving
- * `icon: null`.
+ * entry in skill-icons.ts if you want a logo (leave `icon: null` for icon-less).
  *
- * CATEGORY ORDER IS THE POSITIONING, not an accident.
- *
- * Array order IS the page order, and the brief is explicit that the order must
- * read DATA -> TECHNOLOGY -> DESIGN -> SUPPORTING. Categories closest to the
- * data work lead; collaboration, office and business tools support that work
- * rather than describe it, so they come after. An earlier ordering interleaved
- * them (business came fourth, design seventh), which buried the design work
- * behind process tooling and flattened the hierarchy the page is supposed to
- * communicate.
- * ============================================================================
+ * CATEGORY ORDER IS THE POSITIONING: the brief requires DATA -> TECHNOLOGY ->
+ * DESIGN -> SUPPORTING. Categories closest to the data work lead; collaboration,
+ * office and business tools come after.
  */
 
 import { skillGroupListSchema } from './schemas';

@@ -1,19 +1,15 @@
 ---
 /**
- * PROJECT DETAIL — the full case study.
- *
- * Deliberately more complete than anything on the homepage. Structure follows
- * the brief:
+ * PROJECT DETAIL — the full case study, deliberately more complete than anything
+ * on the homepage.
  *
  *   header → overview → context → approach → tools → gallery → outcomes →
  *   links → related projects
  *
- * WHAT IS NEVER INVENTED
- *   · no client names beyond what the documents state
- *   · no revenue, user counts, percentages or KPIs
- *   · `outcomes` comes straight from the data file and is only rendered when
- *     non-empty; a project with no documented outcome simply has no such
- *     section rather than a padded one
+ * WHAT IS NEVER INVENTED: no client names beyond what the documents state; no
+ * revenue, user counts, percentages or KPIs. `outcomes` comes straight from the
+ * data file and renders only when non-empty — a project with no documented
+ * outcome simply has no such section, rather than a padded one.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Collage from '@/components/ui/Collage.astro';
@@ -50,15 +46,10 @@ const relatedNumbered = related.map((r) => ({
 }));
 
 /**
- * Gallery images for this project.
- *
- * The hero visual is REMOVED here. Every project's gallery previously opened by
- * repeating the same file that is already displayed as the hero above it, so the
- * first tile in "Screens & gallery" was always an exact duplicate of the image
- * the visitor had just scrolled past — which is what made the screens look
- * repetitive and unconsidered rather than curated.
- *
- * The hero is the hero; the gallery is what else exists.
+ * Gallery images for this project, with the hero visual REMOVED: the gallery
+ * previously opened by repeating the file shown as the hero above it, so the
+ * first tile was always an exact duplicate. The hero is the hero; the gallery is
+ * what else exists.
  */
 const gallery = (project.gallery ?? []).filter(
   (img) => img.src !== project.visual.src,
@@ -189,17 +180,6 @@ const links = [
             </div>
           )
         }
-
-        {
-          project.todo && (
-            <div class="pd-block">
-              <p class="pd-todo mono">
-                <span class="pd-todo-tag">Note</span>
-                {project.todo}
-              </p>
-            </div>
-          )
-        }
       </div>
 
       <!-- ---- side rail ---- -->
@@ -212,7 +192,7 @@ const links = [
         </div>
 
         {
-          (links.length > 0 || project.linkPending) && (
+          links.length > 0 && (
             <div class="pd-side-block">
               <h2 class="label pd-side-h">Links</h2>
               <ul class="pd-links">
@@ -230,25 +210,6 @@ const links = [
                   </li>
                 ))}
 
-                {/*
-                  A link that is worth having but has no URL yet.
-
-                  Styled as a BUTTON — the same shape and position a real link
-                  will occupy — but rendered as a non-interactive element rather
-                  than an anchor. `href="#"` would look live and go nowhere, which
-                  reads as a broken site; this reads as a button that is waiting
-                  for its address. The user asked for the button to exist now and
-                  the URL to follow, so the slot is fully laid out and filling in
-                  `link.href` is the only change needed to activate it.
-                */}
-                {project.linkPending && (
-                  <li>
-                    <span class="pd-link pd-link--pending" aria-disabled="true">
-                      <span>{project.linkPending}</span>
-                      <span class="pd-link-tag mono">Soon</span>
-                    </span>
-                  </li>
-                )}
               </ul>
             </div>
           )
@@ -266,13 +227,10 @@ const links = [
   </section>
 
   <!-- ===================== gallery (full width) =====================
-       Deliberately OUTSIDE the two-column body shell.
-
-       It used to live inside the 1.6fr text column, which left the gallery about
-       620px wide and shrank its smaller cells to 231x145 — unreadable for a
-       dashboard, whose whole purpose is its figures. A gallery is display
-       material, not prose: it belongs at the full measure of the page, where the
-       images can be looked at rather than merely counted.
+       Deliberately OUTSIDE the two-column body shell: inside the 1.6fr text
+       column it was ~620px wide and its smaller cells shrank to 231x145 —
+       unreadable for a dashboard. A gallery is display material, not prose; it
+       belongs at the full page measure.
        ---------------------------------------------------------------- -->
   {
     gallery.length > 0 && (
@@ -472,12 +430,9 @@ const links = [
     border-radius: var(--r-xs);
     background-color: var(--surface-2);
     aspect-ratio: 1 / var(--ar, 0.6667);
-    /*
-      Very tall sources (a portrait journal cover, 2:3) would otherwise become a
-      huge block. Capping the height and switching to `contain` shows the whole
-      document inside the frame instead of cropping the title off the top — the
-      right trade for a written artefact, and harmless for a screenshot.
-    */
+    /* Capping the height and using `contain` shows a very tall source (a 2:3
+       portrait journal cover) whole instead of cropping its title — the right
+       trade for a written artefact, harmless for a screenshot. */
     max-height: 72vh;
   }
 
@@ -578,25 +533,6 @@ const links = [
     font-style: italic;
   }
 
-  .pd-todo {
-    max-width: 72ch;
-    padding: 0.7rem 0.85rem;
-    border-inline-start: 2px solid var(--accent-line);
-    background-color: var(--accent-soft);
-    color: var(--fg-subtle);
-    text-transform: none;
-    letter-spacing: 0.02em;
-  }
-
-  .pd-todo-tag {
-    display: inline-block;
-    margin-inline-end: 0.5rem;
-    color: var(--accent);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-size: 0.6rem;
-  }
-
   /* ==========================================================================
      side rail
      ========================================================================== */
@@ -637,29 +573,6 @@ const links = [
     margin: 0;
     padding: 0;
     list-style: none;
-  }
-
-  /*
-    A pending link: a FULL-SIZE button, in the position a real one occupies, but
-    visually held back — a dashed edge and muted ink — so it is obviously not
-    clickable yet. It keeps the button's weight so the rail looks complete and
-    does not reflow when the URL arrives.
-  */
-  .pd-link--pending {
-    border-style: dashed;
-    border-color: var(--border-strong);
-    color: var(--fg-subtle);
-    cursor: default;
-  }
-
-  .pd-link--pending:hover {
-    border-color: var(--border-strong);
-    background-color: transparent;
-    color: var(--fg-subtle);
-  }
-
-  .pd-link-tag {
-    color: var(--accent);
   }
 
   .pd-link {

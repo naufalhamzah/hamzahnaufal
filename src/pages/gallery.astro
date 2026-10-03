@@ -2,21 +2,18 @@
 /**
  * GALLERY / MOMENTS — the full set of personal and activity photographs.
  *
- * SPLIT BY COLLECTION, not by an undifferentiated wall.
- * The page groups photographs by the SETTING they come from — campus activity
- * versus workplace — because that is the split a visitor reads by. Every
- * photograph currently held is campus; the internship collection is declared in
- * the data layer and will render automatically once workplace photographs are
- * added, so the section never shows an empty shell in the meantime.
+ * SPLIT BY COLLECTION (the SETTING a photograph comes from — campus vs
+ * workplace), not an undifferentiated wall. Every photo currently held is campus;
+ * the internship collection is declared in the data layer and renders
+ * automatically once workplace photos are added.
  *
- * WHY THESE ARE NOT UNDER AN EMPLOYER
- * The photographs are not organised by activity, so attributing any of them to
- * AirNav, PLN or Beauty Innovation Laboratories would be an assumption. The only
- * images placed inside an Experience entry are the ones whose employer is
- * unambiguous from the image itself.
+ * WHY NOT FILED UNDER AN EMPLOYER: the photographs are not organised by activity,
+ * so attributing any to AirNav, PLN or Beauty Innovation Laboratories would be an
+ * assumption. Only images whose employer is unambiguous from the image itself sit
+ * inside an Experience entry.
  *
- * LAYOUT: a masonry column layout rather than equal tiles, so portrait and
- * landscape photographs keep their natural shape.
+ * LAYOUT: masonry columns, not equal tiles, so portrait and landscape photos each
+ * keep their natural shape.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PageHeader from '@/components/ui/PageHeader.astro';
@@ -25,14 +22,10 @@ import { profile } from '@/data/profile';
 import { asset } from '@/utils/url';
 
 /**
- * Two collections are DEFINED (campus and internship); reading the count of
- * defined ones printed "1", which said nothing — a reader cannot tell whether
- * that means one collection exists or one has photographs in it.
- *
- * What is worth stating is the split itself: how many photographs are actually
- * in each, including the empty one. Showing the zero is the honest move. The
- * internship collection is declared and waiting for material, and a page that
- * says so is more trustworthy than one that quietly hides the gap.
+ * State the split itself — how many photographs are in each collection INCLUDING
+ * the empty one. Showing the zero is the honest move: the internship collection
+ * is declared and waiting for material, and a page that says so is more
+ * trustworthy than one that quietly hides the gap.
  */
 const campusCount = galleryEntries.filter((g) => g.collection === 'campus').length;
 const internshipCount = galleryEntries.length - campusCount;
@@ -80,11 +73,8 @@ const meta = [
               </p>
             </header>
 
-            {/*
-              CSS columns give a masonry effect with no JavaScript and no fixed
-              aspect ratios, so every photo keeps its own shape. The count can
-              change freely without touching this layout.
-            */}
+            {/* CSS columns give masonry with no JS and no fixed aspect ratios;
+                the number of photos can change freely. */}
             <div class="gl__masonry" data-lightbox-group>
               {collection.items.map((g, i) => (
                 <button
@@ -125,12 +115,8 @@ const meta = [
     border-top: var(--hairline) solid var(--border);
   }
 
-  /*
-    The group header, set as a proper masthead rather than a label row: a large
-    display title with the collection's description beneath it, and the count
-    held to the right. The count is the only mono element, so it reads as a
-    caption to the title rather than competing with it.
-  */
+  /* A masthead, not a label row: display title, description beneath, count held
+     to the right as the only mono element, so it reads as a caption not a rival. */
   .gl__head {
     display: grid;
     gap: 0.75rem 2rem;
@@ -168,7 +154,7 @@ const meta = [
     white-space: nowrap;
   }
 
-  /* ---- masonry via CSS columns: no JS, natural aspect ratios ---- */
+  /* ---- masonry via CSS columns ---- */
   .gl__masonry {
     columns: 1;
     column-gap: clamp(0.6rem, 1.5vw, 1rem);
@@ -193,14 +179,8 @@ const meta = [
     margin: 0 0 clamp(0.6rem, 1.5vw, 1rem);
     padding: 0;
     overflow: hidden;
-    /*
-      No border: the photograph IS the object.
-
-      A hairline around each tile drew a rectangle inside a photograph that
-      already fills its frame, so the edges read as a box drawn on the picture.
-      The scrim-caption and the hover scale are what indicate clickability; the
-      frame is not needed to do that job.
-    */
+    /* No border: the photograph IS the object — a hairline drew a box on the
+       picture. The scrim-caption and hover scale signal clickability. */
     border-radius: var(--r-xs);
     background-color: var(--photo-mat);
     cursor: zoom-in;
@@ -247,7 +227,7 @@ const meta = [
     transform: none;
   }
 
-  /* On touch devices there is no hover, so captions stay visible. */
+  /* No hover on touch, so captions stay visible. */
   @media (hover: none) {
     .gl__cap {
       opacity: 1;

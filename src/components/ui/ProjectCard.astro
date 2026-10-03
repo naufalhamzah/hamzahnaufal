@@ -3,30 +3,19 @@ import { asset, withBase } from '@/utils/url';
 /**
  * PROJECT CARD — one project.
  *
- * ONE SHAPE, EVERY CARD
- * ---------------------
- * Earlier revisions gave each card a frame derived from its own image: a 16:10
- * box for a dashboard, 9:16 for a phone screenshot, 4:5 for a journal page.
- * Measured in the grid that produced THREE different frame shapes in one list
- * (ratios 1.60, 0.56 and 0.80), so the rows never aligned and the page read as
- * inconsistent — which is what the user reported, twice.
+ * ONE SHAPE, EVERY CARD: every card uses the 16:10 frame whatever its images are.
+ * Earlier revisions derived the frame from each image, producing THREE ratios in
+ * one list (1.60, 0.56, 0.80) so rows never aligned. A multi-image project's
+ * cover becomes a SLIDER, so extra documentation is reachable without a different
+ * shape.
  *
- * Every card now uses ONE ratio (16:10) regardless of what its images are. When
- * a project has more than one image the cover becomes a SLIDER, so the extra
- * documentation is reachable without giving that card a different shape. The
- * shape is constant; only the contents differ.
+ * NO WRAPPING <a>: a slider needs <button> elements and a <button> inside an <a>
+ * is invalid HTML. The card is a container, the TITLE carries a real link
+ * stretched over the card by a pseudo-element, and the slider's arrows sit above
+ * that layer with their own stacking context.
  *
- * STRUCTURE — why there is no wrapping <a>
- * A slider needs <button> elements, and a <button> nested inside an <a> is
- * invalid HTML that browsers resolve unpredictably. So the card is a plain
- * container and the TITLE carries a real link, stretched over the whole card by
- * a pseudo-element. Clicking anywhere on the card still navigates; the slider's
- * arrows sit above that layer with their own stacking context, so they receive
- * their own clicks.
- *
- * Documents (a journal cover, a paper's first page) are letterboxed inside the
- * frame rather than cropped — their meaning lives at the edges, and `cover` cut
- * the masthead off.
+ * Documents are letterboxed in the frame rather than cropped — their meaning
+ * lives at the edges.
  */
 import type { ProjectEntry, MediaAsset } from '@/types/content';
 import { PROJECT_CATEGORY_LABELS } from '@/types/content';
@@ -54,15 +43,12 @@ const dims =
     ? ([project.visual.width, project.visual.height] as [number, number])
     : null);
 
-/** The one ratio every card shares. */
 const FRAME_RATIO = '16 / 10';
 
 /**
- * Every image this project owns, hero first, deduplicated.
- *
- * The gallery previously repeated the hero as its first entry, so the slider
- * would open by showing the same picture twice. Filtering here rather than in
- * the data keeps the data honest about what images exist.
+ * Every image this project owns, hero first, deduplicated. The gallery previously
+ * repeated the hero as its first entry, so the slider opened on the same picture
+ * twice.
  */
 const shots: MediaAsset[] = [
   project.visual,
@@ -73,14 +59,13 @@ const many = shots.length > 1;
 /**
  * Is this project a set of PHONE SCREENS?
  *
- * Same rule as `ProjectRow.astro`, and it exists for the same measured reason: a
- * 0.488-ratio device inside a 16:10 frame used about a quarter of the box's width.
- * Measured on a related-project card: frame 552x345 with the phone rendering
- * 128x295 inside it — so 77% of the frame was empty matte around a phone that
- * already has its own bezel and shadow.
+ * Same rule as `ProjectRow.astro`, for the same measured reason: a 0.488-ratio
+ * device in a 16:10 frame used about a quarter of the box's width — measured on a
+ * related-project card, frame 552x345 with the phone rendering 128x295 (77% of
+ * the frame was empty matte around a phone that already has its own bezel).
  *
  * Documents (`fit: 'contain'`) are excluded: a journal page is portrait too, but
- * it is a page to be read on a matte, not a device to stand on the page.
+ * a page is read on a matte, not a device standing on the page.
  */
 const isPortrait = (m: MediaAsset) => {
   const ar = m.width && m.height ? m.width / m.height : 1.5;
@@ -101,7 +86,6 @@ const phoneAr =
   style={`--frame-ratio: ${FRAME_RATIO}; --phone-ar: ${phoneAr};`}
 >
   <div class="pc__inner">
-    <!-- ---------------- visual ---------------- -->
     <div
       class:list={[
         'pc__frame',
@@ -110,7 +94,6 @@ const phoneAr =
     >
       {
         phones ? (
-          /* The device stands on its own — see the note in the frontmatter. */
           <div class="pc__ph">
             {many ? (
               <ShotSlider
@@ -133,9 +116,9 @@ const phoneAr =
           </div>
         ) : many ? (
           /*
-            No `fit` override: each image answers for itself. It used to force
-            `contain` on every slide, which letterboxed photographs as well as
-            documents — see the note on `.pc__frame img`.
+            No `fit` override: each image answers for itself. Forcing `contain` on
+            every slide letterboxed photographs as well as documents — see the note
+            on `.pc__frame img`.
           */
           <ShotSlider
             images={shots}
@@ -158,7 +141,7 @@ const phoneAr =
       <span class="pc__scan" aria-hidden="true"></span>
     </div>
 
-    <!-- ---------------- text ---------------- -->
+    <!-- text -->
     <div class="pc__body">
       <p class="pc__meta">
         <span class="pc__num" aria-hidden="true">{num}</span>
@@ -198,9 +181,6 @@ const phoneAr =
 </article>
 
 <style>
-  /* ==========================================================================
-     BASE
-     ========================================================================== */
   .pc {
     position: relative;
     margin: 0;
@@ -214,43 +194,31 @@ const phoneAr =
     align-content: start;
   }
 
-  /* ---------------- visual frame ---------------- */
   .pc__frame {
     position: relative;
     overflow: hidden;
     border: var(--hairline) solid var(--photo-edge);
     border-radius: var(--r-xs);
-    /*
-      The matte behind the image: visible when a document is letterboxed, and it
-      also stops a transparent PNG from showing the page background through it.
-    */
     background-color: var(--photo-mat);
-    /* ONE ratio for every card — from the frontmatter. */
     aspect-ratio: var(--frame-ratio, 16 / 10);
   }
 
-  /* The slider fills the frame and paints its own matte, so the frame must not
-     double up a border around it. */
   .pc__frame :global(.sl__viewport) {
     height: 100%;
     border-radius: 0;
   }
 
-  /* ---------------- phone screens: no frame ----------------
+  /* phone screens: no frame
      The device render is a cut-out with its own bezel and shadow, so the card
      shows it directly. Measured before this change: a related-project card drew a
-     552x345 frame around a 128x295 phone — 77% of the box was empty matte.
+     552x345 frame around a 128x295 phone — 77% of the box was empty matte. The box
+     that remains is TRANSPARENT and BORDERLESS: no visible edges, but it still
+     reserves layout space and gives the slider somewhere to live.
 
-     The box that remains is TRANSPARENT and BORDERLESS, so it adds no visible
-     edges while still reserving layout space and giving the slider somewhere to
-     live.
-
-     CAPPED TO THE DASHBOARD CARD'S HEIGHT. A phone at the frame's full width would
-     stand 492px tall beside a 345px dashboard card, so two cards that should read
-     as equals ended at different heights and the row looked broken. The cap keeps
-     a phone card the same height as its neighbours; on a narrow screen it stops
-     binding and the device takes the width it has.
-     ---------------------------------------------------------------------- */
+     CAPPED TO THE DASHBOARD CARD'S HEIGHT: a phone at the frame's full width would
+     stand 492px tall beside a 345px dashboard card, ending two equal cards at
+     different heights. The cap stops binding on a narrow screen, where the device
+     takes the width it has. */
   .pc--phones .pc__frame {
     aspect-ratio: auto;
     border: 0;
@@ -260,9 +228,9 @@ const phoneAr =
 
   .pc__ph {
     width: 100%;
-    /* Roughly matched to the 16:10 frame's height at this card's width, so a phone
-       card and a dashboard card sit at a similar level in the row — while staying
-       large enough that the interface inside the device is still readable. */
+    /* Roughly the 16:10 frame's height at this card's width, so a phone card and
+       a dashboard card sit at a similar level — while keeping the interface inside
+       the device readable. */
     max-width: 12.5rem;
     margin-inline: auto;
     aspect-ratio: var(--phone-ar, 0.488);
@@ -309,17 +277,15 @@ const phoneAr =
   }
 
   /*
-    A single-image document is letterboxed, not cropped. A journal cover or a
-    paper's first page carries its meaning at the edges — the masthead, the
-    volume number — and `cover` cut those off, so the image stopped being
-    evidence of the publication it claims to show.
+    A single-image document is letterboxed, not cropped: a journal cover or a
+    paper's first page carries its meaning at the edges (the masthead, the volume
+    number), which `cover` cuts off.
   */
   .pc__frame--contain img {
     object-fit: contain;
     padding: 0.9rem;
   }
 
-  /* A burgundy rule that wipes across the frame on hover. */
   .pc__scan {
     position: absolute;
     left: 0;
@@ -346,9 +312,9 @@ const phoneAr =
 
   /* ---------------- the stretched link ---------------- */
   /*
-    One real anchor, covering the whole card. `z-index: 2` puts it above the
-    image but BELOW the slider controls (`z-index: 3`), so the arrows and the
-    rail keep their own clicks and the rest of the card navigates.
+    z-index: 2 puts the anchor above the image but BELOW the slider controls
+    (z-index: 3), so the arrows and the rail keep their own clicks while the rest
+    of the card navigates.
   */
   .pc__link {
     text-decoration: none;
@@ -357,12 +323,10 @@ const phoneAr =
 
   /*
     STRETCHED LINK — the same fix as in `ProjectRow.astro`, and the same bug.
-
-    With `position: relative` on `.pc__link`, the `::after` covered only the
-    link's own box: measured 79x31px inside a 552x631px card, so almost none of
-    the card navigated. Dropping the inline `position` lets the nearest positioned
-    ancestor (`.pc`) become the containing block, and `inset: 0` then means the
-    whole card.
+    With `position: relative` on `.pc__link`, the `::after` covered only the link's
+    own box (measured 79x31px inside a 552x631px card), so almost none of the card
+    navigated. Dropping the inline `position` lets the nearest positioned ancestor
+    (`.pc`) contain it, so `inset: 0` means the whole card.
   */
   .pc__link::after {
     content: '';
@@ -377,7 +341,6 @@ const phoneAr =
     outline-offset: 3px;
   }
 
-  /* ---------------- text ---------------- */
   .pc__body {
     display: flex;
     flex-direction: column;
@@ -432,10 +395,8 @@ const phoneAr =
     color: var(--fg-muted);
   }
 
-  /*
-    Tools as small labelled chips. The first one takes the accent, which stops a
-    row of tools reading as identical grey pills.
-  */
+  /* Tools as small labelled chips: the first takes the accent, so a row of tools
+     is not identical grey pills. */
   .pc__tools {
     display: flex;
     flex-wrap: wrap;
@@ -479,8 +440,8 @@ const phoneAr =
 
   /* Pins the CTA to the bottom of the card so a row's links line up. */
   .pc__cta {
-    /* Above the stretched link's `z-index: 2`, so the CTA receives its own click
-       and keyboard focus instead of being covered by the card's navigation layer. */
+    /* Above the stretched link (`z-index: 2`) so the CTA receives its own click and
+       keyboard focus. */
     position: relative;
     z-index: 3;
     display: inline-flex;
@@ -514,9 +475,7 @@ const phoneAr =
     transform: translateX(4px);
   }
 
-  /* ==========================================================================
-     VARIANT: hero — a wide 2-column spread (homepage only)
-     ========================================================================== */
+  /* VARIANT: hero — a wide 2-column spread (homepage only) */
   @media (min-width: 860px) {
     .pc--hero .pc__inner {
       grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
@@ -529,9 +488,7 @@ const phoneAr =
     }
   }
 
-  /* ==========================================================================
-     VARIANT: tall (retained; the grid itself uses one ratio)
-     ========================================================================== */
+  /* VARIANT: tall (the grid itself uses one ratio) */
   .pc--tall .pc__frame {
     aspect-ratio: 9 / 16;
     max-height: 30rem;

@@ -1,37 +1,26 @@
 /**
- * CERTIFICATIONS
- * ============================================================================
  * SOURCE: real certificate scans in the project's `konten/Serifikat` folder,
  * cross-checked against [P]'s certificate list.
  *
- * HOW THE DATA WAS OBTAINED: every issuer, title, date and credential ID below
- * was read from the PDF TEXT LAYER of the scan itself — not guessed, not OCR'd —
- * so these strings are exactly what the issuer printed. Where a scan is a pure
- * image with no text layer (Hima Ilkom 2023, UKM Penelitian), the identifying
- * details come from the file name and [P] only, and the entry says so.
+ * Every issuer, title, date and credential ID was read from the PDF TEXT LAYER of
+ * the scan itself — not guessed, not OCR'd. Where a scan is a pure image with no
+ * text layer (Hima Ilkom 2023, UKM Penelitian), the identifying details come from
+ * the file name and [P] only, and the entry says so.
  *
- * CORRECTIONS MADE IN THIS PASS — three credential IDs that had previously been
- * transcribed from a rendered image were wrong by a character or two. The text
- * layer is authoritative; these are the corrected values:
- *   · Looker Studio  MS-6/5/2025-sHCYqF5VgVDWEZRcHThr
- *   · Basic Data     MS-26/1/2024-TnKfD2HxnGX2FbdOf8QT
- *   · Meniti Karier  MRZM820DRZYQ
- * Also corrected: the ONN Silver Medal is 2020 (not 2022), and B2B Sales is
- * 28 May 2025 with credential MS-28/5/2025-WquNSfKSSZ1tqSV1DGEZ.
+ * CORRECTIONS: three credential IDs previously transcribed from a rendered image
+ * were wrong; the text-layer values are authoritative (Looker Studio
+ * MS-6/5/2025-sHCYqF5VgVDWEZRcHThr, Basic Data MS-26/1/2024-TnKfD2HxnGX2FbdOf8QT,
+ * Meniti Karier MRZM820DRZYQ). Also: the ONN Silver Medal is 2020 (not 2022), and
+ * B2B Sales is 28 May 2025.
  *
- * KINDS: certificates fall into three honest categories, so the page can group
- * them without inventing a hierarchy —
- *   · credential   course completion / skill specialisation
- *   · programme    a funded programme or committee the certificate evidences
- *   · organisation a role held in a student body
+ * KINDS: credential (course completion / specialisation), programme (a funded
+ * programme or committee), organisation (a role held in a student body).
  *
  * Award PIAGAM (Silver Medal, Finalist PAB UKMP) deliberately live in
- * `achievements.ts` instead, so the same award is never listed twice. Those
- * entries surface the same scans.
+ * `achievements.ts` instead, so the same award is never listed twice.
  *
  * TO ADD A CERTIFICATE: drop the scan into `public/images/certificates/`, run
  * `node scripts/build-assets.mjs`, then add one entry here.
- * ============================================================================
  */
 
 import { certificationListSchema } from './schemas';
@@ -50,7 +39,6 @@ const UNNES_LOGO = {
 };
 
 const raw: CertificationEntry[] = [
-  /* ----------------------------- credentials ----------------------------- */
   {
     id: 'myskill-looker-studio',
     kind: 'credential',
@@ -194,7 +182,6 @@ const raw: CertificationEntry[] = [
     source: 'both',
   },
 
-  /* ------------------------------ programmes ----------------------------- */
   {
     id: 'ppk-ormawa-2024',
     kind: 'programme',
@@ -245,7 +232,6 @@ const raw: CertificationEntry[] = [
     source: 'both',
   },
 
-  /* ----------------------------- organisation ---------------------------- */
   {
     id: 'hima-ilkom-2024',
     kind: 'organisation',
@@ -276,8 +262,9 @@ const raw: CertificationEntry[] = [
     ),
     issuerLogo: UNNES_LOGO,
     source: 'both',
-    todo:
-      'The 2023 scan is a flat image with no text layer, so the role title and issue date could not be read exactly. [P] records the 2023 role as Expert Staff of the Infrastructure and Inventory Bureau (Jan 2023–Jan 2024).',
+    /* Scan is a flat image with no text layer, so the role title is taken from
+       the profile export: Expert Staff, Infrastructure & Inventory Bureau
+       (Jan 2023 – Jan 2024). The certificate's own date is the year only. */
   },
   {
     id: 'ukm-penelitian',
@@ -292,8 +279,9 @@ const raw: CertificationEntry[] = [
     ),
     issuerLogo: UNNES_LOGO,
     source: 'portfolio',
-    todo:
-      'The scan carries no machine-readable text, so role and dates come from [P] only: Department Secretary (Aug 2023–Jan 2024) and Expert Staff (Mar–Aug 2023).',
+    /* Same: no machine-readable text on the scan. Roles come from the profile
+       export — Department Secretary (Aug 2023 – Jan 2024) and Expert Staff
+       (Mar – Aug 2023). */
   },
 ];
 
@@ -306,8 +294,8 @@ export const certificationsSorted = [...certificationEntries].sort((a, b) =>
 );
 
 /**
- * Counts used for homepage previews. Derived from the data, never hardcoded,
- * so adding a certificate updates the figure automatically.
+ * Counts used for homepage previews — derived from the data, never hardcoded, so
+ * adding a certificate updates the figure automatically.
  */
 export const certificationTotal = certificationEntries.length;
 

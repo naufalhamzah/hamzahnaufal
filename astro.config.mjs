@@ -5,33 +5,26 @@ import react from '@astrojs/react';
 
 import tailwindcss from '@tailwindcss/vite';
 
-// NOTE: update `site` to the real domain before deploying.
-// It is used for canonical URLs, sitemap and Open Graph tags.
+/** Production origin — used for canonical URLs, the sitemap and Open Graph tags. */
 export const SITE_URL = 'https://naufalhamzah.github.io';
 
 /**
- * THE DEPLOY BASE — GitHub Pages serves a PROJECT site from a path.
- * ============================================================================
- * This repository is `naufalhamzah/naufalhamzah`, which is NOT the special
- * `<user>.github.io` name. GitHub therefore publishes it under the repository
- * name as a path — `https://naufalhamzah.github.io/naufalhamzah/` — not at the
- * domain root, so every link and image has to carry that prefix or it 404s.
+ * DEPLOY BASE — this repository is NOT named `<user>.github.io`, so GitHub Pages
+ * publishes it under a path (`https://naufalhamzah.github.io/naufalhamzah/`)
+ * rather than at the domain root. Every link and image must carry that prefix.
  *
- * WHY THIS IS DERIVED AND NOT A HARDCODED '/naufalhamzah'
- * The prefix must be PRESENT when deploying and ABSENT when developing. Hard-
- * coding it makes `npm run dev` serve at `localhost:4321/naufalhamzah/`, which
- * is awkward to work in; emptying it locally and forgetting to restore it ships
- * a site whose every link points at the domain root. Deriving it from the
- * environment removes the choice: GitHub Actions sets `GITHUB_ACTIONS=true`,
- * and a local `npm run dev` does not, so the two can never disagree.
+ * Derived from the environment rather than hardcoded, because the prefix must be
+ * PRESENT when deploying and ABSENT in development: hardcoding it makes
+ * `npm run dev` serve under the prefix, and emptying it locally and forgetting to
+ * restore it ships a site whose every link points at the domain root. GitHub
+ * Actions sets `GITHUB_ACTIONS=true` and a local dev run does not, so the two can
+ * never disagree.
  *
- * Astro rewrites the URLs IT generates (bundled CSS/JS, fonts) to include this
- * prefix, but it cannot rewrite a string written by hand — those go through the
- * `withBase()` / `asset()` helpers in `src/utils/url.ts`.
+ * Astro rewrites only the URLs IT generates (bundled CSS/JS); hand-written
+ * strings go through `withBase()` / `asset()` in `src/utils/url.ts`.
  *
- * IF THE SITE MOVES TO THE DOMAIN ROOT — a renamed `<user>.github.io`
- * repository, or a custom domain — this becomes a no-op and nothing else
- * changes: the helpers pass their input straight through.
+ * Moving to a custom domain or a renamed `<user>.github.io` repo makes this a
+ * no-op — the helpers pass their input straight through.
  */
 export const BASE_PATH = process.env.GITHUB_ACTIONS ? '/naufalhamzah' : '';
 
@@ -49,15 +42,10 @@ export default defineConfig({
     react(),
   ],
 
-  /**
-   * The dev toolbar is disabled on purpose.
-   *
-   * It renders a floating bar over the bottom of every page in `npm run dev`
-   * and injects ~15 extra script requests per route, which (a) covers content
-   * while reviewing layout and (b) makes a dev-mode network trace look nothing
-   * like production. The site ships zero client JS outside /projects, so the
-   * dev experience should reflect that.
-   */
+  // Disabled on purpose: the toolbar renders a floating bar over the bottom of
+  // every dev page and injects ~15 extra script requests per route, which hides
+  // content during layout review and makes a dev network trace look nothing like
+  // production. The site ships zero client JS outside /projects.
   devToolbar: { enabled: false },
 
   vite: {

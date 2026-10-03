@@ -18,7 +18,7 @@ one screen, and each section links through to a full page.
 | Validation | **Zod** | Content files are parsed at load, so gaps fail loudly. |
 | Islands | **React** — exactly one | Only the project filter needs client state. |
 | Icons | **simple-icons** + local fallbacks | Official marks where redistributable. |
-| Images | **sharp** via `scripts/build-assets.mjs` | 275 MB of source → ~5 MB of WebP. |
+| Images | **sharp** via `scripts/build-assets.mjs` | 344 MB of source → 7.7 MB of WebP. |
 | Fonts | `@fontsource-variable` (self-hosted) | No external requests, no layout shift. |
 
 ---
@@ -39,6 +39,10 @@ npm run dev          # http://localhost:4321
 | `npm run verify` | Asserts the built HTML: links, images, SEO, no phone leak |
 | `npm run contrast` | WCAG AA contrast audit in both themes (needs a running server) |
 | `npm run assets` | Re-optimise images from `konten/` into `public/images/` |
+| `npm run og` | Regenerate the social share card from the profile + palette |
+| `npm run favicon` | Regenerate `public/favicon.svg` from the monogram + tokens |
+| `npm test` | Project-filter behaviour test |
+| `npm run measure` | Layout/a11y probe in a real browser (overflow, contrast, structure) |
 
 ---
 
@@ -61,6 +65,8 @@ src/
 │   ├── certifications.ts
 │   ├── achievements.ts
 │   ├── gallery.ts           personal/activity photographs
+│   ├── journal.ts           dated record entries
+│   ├── monogram.ts          the identity mark — one definition, drawn everywhere
 │   ├── schemas.ts           Zod validation for all of the above
 │   ├── image-dims.ts        accessor for real pixel sizes
 │   └── asset-dims.generated.ts   ← GENERATED, do not edit
@@ -81,6 +87,7 @@ src/
 │   ├── certifications.astro  credential showcases
 │   ├── achievements.astro    awards / competitions / funding
 │   ├── gallery.astro         all photographs
+│   ├── journal.astro         dated record
 │   └── contact.astro
 ├── layouts/BaseLayout.astro <head>, theme bootstrap, nav, footer, lightbox
 ├── styles/                  global.css + tokens.css (the design system)
@@ -211,8 +218,9 @@ Rules that were followed throughout, and must keep being followed:
 
 1. **Never invent** experience, projects, metrics, dates, technologies, clients,
    testimonials or URLs.
-2. Where a fact is genuinely unknown, it is **absent** or carries a visible note —
-   never a plausible guess. Search `todo:` in `src/data/` for the open items.
+2. Where a fact is genuinely unknown, it is **absent** — never a plausible
+   guess. Every entry that once carried a visible note has since been confirmed
+   by the author, so the site ships with no unresolved placeholders.
 3. **No proficiency percentages** for skills; the sources state none.
 4. **The phone number is never published.** `CONTACT_PHONE_ENABLED` in
    `src/data/profile.ts` is `false`; contact links are read from
@@ -251,23 +259,22 @@ Also corrected: the Olimpiade Numerasi Nasional Silver Medal is **2020** (not
 
 The build is fully static — deploy `dist/` anywhere.
 
-Before going live, set the real domain in **`astro.config.mjs`**:
+This repository deploys to **GitHub Pages as a project site**, so the origin is
+`https://naufalhamzah.github.io` and the site is served under `/naufalhamzah/`.
+`.github/workflows/deploy.yml` builds and publishes on every push to `main`.
 
-```js
-export const SITE_URL = 'https://your-real-domain.com';
-```
-
-It feeds canonical URLs, the sitemap and Open Graph tags. While it is still the
-placeholder, `npm run verify` fails if that domain ever appears in visible page
-text (it is allowed only in metadata).
+The path prefix is derived in `astro.config.mjs` from `GITHUB_ACTIONS`, so the
+same source builds correctly in both places: with the prefix in CI, without it in
+`npm run dev`. **Do not hardcode it** — see the comment on `BASE_PATH` for why the
+two states cannot be allowed to disagree.
 
 ---
 
 ## Known open items
 
-Search the data layer for `todo:` to see everything unresolved. The main ones:
+No content placeholders remain. Two facts are deliberately shown as what the
+sources support rather than expanded:
 
-- AirNav responsibilities are **provisional** — expand with real detail.
-- No graduation month is documented, so none is shown.
-- The 2023 HIMA Ilkom and UKM Penelitian scans have no text layer, so their role
-  titles come from `Profile.pdf` alone.
+- **AirNav Indonesia** lists the role, scope and tools but no metric or outcome —
+  nothing beyond what is documented.
+- **No graduation month** is documented, so only the year is shown.

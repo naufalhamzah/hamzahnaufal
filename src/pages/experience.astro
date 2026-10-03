@@ -2,14 +2,12 @@
 /**
  * EXPERIENCE — the complete professional and organisational record.
  *
- * The brief is precise about two things here:
- *   1. AirNav must appear as EXPERIENCE, not as the site's identity.
- *   2. Its AirNav photographs must be used, but not stacked vertically — they
- *      belong in an editorial collage/grid.
+ * Two brief constraints: AirNav appears as EXPERIENCE, not the site's identity;
+ * and its photographs are used but arranged as an editorial collage, not stacked
+ * vertically.
  *
- * So each role renders as: meta column → description → optional COLLAGE of its
- * unambiguous images. Only roles whose images are provably theirs have photos;
- * everything else is typographic.
+ * Each role renders as meta column → description → optional COLLAGE of its
+ * unambiguous images. Only roles whose images are provably theirs have photos.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PageHeader from '@/components/ui/PageHeader.astro';
@@ -56,15 +54,13 @@ const meta = [
         {
           roles.map((job, i) => (
             <li class:list={['xp__row', job.current && 'xp__row--current']}>
-              {/* ---- meta column ---- */}
               <div class="xp__meta">
                 <p class="xp__dates mono">{job.dateRange}</p>
 
                 {job.logo ? (
                   <span class="xp__logo">
                     <img
-                      /* Prefer the vector twin when the mark has one, so its edges
-                         are curves instead of a flat file's stair-steps. */
+                      /* Prefer the vector twin — curves, not stair-steps. */
                       src={asset(job.logo.srcVector ?? job.logo.src)}
                       alt={job.logo.alt}
                       width={job.logo.width ?? 200}
@@ -82,7 +78,6 @@ const meta = [
                 {job.location && <p class="xp__loc mono">{job.location}</p>}
               </div>
 
-              {/* ---- body ---- */}
               <div class="xp__body">
                 <h3 class="xp__role">
                   {job.role}
@@ -110,12 +105,6 @@ const meta = [
                   </ul>
                 )}
 
-                {job.todo && (
-                  <p class="xp__todo mono">
-                    <span class="xp__todo-tag">Note</span>
-                    {job.todo}
-                  </p>
-                )}
               </div>
 
               {/* ---- images: only where the role is unambiguous ---- */}
@@ -180,9 +169,6 @@ const meta = [
 </BaseLayout>
 
 <style>
-  /* ==========================================================================
-     professional roles
-     ========================================================================== */
   .xp {
     padding-block: clamp(1.5rem, 3vw, 2.5rem) var(--space-section);
   }
@@ -219,13 +205,13 @@ const meta = [
       align-items: start;
     }
 
-    /* Roles WITH images get a third column for the collage. */
+    /* Roles with images: .xp__media spans grid-column 2/-1 below, under the
+       body text, rather than taking a separate third column. */
     .xp__row:has(.xp__media) {
       grid-template-columns: minmax(0, 13rem) minmax(0, 1fr);
     }
   }
 
-  /* ---- meta column ---- */
   .xp__meta {
     display: flex;
     flex-direction: column;
@@ -240,52 +226,25 @@ const meta = [
   }
 
   /*
-    NO BORDERED PLATE.
-
-    The mark used to sit inside a 6rem x 3.25rem box with a hairline border and a
-    filled surface — which put a small logo inside a visible rectangle, exactly
-    the "thick bordered box around a tiny company logo" the brief objected to. The
-    box also fought the mark for attention: two rectangles, one of them empty.
-
-    So the plate is gone. The logo now sits directly on the page, sized by
-    HEIGHT, which is what makes a set of differently-shaped marks read at one
-    optical weight:
-
-      · a square badge is bound by height, so it grows to fill it;
-      · a long wordmark is bound by `max-width`, so it stays inside the column
-        while its lettering still reaches the same visual size.
-
-    Both constraints are needed, and `max-width` grows with the height — a width
-    cap that does not scale becomes the binding constraint and collapses the
-    height right back down.
+    NO BORDERED PLATE — the brief objected to a "thick bordered box around a tiny
+    company logo", so the mark sits directly on the page, sized by HEIGHT so that
+    differently-shaped marks read at one optical weight: a square badge fills the
+    height; a long wordmark is bound by the image's `max-width`.
   */
   .xp__logo {
     display: grid;
     place-items: center;
     width: 100%;
-    /*
-      NO `max-width` here — deliberately.
-
-      A width cap on the CONTAINER is what shrank the widest marks. JAIST is a
-      5.88:1 wordmark; capping its column at 11rem left it 176px wide and only
-      30px tall, which is smaller than the square badges it is supposed to match
-      optically. The column itself (13rem) is the real constraint, and the
-      `max-height` on the image is what keeps the tallest mark in proportion — so
-      the extra cap only ever did harm.
-    */
+    /* NO `max-width` here, deliberately: capping the CONTAINER shrank the widest
+       marks — a 5.88:1 JAIST wordmark measured 176×30px, smaller than the square
+       badges it must match optically. The column width and the image's
+       `max-height` are the real constraints. */
     min-height: 3.5rem;
   }
 
-  /*
-    `max-*` rather than `width/height: 100%`. A percentage height does not resolve
-    inside a centred grid item — the item's height is content-sized — so a square
-    logo would overflow and collide with the text below it. `max-width` and
-    `max-height` constrain against the plate's definite content box instead.
-
-    Raised from 3.25rem to 4rem so the marks are readable at a glance rather than
-    only on inspection. It is still bounded by the meta column's width, and by
-    `max-width` on the container, so a wordmark cannot run past its column.
-  */
+  /* `max-*` rather than `width/height: 100%`: a percentage height does not
+     resolve inside a centred grid item, so a square logo would overflow into the
+     text below. 4rem keeps the marks readable at a glance. */
   .xp__logo img {
     max-width: 100%;
     max-height: 4rem;
@@ -294,22 +253,16 @@ const meta = [
     object-fit: contain;
   }
 
-  /*
-    The meta column is where the width budget lives, so give the logos a little
-    more of it — 13rem was tight once the marks stopped being boxed. The extra
-    room goes to the wordmarks, which are the ones that read too small.
-  */
+  /* Give the logos more width — 13rem was tight once the marks stopped being
+     boxed; the extra room goes to the wordmarks that read too small. */
   @media (min-width: 900px) {
     .xp__row {
       grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
     }
   }
 
-  /*
-    A role with no logo keeps the SAME box, so the meta column's rhythm is
-    identical whether or not a mark exists — the numbering simply fills the space
-    the logo would have used.
-  */
+  /* A role with no logo keeps the SAME box, so the meta column's rhythm is
+     identical whether or not a mark exists. */
   .xp__logo--empty {
     color: var(--fg-faint);
     font-size: 1.35rem;
@@ -323,7 +276,6 @@ const meta = [
     letter-spacing: 0.02em;
   }
 
-  /* ---- body ---- */
   .xp__role {
     display: flex;
     flex-wrap: wrap;
@@ -412,30 +364,10 @@ const meta = [
     letter-spacing: 0.03em;
   }
 
-  .xp__todo {
-    margin-top: 1.25rem;
-    max-width: 72ch;
-    padding: 0.6rem 0.75rem;
-    border-inline-start: 2px solid var(--accent-line);
-    background-color: var(--accent-soft);
-    color: var(--fg-subtle);
-    text-transform: none;
-    letter-spacing: 0.02em;
-  }
-
-  .xp__todo-tag {
-    display: inline-block;
-    margin-inline-end: 0.5rem;
-    color: var(--accent);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-size: 0.6rem;
-  }
-
   /* ---- media column ---- */
   .xp__media {
-    /* On wide screens the collage sits under the body text rather than beside
-       it, which keeps the description readable at full width. */
+    /* Wide screens: the collage sits under the body text (grid-column 2/-1
+       below) rather than beside it, keeping the description readable. */
     grid-column: 1 / -1;
   }
 
@@ -447,9 +379,6 @@ const meta = [
     }
   }
 
-  /* ==========================================================================
-     organisations
-     ========================================================================== */
   .xp-org {
     padding-block: var(--space-section);
     border-top: var(--hairline) solid var(--border);
@@ -501,15 +430,10 @@ const meta = [
   }
 
   /*
-    A role with photographs takes a third column.
-
-    The collage sits BESIDE the role rather than under it, which is what the user
-    asked for ("kolasekan beberapa untuk ditaruh di samping pengalaman organisasi
-    dan kepanitiaan"). It is a separate grid track rather than a float, so the
-    text column keeps its own measure and the images align down the list.
-
-    Roles WITHOUT photographs keep the two-column shape — hence the modifier on
-    the row rather than a rule on every row.
+    A role with photographs takes a third column, the collage BESIDE the role —
+    the user's instruction ("kolasekan beberapa untuk ditaruh di samping
+    pengalaman organisasi dan kepanitiaan"). A separate grid track, not a float,
+    so the text keeps its measure. Roles without photos keep two columns.
   */
   @media (min-width: 760px) {
     .xp-org__row {

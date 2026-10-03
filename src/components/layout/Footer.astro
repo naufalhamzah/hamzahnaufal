@@ -121,7 +121,6 @@ const active = activePageFor(Astro.url.pathname);
     background-color: var(--band);
   }
 
-  /* ---------- logos ---------- */
   .ft__logos {
     display: flex;
     flex-wrap: wrap;
@@ -133,43 +132,33 @@ const active = activePageFor(Astro.url.pathname);
   }
 
   /*
-    NO CHIP, NO PLATE — the logos are transparent.
+    NO CHIP, NO PLATE — the logos are transparent (even the three that arrived on
+    opaque white plates are flood-filled clean by the asset pipeline), so they sit
+    directly on the band. Boxing each one in a white chip instead draws a SECOND
+    rectangle around the marks that already had one.
 
-    Every mark is a cut-out (the three that arrived on opaque white plates are
-    flood-filled clean by the asset pipeline), so they sit directly on the band.
-    An earlier version boxed each one in a white chip to paper over the fact that
-    only some had transparent backgrounds — which just drew a SECOND rectangle
-    around the ones that already had one.
+    SIZING IS BY VISUAL WEIGHT, NOT BY HEIGHT. Visual presence is roughly
+    (height² × aspect × ink coverage), and these marks differ on every term:
 
-    SIZING IS BY VISUAL WEIGHT, NOT BY HEIGHT.
+      mark       ar    ink   area at h=30
+      AirNav     0.99  0.63    718px²
+      BeautyLab  4.88  0.66   2932px²
+      PLN        3.25  0.49   1434px²
+      JAIST      5.88  0.32   1698px²
 
-    Setting one height for every mark does not make them look equal, and the
-    numbers show why. Visual presence is roughly (height² × aspect × ink coverage),
-    and these logos differ on every one of those:
-
-      mark          ar     ink    area at h=30
-      AirNav        0.99   0.63     718px²
-      BeautyLab     4.88   0.66    2932px²
-      PLN           3.25   0.49    1434px²
-      JAIST         5.88   0.32    1698px²
-
-    A square badge and a long wordmark at the SAME height differ by 4× in area —
-    so the badge reads as an afterthought next to the wordmark, which is exactly
-    the complaint. AirNav carries a second line of type below the roundel
-    ("AirNav Indonesia") that also has to stay legible, and that line is 44/447 of
-    the file's height, so at 30px it renders under 4px and turns to mush.
+    A square badge and a long wordmark at the SAME height differ 4× in area, so
+    the badge reads as an afterthought. AirNav also carries a wordmark below its
+    roundel ("AirNav Indonesia") that is 44/447 of the file's height — at 30px it
+    renders under 4px and turns to mush.
 
     The fix is to size each class so the AREAS land in the same band. Measured
-    ratios of badge-area to wordmark-area: 0.36 as it was (badge far too small),
-    0.53 at 44px, 0.65 at 52px, 0.77 at 60px (badge starts to dominate the row).
-    52px against 34px sits at 0.65 — the badge reads as an equal without becoming
-    the loudest thing in the strip, and the AirNav wordmark underneath reaches
-    ~5px, which holds up.
+    badge-to-wordmark area ratios: 0.36 as it was (badge far too small), 0.53 at
+    44px, 0.65 at 52px, 0.77 at 60px (badge dominates the row). 52px against 34px
+    sits at 0.65 — an equal that never becomes the loudest thing in the strip, and
+    the AirNav wordmark reaches ~5px.
 
-    The asset pipeline trims each file to its alpha bounding box first, so these
-    heights refer to the CONTENT, not to whatever empty canvas the exporter left.
-    `width: auto` keeps every mark's own shape; the width cap only stops the
-    widest one from running away.
+    The pipeline trims each file to its alpha bounding box first, so these heights
+    refer to the CONTENT, not to whatever empty canvas the exporter left.
   */
   .ft__logo {
     display: block;
@@ -212,7 +201,6 @@ const active = activePageFor(Astro.url.pathname);
     transform: translateY(-2px);
   }
 
-  /* ---------- grid ---------- */
   .ft__grid {
     display: grid;
     gap: 2rem;

@@ -79,8 +79,6 @@ export interface ExperienceEntry {
   /** Supporting photographs for the role. */
   photos?: MediaAsset[];
   source: SourceRef;
-  /** Notes about unresolved or provisional content. Rendered as a TODO badge. */
-  todo?: string;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -113,7 +111,7 @@ export interface OrganizationEntry {
 /* Projects                                                                   */
 /* -------------------------------------------------------------------------- */
 
-/** A labelled placeholder slot for an image that does not exist yet. */
+/** An image the site ships: a real file with real pixel dimensions. */
 export interface MediaAsset {
   /** Path under /public. */
   src: string;
@@ -185,19 +183,8 @@ export interface ProjectEntry {
   link?: ContentLink;
   /** Extra links (e.g. a second platform variant of the same design). */
   links?: ContentLink[];
-  /**
-   * A link that EXISTS but has no URL yet.
-   *
-   * Set this when the work has something worth opening (a dashboard, a live
-   * prototype) but the address has not been supplied. The page then renders a
-   * clearly-labelled placeholder row instead of either hiding the fact or
-   * shipping a dead `href="#"` — so the slot is visible, obviously pending, and
-   * becomes a real button the moment `link.href` is filled in.
-   */
-  linkPending?: string;
   featured: boolean;
   source: SourceRef;
-  todo?: string;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -240,7 +227,6 @@ export interface PublicationEntry {
   /** Article pages shown alongside the cover. */
   gallery?: MediaAsset[];
   source: SourceRef;
-  todo?: string;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -263,12 +249,11 @@ export interface CertificationEntry {
   credentialId?: string;
   /** One-line description of what the certificate evidences. */
   detail?: string;
-  /** Certificate scan. Real scans replace placeholders with no code change. */
+  /** The certificate scan. */
   visual: ProjectVisual;
   /** Issuer logo where one is available. */
   issuerLogo?: MediaAsset;
   source: SourceRef;
-  todo?: string;
 }
 
 
@@ -306,7 +291,6 @@ export interface EducationEntry {
   /** Institution crest. */
   logo?: MediaAsset;
   source: SourceRef;
-  todo?: string;
 }
 
 /* -------------------------------------------------------------------------- */

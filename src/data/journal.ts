@@ -1,30 +1,21 @@
 /**
  * MY JOURNAL — internship record, AirNav Indonesia
- * ============================================================================
+ *
  * SOURCE: the record as written by Hamzah and supplied verbatim. Every paragraph
- * below is his text, word for word, including the `**emphasis**` markers he used
- * — the renderer turns those into <strong> rather than this file stripping them,
- * so the words stay exactly as written.
+ * below is his text, word for word, including the `**emphasis**` markers he used —
+ * the renderer turns those into <strong> rather than this file stripping them.
  *
- * WHAT THIS IS
- * A dated record of the internship at AirNav Indonesia: what was learned, which
- * discussions and projects were joined, and what was built. It is written as the
- * work happens rather than on a fixed schedule, so the gaps between entries are
- * deliberate and are part of what the record is.
+ * A dated record of the internship: what was learned, which discussions and
+ * projects were joined, and what was built, written as the work happens. It goes
+ * to a supervisor, not a personal blog — hence dated reports, no paraphrase and a
+ * chronological reading order.
  *
- * READERSHIP SHAPES THE DESIGN
- * This is the document that goes to a supervisor, not a personal blog. That is
- * why every entry is a dated report, why the text is reproduced without
- * paraphrase, and why the reading order is chronological.
+ * WHY IT IS DATA, NOT MARKUP: the text lives here and the page renders what it
+ * finds. `media` is optional, so an entry written today with no images can gain
+ * them later without touching a component.
  *
- * WHY IT IS DATA, NOT MARKUP
- * Same reason as every other section: the text lives here and the page renders
- * whatever it finds. Adding an entry is an edit to this array alone, and an entry
- * can carry ZERO or MORE photographs — `media` is optional, so an entry written
- * today with no images can gain them later without touching a component.
- *
- * TO ADD AN ENTRY
- *   1. append an object below — the page sorts, so array order does not matter
+ * TO ADD AN ENTRY:
+ *   1. append an object — the page sorts, so array order does not matter
  *   2. `date` (ISO) sorts and anchors; `dateLabel` is how it reads. They are
  *      separate because an entry may cover a SPAN of days rather than one day
  *   3. with photographs: put the files in `public/images/journal/` and list them
@@ -81,22 +72,16 @@ const raw: JournalEntry[] = [
 
 export const journalEntries: JournalEntry[] = journalListSchema
   .parse(raw)
-  /*
-    Newest first. Derived, so the array above can be written in any order.
-
-    Ties fall back to the array order, which `Array.prototype.sort` guarantees is
-    stable — so two entries sharing a date stay deterministic without inventing a
-    time-of-day field just to separate them.
-  */
+  /* Newest first. Derived, so the array above can be written in any order. Ties
+     fall back to the array order, which `Array.prototype.sort` guarantees is
+     stable — deterministic without inventing a time-of-day field. */
   .sort((a, b) => b.sortKey.localeCompare(a.sortKey));
 
 /**
- * The period the journal covers, as a readable label.
- *
- * Derived from the entries rather than written into the page, so the header can
- * never claim a period the data does not contain. A range inside one month is
- * collapsed to that month — "September 2026" reads better than
- * "September 2026 – September 2026".
+ * The period the journal covers, as a readable label — derived from the entries,
+ * so the header can never claim a period the data does not contain. A range inside
+ * one month collapses to that month ("September 2026", not
+ * "September 2026 – September 2026").
  */
 export const journalPeriod = (() => {
   const dates = journalEntries.map((e) => e.date).sort();
@@ -121,10 +106,8 @@ export const journalPeriod = (() => {
 })();
 
 /**
- * Month headings, newest first, with their entries.
- *
- * Grouped in code rather than in the data so a new entry needs no decision about
- * where it belongs — the month comes from its own date.
+ * Month headings, newest first, with their entries — grouped in code so a new
+ * entry needs no decision about where it belongs; the month comes from its date.
  */
 export const journalByMonth = (() => {
   const groups: { key: string; label: string; entries: JournalEntry[] }[] = [];

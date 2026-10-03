@@ -1,14 +1,8 @@
 ---
 /**
  * COLLAGE — an asymmetric image composition that adapts to how many images it
- * is given.
- *
- * WHY THIS EXISTS
- * The brief repeatedly asks that images be COMBINED rather than stacked:
- * "if there are 2–4 related images, combine them", "don't stack images
- * vertically", "use a layout that still works if the number of images changes
- * later". A plain grid cannot do that, so this component switches composition
- * based on the count and the natural aspect ratio of each image.
+ * is given. A plain grid cannot: this switches composition from the item count
+ * and the natural aspect ratio of each image.
  *
  * LAYOUTS (chosen automatically from the item count):
  *   1 image   full-bleed single frame
@@ -17,7 +11,7 @@
  *   4+ images  feature + a 2-up column, then a balanced row for the rest
  *
  * Every image keeps its NATURAL aspect ratio via object-fit: cover inside a
- * fixed frame, so nothing is squashed; the first item is treated as the hero.
+ * fixed frame; the first item is treated as the hero.
  */
 import type { MediaAsset } from '@/types/content';
 import { asset } from '@/utils/url';
@@ -29,9 +23,8 @@ interface Props {
   /** Tighter gaps for use inside a card. */
   dense?: boolean;
   /**
-   * Present narrow screenshots as device mockups (see ShotSlider). Used on the
-   * UI/UX case studies, where a phone capture should read as a mobile product
-   * rather than as a picture of a phone.
+   * Present narrow screenshots as device mockups (see ShotSlider): on UI/UX
+   * case studies a phone capture should read as a mobile product.
    */
   mockup?: boolean;
 }
@@ -51,16 +44,11 @@ const n = images.length;
 /**
  * Pick the composition from the count — AND from the shapes.
  *
- * The count alone was the old rule, and it produced a bad result for one common
- * case: a set of four LANDSCAPE screenshots fell into the lead-plus-stack
- * composition, which gives the lead a tall frame (row-span 2, ratio auto). A 16:9
- * dashboard in a 1.32 frame gets its sides cropped by `cover` — the user's
- * "G PENGADAAN ... TAHUN 2025" was the left edge of a dashboard that had been
- * sliced off, and the figures it exists to show were half gone.
- *
- * So a set whose images all share a landscape orientation gets a UNIFORM grid
- * instead: equal cells, all at the images' own ratio, none of them tall. The
- * composition then varies the LAYOUT without fighting the CONTENT.
+ * The count alone produced a bad result for a set of four LANDSCAPE dashboard
+ * screenshots: they fell into lead-plus-stack, whose tall lead frame (row-span 2,
+ * ratio auto) crops a 16:9 dashboard via `cover` — the figures it exists to show
+ * were half gone. A set whose images all share a landscape orientation gets a
+ * UNIFORM grid instead: equal cells, all at the images' own ratio, none tall.
  */
 const isLandscape = (m: MediaAsset) => {
   const ar = m.width && m.height ? m.width / m.height : 1.5;
@@ -79,15 +67,12 @@ const allPortrait = images.every((m) => isPortrait(m) && m.fit !== 'contain');
   layouts actively damage it.
 
   Measured on a three-screen app gallery under `trio`: the two non-lead cells
-  rendered their device shells at 101x234px. At that size the shell's own bezel is
-  most of the cell and the interface inside is unreadable — the pictures stop
-  doing the one job they have. The tall `lead` cell is no better: a 0.49 ratio
-  image inside an auto-height span is letterboxed into a narrow strip.
+  rendered their device shells at 101x234px — the bezel is most of that and the
+  interface inside is unreadable.
 
-  Phone screens want a ROW OF PHONES. Equal columns, each cell at the phone's own
-  ratio, sized so the shell is tall enough to read. This is the same principle as
-  the landscape `uniform` case above — the composition follows the CONTENT's
-  shape — applied to the other orientation.
+  Phone screens want a ROW OF PHONES: equal columns, each cell at the phone's own
+  ratio. Same principle as the landscape `uniform` case, applied to the other
+  orientation.
 */
 const portraitRow = allPortrait && n >= 3;
 
@@ -107,38 +92,27 @@ const layout =
 const rest = layout === 'many' ? images.slice(3) : [];
 
 /**
- * For a duo, the frame ratio comes from the images themselves.
- *
- * A fixed ratio here is a crop, and a crop on a group photograph removes the
- * banner or the faces at the top — the two things that make the picture worth
- * showing. Averaging the pair's own proportions keeps both nearly whole while
- * still giving the two cells a common shape, which is all the composition needs.
- *
- * Clamped, because an extreme pair (a tall portrait beside a wide panorama)
- * would otherwise produce a frame so far from either that `cover` crops them
- * heavily anyway. Documents are excluded — they are letterboxed, so their frame
- * shape does not matter.
+ * For a duo, the frame ratio comes from the images themselves — a fixed ratio is
+ * a crop, and the crop removed the group photograph's banner. Clamped, because an
+ * extreme pair (tall portrait beside a wide panorama) would otherwise produce a
+ * frame so far from either that `cover` crops them heavily anyway. Documents
+ * (`fit: 'contain'`) are excluded — they are letterboxed, so frame shape does not
+ * matter.
  */
 /**
- * For a uniform grid the frame ratio is the images' own — they share one, so any
- * of them decides it. Clamped only to guard against a stray non-landscape file.
- *
- * Typed through a local rather than with `!` non-null assertions: `astro check`
- * fails to parse a frontmatter containing them, and when the parse fails the
- * compiler does not stop — it silently falls through and reads the whole `<style>`
- * block as TypeScript, reporting ~200 bogus errors ("Cannot find name 'grid'").
- * The types are narrowed by the guard above instead, which is just as safe and
- * keeps the diagnostic channel meaningful.
+ * For a uniform grid the frame ratio is the images' own, clamped only to guard
+ * against a stray non-landscape file. Typed through a local rather than `!`
+ * non-null assertions: `astro check` fails to parse a frontmatter containing them
+ * and then silently reads the whole `<style>` block as TypeScript, reporting ~200
+ * bogus errors ("Cannot find name 'grid'").
  */
 const uniformRatio = (() => {
   const first = images.find((m) => m.width && m.height);
   if (!first || !first.width || !first.height) return '16 / 9';
   const ar = first.width / first.height;
   /*
-    Portrait sets use this too — a row of phone screens shares one ratio exactly
-    as a set of dashboards does — so the clamp spans both orientations rather than
-    assuming landscape. The numbers are the images' own, so the clamp only ever
-    guards against a stray file, never reshapes a real one.
+    Portrait sets use this too — a row of phones shares one ratio exactly as a set
+    of dashboards does — so the clamp spans both orientations.
   */
   return String(Math.min(Math.max(ar, 0.4), 2.2).toFixed(3));
 })();
@@ -146,10 +120,10 @@ const uniformRatio = (() => {
 /**
  * The ratio for a DEVICE cell, from the device image itself.
  *
- * Set on every layout, not just `screens`/`uniform`, because a device can appear
- * in any composition — Kedai Nyam mixes two desktop screens with two phones under
- * `trio`. A device cell that fell back to the generic `--uniform-ratio` default
- * would be letterboxed inside a box of the wrong shape.
+ * Set on every layout, not just `screens`/`uniform`: a device can appear in any
+ * composition (Kedai Nyam mixes two desktop screens with two phones under `trio`),
+ * and a device cell falling back to the generic `--uniform-ratio` default would be
+ * letterboxed inside a box of the wrong shape.
  */
 const deviceRatio = (() => {
   const dev = images.find((m) => {
@@ -187,16 +161,12 @@ const duoRatio = (() => {
       {
         layout === 'screens' ? (
           /*
-            A SWIPEABLE RAIL — the gallery is interactive, not a static wall.
-
-            The user's ask: "gambar project bisa dibuat agar bisa diswipe untuk
-            lihat gambar lainnya. buat interaktif". A wrapped grid of six phones
-            asks the visitor to scan; a rail asks them to move through the flow,
-            which is what a set of app screens IS — an ordered sequence.
+            A SWIPEABLE RAIL — the gallery is interactive, not a static wall. A
+            wrapped grid of six phones asks the visitor to scan; a rail asks them
+            to move through what is an ordered sequence.
 
             Scroll-snap does the work natively, so touch swipe, trackpad and
-            keyboard scrolling all function before any script runs. The script adds
-            the arrows, the counter and mouse drag.
+            keyboard scrolling all function before any script runs.
           */
           <div class="collage__viewport">
             <div
@@ -358,12 +328,8 @@ const duoRatio = (() => {
     display: block;
     width: 100%;
     height: 100%;
-    /*
-      cover keeps the frames tidy without distorting the photo, but the anchor
-      matters: these are mostly photographs of people, and a centred crop of a
-      standing group cuts the heads off and keeps the floor. Anchoring the crop
-      to the TOP keeps faces in frame at every frame ratio.
-    */
+    /* Anchor the crop to the TOP: a centred crop of a standing group cuts the
+       heads off and keeps the floor. */
     object-fit: cover;
     object-position: center top;
     transition: transform var(--t-slow) var(--ease);
@@ -373,14 +339,8 @@ const duoRatio = (() => {
     transform: scale(1.03);
   }
 
-  /*
-    Documents (journal covers, article pages) are LETTERBOXED, not cropped.
-
-    A cover forced to fill a 4:3 or 16:10 frame loses its masthead and the top of
-    its title block — it stops being evidence of the publication it illustrates.
-    `contain` keeps the whole page on a matte, which reads as a deliberate plate
-    rather than a mis-sized image.
-  */
+  /* Documents are letterboxed, not cropped: `cover` loses the masthead and title
+     block, so the page stops being evidence of what it illustrates. */
   .collage__cell--contain img {
     object-fit: contain;
     object-position: center;
@@ -391,20 +351,13 @@ const duoRatio = (() => {
     transform: none;
   }
 
-  /* ---------------- device mockup ----------------
-    THE RENDER IS THE PHONE — this wrapper adds NO hardware of its own.
-
-    It used to draw a shell: a 1.5px border, a 1.2rem radius, a filled `--device-body`
-    plate and a box-shadow. Every capture that ships here is a full device render
-    exported from Figma with its own bezel, corner radius and shadow, so that
-    shell was a SECOND rectangle around a phone that already had one — visible on
-    every device cell in every gallery, including the mixed sets.
-
-    What remains is a transparent layout box: it reserves space, sizes from the
-    device's own ratio, and centres the render in its cell. All visible depth
-    comes from a `drop-shadow` on the IMAGE, which follows the alpha silhouette
-    rather than a rectangle.
-    ---------------------------------------------------------------------- */
+  /* device mockup
+     THE RENDER IS THE PHONE — this wrapper adds NO hardware of its own. Every
+     capture that ships here is a full device render with its own bezel and shadow,
+     so a drawn shell would be a SECOND rectangle around an existing one. What
+     remains is a transparent layout box: it reserves space, sizes from the device's
+     own ratio and centres the render. Depth comes from a `drop-shadow` on the image,
+     which follows the alpha silhouette rather than a rectangle. */
   .collage__device {
     display: block;
     position: relative;
@@ -419,29 +372,16 @@ const duoRatio = (() => {
     overflow: visible;
   }
 
-  /*
-    NO DRAWN NOTCH — proven a defect by A/B.
-
-    A `::before` used to paint a dark pill across the top of the shell. It was
-    written for captures that show a bare screen, and the captures that actually
-    ship here are full device renders that ALREADY carry a dynamic island.
-
-    Measured by forcing the rule off and diffing the two renders: 76701 pixels
-    changed, peak delta 52, in a band across the top of the screen. The two pills
-    did not overlap — they sat one above the other, reading as two holes in one
-    phone. That was visible in every device cell on the site, and no amount of
-    tuning would have fixed it: the file already contains its own hardware.
-
-    A mockup shell is correct when the source is a SCREEN. Applied to a DEVICE
-    PHOTOGRAPH it can only ever add artefacts, so the pill is gone rather than
-    made conditional — there is no capture in this set that needs it.
-  */
+  /* NO DRAWN NOTCH — a `::before` pill was proven a defect by A/B: forcing the
+     rule off changed 76701 pixels (peak delta 52) in a band across the top. The
+     captures already carry their own dynamic island, so the drawn pill sat above
+     it, reading as two holes in one phone. A shell is only correct for a BARE
+     screen capture; none is in this set. */
 
   .collage__device img {
     width: 100%;
     height: 100%;
-    /* The render supplies its own rounded corners, so `cover` would crop them
-       into square ones. `contain` shows the device whole. */
+    /* `contain` shows the device whole; the render supplies its own corners. */
     border-radius: 0;
     object-fit: contain;
     object-position: center bottom;
@@ -466,20 +406,12 @@ const duoRatio = (() => {
     outline-offset: 3px;
   }
 
-  /*
-    ANY CELL HOLDING A DEVICE RENDER LOSES ITS BOX — not just the `screens` layout.
-
-    This has to be a rule about the CONTENT, not about the layout, or mixed sets
-    keep the defect: on Kedai Nyam (two desktop screens plus two phones) the
-    phones sat on a beige plate inside a 1px border while the neighbouring desktop
-    screenshots kept their frames, so the same gallery showed two different
-    treatments of the same kind of object.
-
-    The reasoning is uniform: a device render is a cut-out with its own bezel,
-    radius and shadow, so a cell around it can only add a second rectangle. A
-    photograph or a document is different — those are rectangular by nature, and
-    the plate is what makes letterboxing read as deliberate.
-  */
+  /* ANY cell holding a device render loses its box — a rule about the CONTENT,
+     not the layout, or mixed sets keep the defect: on Kedai Nyam the phones had
+     the box removed while the neighbouring desktop screenshots kept their frames.
+     A render is a cut-out with its own bezel and shadow; a photograph or document
+     is rectangular by nature, and the plate is what makes letterboxing read as
+     deliberate. */
   .collage__cell:has(.collage__device) {
     border: 0;
     background-color: transparent;
@@ -504,22 +436,14 @@ const duoRatio = (() => {
   }
 
   /*
-    THE DEVICE FILLS ITS CELL INSTEAD OF OVERFLOWING IT.
+    THE DEVICE FILLS ITS CELL INSTEAD OF OVERFLOWING IT — the "tumpuk tumpukkan"
+    defect. A device with `height: auto` and `aspect-ratio: 0.488` but no width
+    took the cell's 438px width and derived height 897px inside a 438x301 cell,
+    and `overflow: visible` painted the excess over the cell below.
 
-    This was the "tumpuk tumpukkan" defect: two phones rendered 899px tall inside
-    301px cells and spilled over the cell below, so the gallery looked like a pile
-    rather than a grid.
-
-    The cause was a shape mismatch the stylesheet never resolved. The device had
-    `height: auto` plus `aspect-ratio: 0.488` but NO width, so as a block element it
-    took the cell's full 438px width and derived its height from the ratio — 438 /
-    0.488 = 897px. The cell is 438x301. `overflow: visible` then let the excess
-    paint straight over the neighbouring cell.
-
-    The fix is to size the device from its CELL, not from the cell's width: a flex
-    column gives the caption its natural height and hands the remainder to the
-    device, which then derives its WIDTH from the ratio. Every device now fits, at
-    any cell size, without the stylesheet knowing the ratio up front.
+    The fix sizes the device from its CELL, not the cell's width: a flex column
+    gives the caption its natural height, the device takes the remainder and
+    derives its WIDTH from the ratio.
   */
   .collage__cell:has(.collage__device) {
     display: flex;
@@ -529,11 +453,8 @@ const duoRatio = (() => {
   }
 
   .collage__cell:has(.collage__device) .collage__device {
-    /*
-      `flex: 1 1 auto` with `min-height: 0` is what makes this work: the device
-      claims the space left after the caption, and `min-height: 0` stops the flex
-      item's automatic minimum size from forcing its full intrinsic height back.
-    */
+    /* `min-height: 0` stops the flex item's automatic minimum size from forcing
+       its full intrinsic height back. */
     flex: 1 1 auto;
     min-height: 0;
     height: auto;
@@ -543,20 +464,13 @@ const duoRatio = (() => {
   }
 
   /*
-    A caption on a device cell sits BELOW the device, not over it.
+    A caption on a device cell sits BELOW the device: an overlay would land across
+    the device's home bar and bottom navigation. The aspect box therefore moves to
+    the DEVICE, not the cell — a cell with both an `aspect-ratio` and an in-flow
+    caption lets the ratio win and clips the caption.
 
-    With the box gone there is no plate for the caption to sit on, and an overlay
-    would land straight across the device's home bar and bottom navigation — the
-    part of a phone screen a reader most needs to see.
-
-    THE ASPECT BOX MOVES TO THE DEVICE, not the cell. A cell carrying both an
-    `aspect-ratio` and an in-flow caption would have to fit both, and the ratio
-    wins — the caption gets clipped. So the cell becomes a plain column whose
-    DEVICE holds the ratio, and the caption simply follows it.
-
-    Scoped with `:has()` to device cells only: a photograph or a document keeps its
-    overlay caption, which is correct there because the caption sits on the matte
-    or the image itself rather than on an interface.
+    Scoped with `:has()` to device cells only; a photograph or document keeps its
+    overlay caption, which is correct on a matte.
   */
   .collage__cell:has(.collage__device) {
     aspect-ratio: auto;
@@ -576,25 +490,15 @@ const duoRatio = (() => {
     height: auto;
   }
 
-  /* ---------------- 1 image ---------------- */
+  /* 1 image */
   .collage--single .collage__grid {
     grid-template-columns: 1fr;
   }
 
-  /* ---------------- 2 images: 2:1 split ---------------- */
-  /*
-    THE FRAME FOLLOWS THE PHOTOS, not a fixed 4:3.
-
-    Both cells used to be forced to 4:3, which is fine for a landscape
-    photograph and wrong for everything else. The About page's pair is a
-    wide group shot and a narrower candid, and 4:3 sliced the top and bottom off
-    both — the group shot lost the banner it was taken under, so the picture
-    stopped showing the thing it was there to show.
-
-    `--duo-ratio` is set by the component from the images' own proportions, so the
-    composition adapts instead of cropping. The default stays 4:3 for callers that
-    do not supply one.
-  */
+  /* 2 images: THE FRAME FOLLOWS THE PHOTOS, not a fixed 4:3. Forcing 4:3 sliced
+     the top and bottom off the About page's wide group shot — it lost the banner
+     it was taken under. `--duo-ratio` is set by the component from the images'
+     own proportions; 4:3 is only the fallback for callers that supply none. */
   .collage--duo .collage__grid {
     grid-template-columns: 1.35fr 1fr;
   }
@@ -603,7 +507,7 @@ const duoRatio = (() => {
     aspect-ratio: var(--duo-ratio, 4 / 3);
   }
 
-  /* ---------------- 3 images: lead + 2 stacked ---------------- */
+  /* 3 images: lead + 2 stacked */
   .collage--trio .collage__grid {
     grid-template-columns: 1.6fr 1fr;
     grid-template-rows: repeat(2, minmax(0, 1fr));
@@ -625,15 +529,11 @@ const duoRatio = (() => {
     aspect-ratio: auto;
   }
 
-  /* ---------------- 4+ landscape: a uniform 2-column grid ----------------
-     Every cell the same size, every cell at the image's own 16:9. No lead, no
-     stack, no crop — because with a set of dashboards there is no "hero": each
-     one is a full screen of information and shrinking any of them loses figures.
-
-     Two up rather than three or four: at 1160px of measure a 2-column cell is
-     ~570px wide, which renders a dashboard's axis labels legibly. Four-up would
-     put each at ~275px, back where this started.
-     -------------------------------------------------------------------- */
+  /* 4+ landscape: a uniform 2-column grid — every cell the same size at the
+     image's own 16:9. With a set of dashboards there is no "hero": each is a full
+     screen of information and shrinking any of them loses figures. Two up rather
+     than four: at 1160px of measure a 2-column cell is ~570px wide, which renders
+     a dashboard's axis labels legibly; four-up would put each at ~275px. */
   .collage--uniform .collage__grid {
     grid-template-columns: 1fr;
   }
@@ -648,25 +548,16 @@ const duoRatio = (() => {
     aspect-ratio: var(--uniform-ratio, 16 / 9);
   }
 
-  /* ---------------- 3+ portrait: a swipeable rail of phone screens ----------------
-     The counterpart to `uniform` for the other orientation, and it exists for the
-     same reason: the count-based layouts damage this content.
-
-     Measured on a three-screen app gallery under `trio`, the two non-lead cells
-     rendered their shells at 101x234px — the bezel takes most of that and the
-     interface inside is unreadable.
-
-     A RAIL, NOT A WRAPPED GRID. A set of app screens is an ordered sequence, so
-     the composition that matches it is a horizontal one the visitor moves through.
-     Scroll-snap makes each swipe land exactly on a screen, which is the difference
-     between a gallery and a box you can drag.
-     -------------------------------------------------------------------- */
+  /* 3+ portrait: a swipeable rail of phone screens — the counterpart to `uniform`
+     for the other orientation, for the same reason: the count-based layouts damage
+     this content (measured under `trio`, the two non-lead cells rendered their
+     shells at 101x234px and the interface inside was unreadable). A RAIL, not a
+     wrapped grid, because a set of app screens is an ordered sequence; scroll-snap
+     lands each swipe on a screen. */
   .collage__viewport {
     position: relative;
-    /*
-      The arrows sit outside the rail's box on wide screens, so the viewport must
-      not clip them. The rail itself does the clipping.
-    */
+    /* The arrows sit outside the rail, so the viewport must not clip them; the
+       rail itself does the clipping. */
     overflow: visible;
   }
 
@@ -678,11 +569,8 @@ const duoRatio = (() => {
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
     overscroll-behavior-x: contain;
-    /*
-      A little vertical padding so a device's drop-shadow is not clipped by the
-      scroll container's own edge — a shadow cropped in a straight line reads as a
-      box, which is exactly what this change removed.
-    */
+    /* Vertical padding keeps a device's drop-shadow from being clipped by the
+       scroll container's edge — a shadow cut in a straight line reads as a box. */
     padding: 0.75rem clamp(0.25rem, 1vw, 0.5rem) 1.25rem;
     /* Snap the FIRST and LAST screen flush to the viewport's edges. */
     scroll-padding-inline: clamp(0.25rem, 1vw, 0.5rem);
@@ -704,17 +592,12 @@ const duoRatio = (() => {
     cursor: grabbing;
   }
 
+  /* Sized so a full-width gallery shows about FOUR screens and the rest are
+     reached by swiping. Measured with a smaller value: six slides fitted into
+     1432px of a 1152px viewport, so the rail scrolled just 280px and every screen
+     was already on show. At 17rem the same six screens need ~1727px, which makes
+     the swipe meaningful while keeping each device at its current height. */
   .collage__cell--slide {
-    /*
-      Sized so a full-width gallery shows about FOUR screens and the rest are
-      reached by swiping.
-
-      Measured with a smaller value: six slides fitted into 1432px of a 1152px
-      viewport, so the whole rail scrolled just 280px and every screen was already
-      on show — a rail that never needs to move is not a gallery, and the arrows had
-      almost nothing to do. At 17rem the same six screens need ~1727px, which makes
-      the swipe meaningful while keeping each device at its current height.
-    */
     flex: 0 0 auto;
     width: clamp(10rem, 30vw, 17rem);
     aspect-ratio: var(--device-ratio, 9 / 19.5);
@@ -722,13 +605,9 @@ const duoRatio = (() => {
     height: auto;
   }
 
-  /*
-    A rail whose contents already fit shows no arrows.
-
-    Guzelev has three screens: at desktop width they fit inside the viewport, so
-    there is nothing to scroll to and controls would be decoration. The script
-    hides them in that case; this is the same state expressed before it runs.
-  */
+  /* A rail whose contents already fit shows no arrows: at desktop width Guzelev's
+     three screens fit the viewport, so controls would be decoration. The script
+     hides them; this is the same state expressed before it runs. */
   .collage__rail:not([data-overflow]) ~ .collage__arrow {
     display: none;
   }
@@ -757,12 +636,9 @@ const duoRatio = (() => {
       opacity var(--t-base) var(--ease);
   }
 
-  /*
-    `display: grid` above would beat the `hidden` attribute, so the state is
-    honoured explicitly. The arrows ship hidden and the script reveals them —
-    without it there is no arrow at all, because an arrow that looks live but does
-    nothing is worse than no arrow.
-  */
+  /* `display: grid` above would beat the `hidden` attribute, so the state is
+     honoured explicitly — an arrow that looks live but does nothing is worse than
+     none. */
   .collage__arrow[hidden] {
     display: none;
   }
@@ -805,8 +681,7 @@ const duoRatio = (() => {
     display: none;
   }
 
-  /* The arrows need somewhere to sit — a phone leaves more room around the rail
-     than a wrapped grid did, but not at every width. */
+  /* The arrows need somewhere to sit at narrower widths. */
   @media (max-width: 900px) {
     .collage__arrow--prev {
       left: 0;
@@ -818,9 +693,8 @@ const duoRatio = (() => {
   }
 
   @media (max-width: 620px) {
-    /* Three screens side by side will not fit a narrow viewport; the rail scrolls,
-       which is the point, but the arrows are dropped to the counter's row so they
-       never cover the interface. */
+    /* Three screens side by side will not fit a narrow viewport; the arrows drop
+       to the counter's row so they never cover the interface. */
     .collage__arrow {
       position: static;
       transform: none;
@@ -861,20 +735,12 @@ const duoRatio = (() => {
     }
   }
 
-  /* ---------------- 4+ mixed: lead + 2 stacked, then a row ----------------
-     The trailing row is where this used to fall apart. `auto-fit` with a 190px
-     minimum packs as many columns as the width allows, so with three leftovers it
-     produced three cells of roughly 229x143 — which is unusable for a dashboard
-     screenshot whose whole point is its figures. Measured on the five-image
-     procurement project: the lead rendered 1090px wide and the small ones 229px,
-     a 4.8x difference within one gallery.
-
-     A dashboard is a DOCUMENT: it carries information at every scale, so a
-     thumbnail of it communicates nothing. The rule is now a floor — cells are at
-     least ~340px wide, and a row that cannot fit three at that size wraps to two
-     or one instead of shrinking further. Fewer, larger frames beat a dense grid
-     nobody can read.
-     --------------------------------------------------------------------- */
+  /* 4+ mixed: lead + 2 stacked, then a row. The trailing row is where this used
+     to fall apart: `auto-fit` with a 190px minimum packed three cells of roughly
+     229x143 — unusable for a dashboard whose point is its figures (measured: the
+     lead 1090px wide vs the small ones 229px, a 4.8x difference in one gallery).
+     The rule is now a floor — cells at least ~340px wide — so a row that cannot
+     fit three wraps to two or one instead of shrinking. */
   .collage--many .collage__grid {
     grid-template-columns: 1.7fr 1fr;
     grid-template-rows: repeat(2, minmax(0, 1fr));
@@ -905,10 +771,8 @@ const duoRatio = (() => {
     aspect-ratio: 3 / 2;
   }
 
-  /*
-    A document in a small cell is letterboxed rather than cropped, and gets a
-    little more inset so its own page edge does not sit flush against the frame's.
-  */
+  /* A document in a small cell is letterboxed and gets a little more inset so its
+     page edge does not sit flush against the frame's. */
   .collage__cell--small.collage__cell--contain img {
     padding: 0.8rem;
   }
@@ -920,7 +784,7 @@ const duoRatio = (() => {
     letter-spacing: 0.02em;
   }
 
-  /* ---------------- mobile: collapse to a single column ---------------- */
+  /* mobile: collapse to a single column */
   @media (max-width: 640px) {
     .collage--duo .collage__grid,
     .collage--trio .collage__grid,
@@ -950,10 +814,6 @@ const duoRatio = (() => {
    * The rail is a native horizontal scroller, so touch swipe, trackpad, shift-wheel
    * and keyboard arrow keys ALL work before this script exists. What it adds: the
    * two arrows, the counter, the end-state disabling, and mouse drag.
-   *
-   * No script means no arrows — which is why the arrows ship `hidden` in the
-   * markup and are revealed here. An arrow that looks live but does nothing is
-   * worse than no arrow.
    */
   const viewports = document.querySelectorAll<HTMLElement>('[data-gallery-rail]');
 
@@ -968,11 +828,10 @@ const duoRatio = (() => {
       const counter = root.querySelector<HTMLElement>('[data-gallery-count]');
 
       /**
-       * One step is the distance between the first two slides' left edges.
-       *
-       * Measured rather than computed from `clientWidth`: the slides have a gap
-       * between them, so stepping by the container width would drift further out
-       * of alignment with every press. This number already contains the gap.
+       * One step is the distance between the first two slides' left edges, measured
+       * rather than computed from `clientWidth`: the slides have a gap, so stepping
+       * by the container width would drift out of alignment. This number contains
+       * the gap.
        */
       const step = () =>
         slides.length > 1 ? slides[1].offsetLeft - slides[0].offsetLeft : rail.clientWidth;
@@ -991,12 +850,9 @@ const duoRatio = (() => {
         const clamped = Math.min(Math.max(index, 0), slides.length - 1);
 
         /*
-          Whether the rail ACTUALLY has somewhere to go.
-
-          With three screens the rail fits its viewport, so there is nothing to
-          scroll to — arrows would be controls for a task that does not exist. The
-          flag is recomputed on resize, because a narrower window can turn a fitting
-          rail into a scrolling one.
+          Whether the rail ACTUALLY has somewhere to go, recomputed on resize because
+          a narrower window can turn a fitting rail into a scrolling one. Arrows for
+          a rail that already fits would be controls for a task that does not exist.
         */
         const overflows = max > 4;
         if (overflows) rail.setAttribute('data-overflow', '');
@@ -1019,14 +875,13 @@ const duoRatio = (() => {
       next?.addEventListener('click', () => go(1));
 
       /*
-        MOUSE DRAG — a native scroll container does not drag with a mouse, which is
-        how a desktop visitor expects a gallery to behave. Touch is left to the
-        browser on purpose: hijacking it would cost the momentum and rubber-banding
-        the platform gives for free.
+        MOUSE DRAG — native scroll containers do not drag with a mouse. Touch is left
+        to the browser on purpose: hijacking it would cost the platform's momentum and
+        rubber-banding.
 
-        The 6px threshold is what keeps a plain CLICK working. Without it, the
-        smallest movement while pressing an image would register as a drag and
-        swallow the lightbox click.
+        The 6px threshold keeps a plain CLICK working: without it, the smallest
+        movement while pressing an image would register as a drag and swallow the
+        lightbox click.
       */
       let dragging = false;
       let startX = 0;

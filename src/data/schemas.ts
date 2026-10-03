@@ -1,24 +1,16 @@
 /**
- * ZOD SCHEMAS
- * ============================================================================
- * Why this file exists: the brief's hardest rule is "never invent information".
- * A schema is how that rule becomes mechanical rather than a promise.
- *
- * Each content file is parsed through the matching schema at module load. If a
- * required field is missing, `zod` throws during the build and Astro fails the
- * build with the field name in the message. It is impossible to ship a page
- * with a silently-empty gap.
+ * The brief's hardest rule is "never invent information"; a schema is how that
+ * rule becomes mechanical. Each content file is parsed through the matching schema
+ * at module load, so a missing required field throws during the build with the
+ * field name in the message — a page can never ship with a silently-empty gap.
  *
  * Optional fields stay optional on purpose: an unknown fact should be *absent*
  * (or flagged with `todo`), not faked with an empty string.
- * ============================================================================
  */
 
 import { z } from 'zod';
 
-/* -------------------------------------------------------------------------- */
-/* Shared building blocks                                                     */
-/* -------------------------------------------------------------------------- */
+/* Shared building blocks */
 
 export const sourceRefSchema = z.enum(['profile', 'portfolio', 'both']);
 
@@ -35,10 +27,9 @@ export const contactLinkSchema = contentLinkSchema.extend({
 export const projectCategorySchema = z.enum(['data', 'systems', 'research', 'uiux']);
 
 /**
- * Image slot. `src` must be a public path, and alt text is mandatory — an
- * image without a description is an accessibility failure, so the schema
- * refuses it. `isPlaceholder` marks generated stand-ins so the UI can label
- * them honestly.
+ * Image slot. `src` must be a public path and alt text is mandatory — an image
+ * without a description is an accessibility failure. `isPlaceholder` marks
+ * generated stand-ins so the UI can label them honestly.
  */
 export const mediaAssetSchema = z.object({
   src: z
@@ -46,15 +37,11 @@ export const mediaAssetSchema = z.object({
     .startsWith('/', 'Image src must be a public path beginning with "/"'),
   alt: z.string().min(3, 'Every image needs descriptive alt text'),
   /**
-   * A VECTOR twin of the same artwork, when one exists.
-   *
-   * `src` stays the raster fallback that every renderer understands; `srcVector`
-   * names the .svg the UI prefers. A flat image's edge is a stair-step and, once
-   * it has been through a JPEG, a halo too — both are baked in at every size the
-   * mark is drawn, whereas a path has neither. The field is optional so a mark
-   * with no vector twin keeps working unchanged, and it is a data field rather
-   * than a naming convention so a component can never "guess" a sibling URL that
-   * was not built.
+   * A VECTOR twin of the same artwork, when one exists. `src` stays the raster
+   * fallback; `srcVector` names the .svg the UI prefers (a path has no stair-step
+   * or JPEG halo). Optional, so a mark with no vector twin keeps working, and a
+   * data field rather than a naming convention so a component can never "guess" a
+   * sibling URL that was not built.
    */
   srcVector: z.string().startsWith('/').optional(),
   width: z.number().int().positive().optional(),
@@ -72,13 +59,11 @@ export const projectVisualSchema = mediaAssetSchema.extend({
   aspect: z.enum(['16/9', '3/2', '4/3', '1/1', '3/4', '9/16']).optional(),
 });
 
-/* -------------------------------------------------------------------------- */
-/* Profile                                                                    */
-/* -------------------------------------------------------------------------- */
+/* Profile */
 
 /**
- * Hero portrait: dimensions are REQUIRED here (unlike a generic MediaAsset) so
- * the hero can reserve the correct aspect ratio and avoid layout shift.
+ * Hero portrait: dimensions are REQUIRED here (unlike a generic MediaAsset) so the
+ * hero can reserve the correct aspect ratio and avoid layout shift.
  */
 export const portraitSchema = z.object({
   src: z.string().startsWith('/'),
@@ -105,9 +90,7 @@ export const profileSchema = z.object({
   portrait: portraitSchema,
 });
 
-/* -------------------------------------------------------------------------- */
-/* Experience                                                                 */
-/* -------------------------------------------------------------------------- */
+/* Experience */
 
 export const experienceEntrySchema = z.object({
   id: z.string().min(1),
@@ -124,14 +107,11 @@ export const experienceEntrySchema = z.object({
   logo: mediaAssetSchema.optional(),
   photos: z.array(mediaAssetSchema).optional(),
   source: sourceRefSchema,
-  todo: z.string().optional(),
 });
 
 export const experienceListSchema = z.array(experienceEntrySchema);
 
-/* -------------------------------------------------------------------------- */
-/* Organizations                                                              */
-/* -------------------------------------------------------------------------- */
+/* Organizations */
 
 export const organizationEntrySchema = z.object({
   id: z.string().min(1),
@@ -152,9 +132,7 @@ export const organizationEntrySchema = z.object({
 
 export const organizationListSchema = z.array(organizationEntrySchema);
 
-/* -------------------------------------------------------------------------- */
-/* Projects                                                                   */
-/* -------------------------------------------------------------------------- */
+/* Projects */
 
 export const projectEntrySchema = z.object({
   id: z.string().min(1),
@@ -176,17 +154,13 @@ export const projectEntrySchema = z.object({
   link: contentLinkSchema.optional(),
   links: z.array(contentLinkSchema).optional(),
   /** A link worth showing whose URL has not been supplied yet. */
-  linkPending: z.string().optional(),
   featured: z.boolean(),
   source: sourceRefSchema,
-  todo: z.string().optional(),
 });
 
 export const projectListSchema = z.array(projectEntrySchema);
 
-/* -------------------------------------------------------------------------- */
-/* Publications                                                               */
-/* -------------------------------------------------------------------------- */
+/* Publications */
 
 export const publicationEntrySchema = z.object({
   id: z.string().min(1),
@@ -206,8 +180,7 @@ export const publicationEntrySchema = z.object({
   accreditation: z.string().optional(),
   /**
    * The DOI as PRINTED by the publisher, kept separate from `link` because a
-   * printed DOI is not always resolvable — one journal here prints a DOI its
-   * publisher has not registered yet, so the clickable link has to point
+   * printed DOI is not always resolvable — so the clickable link may point
    * elsewhere while the citation still carries the DOI.
    */
   doi: z.string().optional(),
@@ -219,14 +192,11 @@ export const publicationEntrySchema = z.object({
   visual: projectVisualSchema,
   gallery: z.array(mediaAssetSchema).optional(),
   source: sourceRefSchema,
-  todo: z.string().optional(),
 });
 
 export const publicationListSchema = z.array(publicationEntrySchema);
 
-/* -------------------------------------------------------------------------- */
-/* Certifications                                                             */
-/* -------------------------------------------------------------------------- */
+/* Certifications */
 
 export const certificationEntrySchema = z.object({
   id: z.string().min(1),
@@ -241,14 +211,11 @@ export const certificationEntrySchema = z.object({
   visual: projectVisualSchema,
   issuerLogo: mediaAssetSchema.optional(),
   source: sourceRefSchema,
-  todo: z.string().optional(),
 });
 
 export const certificationListSchema = z.array(certificationEntrySchema);
 
-/* -------------------------------------------------------------------------- */
-/* Achievements                                                               */
-/* -------------------------------------------------------------------------- */
+/* Achievements */
 
 export const achievementEntrySchema = z.object({
   id: z.string().min(1),
@@ -263,9 +230,7 @@ export const achievementEntrySchema = z.object({
 
 export const achievementListSchema = z.array(achievementEntrySchema);
 
-/* -------------------------------------------------------------------------- */
-/* Education                                                                  */
-/* -------------------------------------------------------------------------- */
+/* Education */
 
 export const educationEntrySchema = z.object({
   id: z.string().min(1),
@@ -278,14 +243,11 @@ export const educationEntrySchema = z.object({
   highlights: z.array(z.string().min(1)).optional(),
   logo: mediaAssetSchema.optional(),
   source: sourceRefSchema,
-  todo: z.string().optional(),
 });
 
 export const educationListSchema = z.array(educationEntrySchema);
 
-/* -------------------------------------------------------------------------- */
-/* Skills                                                                     */
-/* -------------------------------------------------------------------------- */
+/* Skills */
 
 export const skillItemSchema = z.object({
   name: z.string().min(1),
@@ -303,19 +265,13 @@ export const skillGroupSchema = z.object({
 
 export const skillGroupListSchema = z.array(skillGroupSchema);
 
-/* -------------------------------------------------------------------------- */
-/* Internship Journal                                                         */
-/* -------------------------------------------------------------------------- */
+/* Internship Journal */
 
 /**
- * One dated journal entry.
- *
- * `date` and `dateLabel` are BOTH required and both derived from the record, not
- * from each other: one entry covers a span of days, and forcing that into a
- * single ISO date would have meant choosing which of the two days to drop.
- *
- * `media` is optional so an entry can be written today with no photographs and
- * gain them later without a schema change.
+ * One dated journal entry. `date` and `dateLabel` are BOTH required and both
+ * derived from the record, not from each other: one entry covers a span of days,
+ * so a single ISO date would have meant dropping one of the two. `media` is
+ * optional so an entry can be written with no photographs and gain them later.
  */
 export const journalEntrySchema = z.object({
   id: z.string().min(1),
@@ -330,9 +286,7 @@ export const journalEntrySchema = z.object({
 
 export const journalListSchema = z.array(journalEntrySchema);
 
-/* -------------------------------------------------------------------------- */
-/* Gallery / Moments                                                          */
-/* -------------------------------------------------------------------------- */
+/* Gallery / Moments */
 
 export const galleryEntrySchema = z.object({
   id: z.string().min(1),
